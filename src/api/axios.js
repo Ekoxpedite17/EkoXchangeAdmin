@@ -2,8 +2,8 @@ import axios from 'axios';
 import { saveUserData } from '../redux/reducers/auth.reducer';
 import store from '../redux/store';
 
-// const baseURL = 'https://ekoxpedite.shop/api/v1/';
-const baseURL = 'http://localhost:4000/api/v1/';
+const baseURL = 'https://ekoxpedite.shop/api/v1/';
+// const baseURL = 'http://localhost:4000/api/v1/';
 // const baseURL = 'http://192.168.114.15:4000/api/v1/';
 
 const axiosInstance = axios.create({
