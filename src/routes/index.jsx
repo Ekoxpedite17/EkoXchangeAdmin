@@ -5,9 +5,7 @@ import AuthenticationRoutes from "./AuthenticationRoutes";
 import MainRoutes from "./MainRoutes";
 
 const router = createBrowserRouter([MainRoutes, AuthenticationRoutes], {
-  basename: "/dist",
-  dataStrategy: "concurrent",
-  strictMode: true,
+  basename: "/",
 });
 
 export default router;
