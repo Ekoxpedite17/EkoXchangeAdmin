@@ -1,0 +1,12 @@
+.logo {
+  width: fit-content !important;
+  height: 60px !important;
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
