@@ -18,7 +18,20 @@ jobs:
           username: ${{ secrets.DROPLET_USERNAME }}
           password: ${{ secrets.DROPLET_PASSWORD }}
           script: |
+
             cd /home
-            ./deploy.sh
-        continue-on-error: true  # This will allow the job to continue even if this step fails
+
+            cd EkoXchangeAdmin
+
+            git pull
+
+            docker stop admin-web
+            docker rm admin-web
+            docker rmi ekoxchange-admin:latest || true
+
+            docker build -t ekoxchange-admin:latest .
+            docker run -d --name admin-web -p 3001:3001 ekoxchange-admin:latest
+            
+
+        # continue-on-error: true  # This will allow the job to continue even if this step fails
 
