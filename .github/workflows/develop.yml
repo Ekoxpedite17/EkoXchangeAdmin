@@ -1,0 +1,24 @@
+name: CI Build for Centurionhms Main Branch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Sign in to Droplet and execute commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          password: ${{ secrets.DROPLET_PASSWORD }}
+          script: |
+            cd /home
+            ./deploy.sh
+        continue-on-error: true  # This will allow the job to continue even if this step fails
+
