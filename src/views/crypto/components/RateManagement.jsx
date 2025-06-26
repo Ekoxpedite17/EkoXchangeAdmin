@@ -48,7 +48,7 @@ const RateManagement = () => {
   const showConfirmDialog = useCallback(
     debounce(() => {
       setConfirmDialog(true);
-    }, 500),
+    }, 1500),
     []
   );
 
