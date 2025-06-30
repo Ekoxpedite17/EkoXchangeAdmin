@@ -123,6 +123,21 @@ const EkoServices_Admin = {
       throw error;
     }
   },
+
+  getUserWalletBalances: async (userId) => {
+    try {
+      const response = await axiosInstance.get(
+        `/dashboard/admin/wallet-users/wallet-balances/${userId}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Get user wallet balances failed:", error);
+      throw error;
+    }
+  },
 };
 
 const EkoServices_Roles = {

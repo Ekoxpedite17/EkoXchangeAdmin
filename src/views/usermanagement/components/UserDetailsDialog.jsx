@@ -18,7 +18,10 @@ import {
   TableRow,
   Tabs,
   Tooltip,
-  Typography
+  Typography,
+  Card,
+  CardContent,
+  CircularProgress
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -29,6 +32,7 @@ import RestoreIcon from '@mui/icons-material/Restore';
 import DownloadIcon from '@mui/icons-material/Download';
 import KeyIcon from '@mui/icons-material/Key';
 import SecurityIcon from '@mui/icons-material/Security';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import dayjs from 'dayjs';
 
 // Status color mapping
@@ -55,7 +59,8 @@ const UserDetailsDialog = ({
   approvalLogs,
   openConfirmDialog,
   handleSecurityReset,
-  handleAccountStatusChange
+  handleAccountStatusChange,
+  userWalletBalances
 }) => {
   if (!user) return null;
 
@@ -75,6 +80,7 @@ const UserDetailsDialog = ({
             <Tab label="Profile" />
             <Tab label="KYC Documents" />
             <Tab label="Approval Logs" />
+            <Tab label="Wallet Balances" />
             <Tab label="Account Actions" />
           </Tabs>
         </Box>
@@ -230,8 +236,63 @@ const UserDetailsDialog = ({
           </>
         )}
 
-        {/* Account Actions Tab */}
+        {/* Wallet Balances Tab */}
         {tabValue === 3 && (
+          <>
+            <Typography variant="h6" gutterBottom>
+              Wallet Balances
+            </Typography>
+            {userWalletBalances ? (
+              userWalletBalances.length > 0 ? (
+                <Grid container spacing={2}>
+                  {userWalletBalances.map((balance) => (
+                    <Grid item xs={12} sm={6} md={4} key={balance.currency}>
+                      <Card variant="outlined">
+                        <CardContent>
+                          <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                            <Typography variant="h6" display="flex" alignItems="center" gap={1}>
+                              <AccountBalanceWalletIcon color="primary" />
+                              {balance.currency}
+                            </Typography>
+                            <Chip
+                              label={balance.status}
+                              color={balance.status === 'healthy' ? 'success' : balance.status === 'warning' ? 'warning' : 'error'}
+                              size="small"
+                            />
+                          </Box>
+                          <Typography variant="h4" gutterBottom>
+                            {parseFloat(balance.amount).toLocaleString()}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            ≈ ${parseFloat(balance.usdValue).toLocaleString()}
+                          </Typography>
+                          {balance.lastUpdated && (
+                            <Typography variant="caption" color="textSecondary" display="block" mt={1}>
+                              Last updated: {dayjs(balance.lastUpdated).format('MMM DD, YYYY HH:mm')}
+                            </Typography>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              ) : (
+                <Box display="flex" justifyContent="center" p={3}>
+                  <Typography variant="body1" color="textSecondary">
+                    No wallet balances found for this user
+                  </Typography>
+                </Box>
+              )
+            ) : (
+              <Box display="flex" justifyContent="center" p={3}>
+                <CircularProgress />
+              </Box>
+            )}
+          </>
+        )}
+
+        {/* Account Actions Tab */}
+        {tabValue === 4 && (
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>

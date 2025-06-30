@@ -33,6 +33,8 @@ const UserManagement = () => {
     message: '',
     action: null
   });
+  const [userWalletBalances, setUserWalletBalances] = useState(null);
+  const [walletLoading, setWalletLoading] = useState(false);
   const dispatch = useAppDispatch();
   const listofUsers = useAppSelector((state) => state.user.users);
   const [confirmActionLoader, setConfirmActionLoader] = useState(false);
@@ -107,16 +109,36 @@ const UserManagement = () => {
   const handleViewUser = (user) => {
     setSelectedUser(user);
     setUserDialogOpen(true);
+    setUserWalletBalances(null); // Reset wallet balances when opening dialog
   };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+    
+    // Fetch wallet balances when switching to wallet tab
+    if (newValue === 3 && selectedUser && !userWalletBalances) {
+      fetchUserWalletBalances(selectedUser.id);
+    }
   };
 
   const handleCloseUserDialog = () => {
     setUserDialogOpen(false);
     setSelectedUser(null);
     setTabValue(0);
+    setUserWalletBalances(null);
+  };
+
+  const fetchUserWalletBalances = async (userId) => {
+    setWalletLoading(true);
+    try {
+      const response = await EkoServices_Admin.getUserWalletBalances(userId);
+      setUserWalletBalances(response.balances || []);
+    } catch (error) {
+      console.error('Error fetching user wallet balances:', error);
+      setUserWalletBalances([]);
+    } finally {
+      setWalletLoading(false);
+    }
   };
 
   const handleKycAction = (action, documentId) => {
@@ -302,6 +324,7 @@ const UserManagement = () => {
         handleKycAction={handleKycAction}
         handleAccountStatusChange={handleAccountStatusChange}
         handleSecurityReset={handleSecurityReset}
+        userWalletBalances={userWalletBalances}
       />
 
       <ConfirmationDialog
