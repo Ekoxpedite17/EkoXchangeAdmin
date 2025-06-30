@@ -60,7 +60,8 @@ const UserDetailsDialog = ({
   openConfirmDialog,
   handleSecurityReset,
   handleAccountStatusChange,
-  userWalletBalances
+  userWalletBalances,
+  walletLoading
 }) => {
   if (!user) return null;
 
@@ -242,7 +243,11 @@ const UserDetailsDialog = ({
             <Typography variant="h6" gutterBottom>
               Wallet Balances
             </Typography>
-            {userWalletBalances ? (
+            {walletLoading ? (
+              <Box display="flex" justifyContent="center" p={3}>
+                <CircularProgress />
+              </Box>
+            ) : userWalletBalances ? (
               userWalletBalances.length > 0 ? (
                 <Grid container spacing={2}>
                   {userWalletBalances.map((balance) => (
@@ -285,7 +290,9 @@ const UserDetailsDialog = ({
               )
             ) : (
               <Box display="flex" justifyContent="center" p={3}>
-                <CircularProgress />
+                <Typography variant="body1" color="textSecondary">
+                  Click to load wallet balances
+                </Typography>
               </Box>
             )}
           </>
