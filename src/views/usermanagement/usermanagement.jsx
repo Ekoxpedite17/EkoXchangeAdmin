@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
-import { Grid } from '@mui/material';
+import { useState, useEffect } from "react";
+import { Grid, Box, CircularProgress, Typography, Skeleton, Backdrop } from "@mui/material";
 
-import MainCard from '../../ui-component/cards/MainCard';
-import UserSearchFilter from './components/UserSearchFilter';
-import UserTable from './components/UserTable';
-import UserDetailsDialog from './components/UserDetailsDialog';
-import ConfirmationDialog from './components/ConfirmationDialog';
+import MainCard from "../../ui-component/cards/MainCard";
+import UserSearchFilter from "./components/UserSearchFilter";
+import UserTable from "./components/UserTable";
+import UserDetailsDialog from "./components/UserDetailsDialog";
+import ConfirmationDialog from "./components/ConfirmationDialog";
 
-import { gridSpacing } from '../../store/constant';
-import { useAppDispatch, useAppSelector } from '../../redux/store';
-import { fetchUsers } from '../../redux/reducers/users.reducer';
-import { EkoServices_Admin } from '../../services';
+import { gridSpacing } from "../../store/constant";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { fetchUsers } from "../../redux/reducers/users.reducer";
+import { EkoServices_Admin } from "../../services";
 
 const UserManagement = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [filterOptions, setFilterOptions] = useState({
-    kycStatus: '',
-    accountStatus: '',
-    dateFrom: '',
-    dateTo: ''
+    kycStatus: "",
+    accountStatus: "",
+    dateFrom: "",
+    dateTo: "",
   });
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(0);
@@ -29,14 +29,14 @@ const UserManagement = () => {
   const [tabValue, setTabValue] = useState(0);
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
-    title: '',
-    message: '',
-    action: null
+    title: "",
+    message: "",
+    action: null,
   });
   const [userWalletBalances, setUserWalletBalances] = useState(null);
   const [walletLoading, setWalletLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const listofUsers = useAppSelector((state) => state.user.users);
+  const { users: listofUsers, loading } = useAppSelector((state) => state.user);
   const [confirmActionLoader, setConfirmActionLoader] = useState(false);
 
   useEffect(() => {
@@ -49,24 +49,36 @@ const UserManagement = () => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
-        (user) => (user.firstname && user.firstname.toLowerCase().includes(term)) || (user.email && user.email.toLowerCase().includes(term))
+        (user) =>
+          (user.firstname && user.firstname.toLowerCase().includes(term)) ||
+          (user.email && user.email.toLowerCase().includes(term))
       );
     }
 
     if (filterOptions.kycStatus) {
-      result = result.filter((user) => user.kycStatus === filterOptions.kycStatus);
+      result = result.filter(
+        (user) => user.kycStatus === filterOptions.kycStatus
+      );
     }
 
     if (filterOptions.accountStatus) {
-      result = result.filter((user) => user.accountStatus === filterOptions.accountStatus);
+      result = result.filter(
+        (user) => user.accountStatus === filterOptions.accountStatus
+      );
     }
 
     if (filterOptions.dateFrom) {
-      result = result.filter((user) => new Date(user.dateRegistered) >= new Date(filterOptions.dateFrom));
+      result = result.filter(
+        (user) =>
+          new Date(user.dateRegistered) >= new Date(filterOptions.dateFrom)
+      );
     }
 
     if (filterOptions.dateTo) {
-      result = result.filter((user) => new Date(user.dateRegistered) <= new Date(filterOptions.dateTo));
+      result = result.filter(
+        (user) =>
+          new Date(user.dateRegistered) <= new Date(filterOptions.dateTo)
+      );
     }
 
     setFilteredUsers(result);
@@ -88,7 +100,7 @@ const UserManagement = () => {
   const handleFilterChange = (event) => {
     setFilterOptions({
       ...filterOptions,
-      [event.target.name]: event.target.value
+      [event.target.name]: event.target.value,
     });
   };
 
@@ -98,24 +110,23 @@ const UserManagement = () => {
 
   const resetFilters = () => {
     setFilterOptions({
-      kycStatus: '',
-      accountStatus: '',
-      dateFrom: '',
-      dateTo: ''
+      kycStatus: "",
+      accountStatus: "",
+      dateFrom: "",
+      dateTo: "",
     });
-    setSearchTerm('');
+    setSearchTerm("");
   };
 
   const handleViewUser = (user) => {
     setSelectedUser(user);
     setUserDialogOpen(true);
-    setUserWalletBalances(null); // Reset wallet balances when opening dialog
+    setUserWalletBalances(null);
   };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-    
-    // Fetch wallet balances when switching to wallet tab
+
     if (newValue === 3 && selectedUser && !userWalletBalances) {
       fetchUserWalletBalances(selectedUser.id);
     }
@@ -134,7 +145,7 @@ const UserManagement = () => {
       const response = await EkoServices_Admin.getUserWalletBalances(userId);
       setUserWalletBalances(response.balances || []);
     } catch (error) {
-      console.error('Error fetching user wallet balances:', error);
+      console.error("Error fetching user wallet balances:", error);
       setUserWalletBalances([]);
     } finally {
       setWalletLoading(false);
@@ -143,14 +154,14 @@ const UserManagement = () => {
 
   const handleKycAction = (action, documentId) => {
     console.log(`${action} document ${documentId}`);
-    setConfirmDialog({ open: false, title: '', message: '', action: null });
+    setConfirmDialog({ open: false, title: "", message: "", action: null });
 
     if (selectedUser) {
       const updatedUsers = listofUsers.map((user) => {
         if (user.id === selectedUser.id) {
           return {
             ...user,
-            kycStatus: action === 'approve' ? 'Approved' : 'Rejected'
+            kycStatus: action === "approve" ? "Approved" : "Rejected",
           };
         }
         return user;
@@ -159,7 +170,7 @@ const UserManagement = () => {
       setUsers(updatedUsers);
       setSelectedUser({
         ...selectedUser,
-        kycStatus: action === 'approve' ? 'Approved' : 'Rejected'
+        kycStatus: action === "approve" ? "Approved" : "Rejected",
       });
     }
   };
@@ -168,57 +179,76 @@ const UserManagement = () => {
     console.log(`${action} account for user ${selectedUser?.id}`);
 
     if (selectedUser) {
-      let newStatus = 'Active';
+      let newStatus = "Active";
 
       switch (action) {
-        case 'lock':
-          newStatus = 'Locked';
+        case "lock":
+          newStatus = "Locked";
           setConfirmActionLoader(true);
           const lock = await EkoServices_Admin.deActivateUser(selectedUser.id);
-          if (lock?.message === 'success') {
+          if (lock?.message === "success") {
             setConfirmActionLoader(false);
             dispatch(fetchUsers({ limit: 30, skip: 0 }));
-            setConfirmDialog({ open: false, title: '', message: '', action: null });
+            setConfirmDialog({
+              open: false,
+              title: "",
+              message: "",
+              action: null,
+            });
             setUserDialogOpen(false);
           } else {
             setConfirmActionLoader(false);
           }
           break;
-        case 'suspend':
-          newStatus = 'Suspended';
+        case "suspend":
+          newStatus = "Suspended";
           setConfirmActionLoader(true);
-          const suspend = await EkoServices_Admin.deActivateUser(selectedUser.id);
-          if (suspend?.message === 'success') {
+          const suspend = await EkoServices_Admin.deActivateUser(
+            selectedUser.id
+          );
+          if (suspend?.message === "success") {
             setConfirmActionLoader(false);
             dispatch(fetchUsers({ limit: 30, skip: 0 }));
-            setConfirmDialog({ open: false, title: '', message: '', action: null });
+            setConfirmDialog({
+              open: false,
+              title: "",
+              message: "",
+              action: null,
+            });
             setUserDialogOpen(false);
           } else {
             setConfirmActionLoader(false);
           }
           break;
-        case 'reactivate':
-          newStatus = 'Active';
+        case "reactivate":
+          newStatus = "Active";
           setConfirmActionLoader(true);
-          const activate = await EkoServices_Admin.activateUser(selectedUser.id);
-          if (activate?.message === 'success') {
+          const activate = await EkoServices_Admin.activateUser(
+            selectedUser.id
+          );
+          if (activate?.message === "success") {
             setConfirmActionLoader(false);
             dispatch(fetchUsers({ limit: 30, skip: 0 }));
-            setConfirmDialog({ open: false, title: '', message: '', action: null });
+            setConfirmDialog({
+              open: false,
+              title: "",
+              message: "",
+              action: null,
+            });
             setUserDialogOpen(false);
           } else {
             setConfirmActionLoader(false);
           }
           break;
         default:
-          newStatus = 'Active';
+          newStatus = "Active";
       }
 
       const updatedUsers = listofUsers.map((user) => {
         if (user.id === selectedUser.id) {
           return {
             ...user,
-            accountStatus: newStatus
+            accountStatus: newStatus,
           };
         }
         return user;
@@ -227,36 +257,50 @@ const UserManagement = () => {
       setUsers(updatedUsers);
       setSelectedUser({
         ...selectedUser,
-        accountStatus: newStatus
+        accountStatus: newStatus,
       });
     }
   };
 
   const handleSecurityReset = async (type) => {
     switch (type) {
-      case 'password':
+      case "password":
         setConfirmActionLoader(true);
         const password = await EkoServices_Admin.resetUserPassword({
-          id: selectedUser.id
+          id: selectedUser.id,
         });
-        if (password?.message.includes('Password reset successfully and new password generated')) {
+        if (
+          password?.message.includes(
+            "Password reset successfully and new password generated"
+          )
+        ) {
           setConfirmActionLoader(false);
           dispatch(fetchUsers({ limit: 30, skip: 0 }));
-          setConfirmDialog({ open: false, title: '', message: '', action: null });
+          setConfirmDialog({
+            open: false,
+            title: "",
+            message: "",
+            action: null,
+          });
           setUserDialogOpen(false);
         } else {
           setConfirmActionLoader(false);
         }
         break;
-      case '2fa':
+      case "2fa":
         setConfirmActionLoader(true);
         const twofa = await EkoServices_Admin.reset2fa({
-          id: selectedUser.id
+          id: selectedUser.id,
         });
-        if (twofa?.message.includes('2FA reset successfully')) {
+        if (twofa?.message.includes("2FA reset successfully")) {
           setConfirmActionLoader(false);
           dispatch(fetchUsers({ limit: 30, skip: 0 }));
-          setConfirmDialog({ open: false, title: '', message: '', action: null });
+          setConfirmDialog({
+            open: false,
+            title: "",
+            message: "",
+            action: null,
+          });
           setUserDialogOpen(false);
         } else {
           setConfirmActionLoader(false);
@@ -273,7 +317,7 @@ const UserManagement = () => {
       open: true,
       title,
       message,
-      action
+      action,
     });
   };
 
@@ -285,58 +329,99 @@ const UserManagement = () => {
     return [];
   };
 
+  // Loading skeleton for user table
+  const UserTableSkeleton = () => (
+    <Box>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Skeleton variant="text" width={200} height={40} />
+        <Skeleton variant="rectangular" width={120} height={40} />
+      </Box>
+      <Box>
+        {[...Array(5)].map((_, index) => (
+          <Box key={index} display="flex" gap={2} mb={2}>
+            <Skeleton variant="rectangular" width="20%" height={60} />
+            <Skeleton variant="rectangular" width="25%" height={60} />
+            <Skeleton variant="rectangular" width="20%" height={60} />
+            <Skeleton variant="rectangular" width="15%" height={60} />
+            <Skeleton variant="rectangular" width="20%" height={60} />
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+
   return (
-    <MainCard title="User Management">
-      <Grid container spacing={gridSpacing}>
-        <Grid item size={12} display="flex" justifyContent="flex-end">
-          <UserSearchFilter
-            searchTerm={searchTerm}
-            filterOptions={filterOptions}
-            showFilters={showFilters}
-            handleSearchChange={handleSearchChange}
-            handleFilterChange={handleFilterChange}
-            toggleFilters={toggleFilters}
-            resetFilters={resetFilters}
-          />
+    <>
+      <MainCard title="User Management">
+        <Grid container spacing={gridSpacing}>
+          <Grid item size={12} display="flex" justifyContent="flex-end">
+            <UserSearchFilter
+              searchTerm={searchTerm}
+              filterOptions={filterOptions}
+              showFilters={showFilters}
+              handleSearchChange={handleSearchChange}
+              handleFilterChange={handleFilterChange}
+              toggleFilters={toggleFilters}
+              resetFilters={resetFilters}
+            />
+          </Grid>
+
+          <Grid item size={12}>
+            {loading ? (
+              <UserTableSkeleton />
+            ) : (
+              <UserTable
+                filteredUsers={filteredUsers}
+                page={page}
+                rowsPerPage={rowsPerPage}
+                handleChangePage={handleChangePage}
+                handleChangeRowsPerPage={handleChangeRowsPerPage}
+                handleViewUser={handleViewUser}
+              />
+            )}
+          </Grid>
         </Grid>
 
-        <Grid item size={12}>
-          <UserTable
-            filteredUsers={filteredUsers}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            handleChangePage={handleChangePage}
-            handleChangeRowsPerPage={handleChangeRowsPerPage}
-            handleViewUser={handleViewUser}
-          />
-        </Grid>
-      </Grid>
+        <UserDetailsDialog
+          open={userDialogOpen}
+          onClose={handleCloseUserDialog}
+          user={selectedUser}
+          tabValue={tabValue}
+          handleTabChange={handleTabChange}
+          kycDocuments={selectedUser ? [] : []}
+          approvalLogs={selectedUser ? [] : []}
+          openConfirmDialog={openConfirmDialog}
+          handleKycAction={handleKycAction}
+          handleAccountStatusChange={handleAccountStatusChange}
+          handleSecurityReset={handleSecurityReset}
+          userWalletBalances={userWalletBalances}
+          walletLoading={walletLoading}
+        />
 
-      <UserDetailsDialog
-        open={userDialogOpen}
-        onClose={handleCloseUserDialog}
-        user={selectedUser}
-        tabValue={tabValue}
-        handleTabChange={handleTabChange}
-        kycDocuments={selectedUser ? [] : []}
-        approvalLogs={selectedUser ? [] : []}
-        openConfirmDialog={openConfirmDialog}
-        handleKycAction={handleKycAction}
-        handleAccountStatusChange={handleAccountStatusChange}
-        handleSecurityReset={handleSecurityReset}
-        userWalletBalances={userWalletBalances}
-      />
+        <ConfirmationDialog
+          open={confirmDialog.open}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          selectedUser={selectedUser}
+          onConfirm={confirmDialog.action}
+          loading={confirmActionLoader}
+          onClose={() => setConfirmDialog({ ...confirmDialog, open: false })}
+        />
+      </MainCard>
 
-      <ConfirmationDialog
-        open={confirmDialog.open}
-        title={confirmDialog.title}
-        message={confirmDialog.message}
-        selectedUser={selectedUser}
-        onConfirm={confirmDialog.action}
-        loading={confirmActionLoader}
-        onClose={() => setConfirmDialog({ ...confirmDialog, open: false })}
-      />
-    </MainCard>
+      {/* Global loading overlay for actions */}
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={confirmActionLoader}
+      >
+        <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
+          <CircularProgress color="inherit" />
+          <Typography variant="h6" color="inherit">
+            Processing your request...
+          </Typography>
+        </Box>
+      </Backdrop>
+    </>
   );
 };
 
