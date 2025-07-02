@@ -282,9 +282,27 @@ const EkoServices_Crypty = {
   },
 };
 
+const EkoServices_Transactions = {
+  getTransactionList: async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/admin/transaction-management/get`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Get transaction list failed:", error);
+      throw error;
+    }
+  },
+};
+
 export {
   EkoServices_Auth,
   EkoServices_Admin,
   EkoServices_Roles,
   EkoServices_Crypty,
+  EkoServices_Transactions,
 };
