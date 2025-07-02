@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Grid } from "@mui/material";
 import {
   Dialog,
@@ -15,9 +15,10 @@ import TransactionDetails from "./components/TransactionDetails";
 import ExportTransactions from "./components/ExportTransactions";
 import OrderQueue from "./components/OrderQueue";
 import { mockTransactions } from "./data/mockData";
+import { EkoServices_Transactions } from "../../services";
 
 const TransactionManagement = () => {
-  const [transactions, setTransactions] = useState(mockTransactions);
+  const [transactions, setTransactions] = useState([]);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [filters, setFilters] = useState({
     dateFrom: null,
@@ -27,6 +28,7 @@ const TransactionManagement = () => {
   });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderModalOpen, setOrderModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Use mock data for buy and sell orders, including user and transaction details
   const buyOrders = [
@@ -103,24 +105,64 @@ const TransactionManagement = () => {
     },
   ];
 
+  const fetchTransactions = async () => {
+    setLoading(true);
+    const response = await EkoServices_Transactions.getTransactionList();
+    if (response) {
+      setLoading(false);
+      setTransactions(response);
+    } else {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
 
-    let filtered = [...mockTransactions];
-    if (newFilters.type !== "all") {
-      filtered = filtered.filter((t) => t.type === newFilters.type);
-    }
-    if (newFilters.status !== "all") {
-      filtered = filtered.filter((t) => t.status === newFilters.status);
-    }
-    if (newFilters.dateFrom) {
-      filtered = filtered.filter(
-        (t) => new Date(t.date) >= newFilters.dateFrom
+    let filtered = [...transactions];
+    
+    if (newFilters.cryptocurrency !== 'all') {
+      filtered = filtered.filter(item => 
+        item.transactions.some(t => t.symbol === newFilters.cryptocurrency)
       );
     }
-    if (newFilters.dateTo) {
-      filtered = filtered.filter((t) => new Date(t.date) <= newFilters.dateTo);
+
+    if (newFilters.fromAddress) {
+      filtered = filtered.filter(item =>
+        item.transactions.some(t => 
+          t.from.toLowerCase().includes(newFilters.fromAddress.toLowerCase())
+        )
+      );
     }
+
+    if (newFilters.toAddress) {
+      filtered = filtered.filter(item =>
+        item.transactions.some(t => 
+          t.to.toLowerCase().includes(newFilters.toAddress.toLowerCase())
+        )
+      );
+    }
+
+    if (newFilters.dateFrom) {
+      filtered = filtered.filter(item =>
+        item.transactions.some(t => 
+          new Date(t.blockTimestamp) >= new Date(newFilters.dateFrom)
+        )
+      );
+    }
+
+    if (newFilters.dateTo) {
+      filtered = filtered.filter(item =>
+        item.transactions.some(t => 
+          new Date(t.blockTimestamp) <= new Date(newFilters.dateTo)
+        )
+      );
+    }
+
     setTransactions(filtered);
   };
 
@@ -167,8 +209,10 @@ const TransactionManagement = () => {
         <Grid container spacing={2}>
           <Grid size={12}>
             <TransactionFeed
-              transactions={transactions}
-              onSelectTransaction={setSelectedTransaction}
+              transactionFeed={transactions || []}
+              onSelectTransaction={(transaction) =>
+                setSelectedTransaction(transaction)
+              }
             />
           </Grid>
         </Grid>
@@ -250,7 +294,8 @@ const TransactionManagement = () => {
                   </Typography>
                   {selectedOrder.accountNumber && (
                     <Typography variant="subtitle2">
-                      <strong>Account Number:</strong> {selectedOrder.accountNumber}
+                      <strong>Account Number:</strong>{" "}
+                      {selectedOrder.accountNumber}
                     </Typography>
                   )}
                 </Box>
