@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Button,
@@ -21,32 +21,32 @@ import {
   Typography,
   Card,
   CardContent,
-  CircularProgress
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import LockIcon from '@mui/icons-material/Lock';
-import BlockIcon from '@mui/icons-material/Block';
-import RestoreIcon from '@mui/icons-material/Restore';
-import DownloadIcon from '@mui/icons-material/Download';
-import KeyIcon from '@mui/icons-material/Key';
-import SecurityIcon from '@mui/icons-material/Security';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import dayjs from 'dayjs';
+  CircularProgress,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import LockIcon from "@mui/icons-material/Lock";
+import BlockIcon from "@mui/icons-material/Block";
+import RestoreIcon from "@mui/icons-material/Restore";
+import DownloadIcon from "@mui/icons-material/Download";
+import KeyIcon from "@mui/icons-material/Key";
+import SecurityIcon from "@mui/icons-material/Security";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import dayjs from "dayjs";
 
 // Status color mapping
 const kycStatusColors = {
-  Approved: 'success',
-  Pending: 'warning',
-  Rejected: 'error',
-  'Not Submitted': 'default'
+  Approved: "success",
+  Pending: "warning",
+  Rejected: "error",
+  "Not Submitted": "default",
 };
 
 const accountStatusColors = {
-  Active: 'success',
-  Suspended: 'error',
-  Locked: 'warning'
+  Active: "success",
+  Suspended: "error",
+  Locked: "warning",
 };
 
 const UserDetailsDialog = ({
@@ -61,9 +61,114 @@ const UserDetailsDialog = ({
   handleSecurityReset,
   handleAccountStatusChange,
   userWalletBalances,
-  walletLoading
+  walletLoading,
 }) => {
   if (!user) return null;
+
+  const WalletbalancesResponse = {
+    totalValue: 0,
+    balances: [
+      {
+        tokenAddress: "192dNm5Ed2BaACAKL2MaUURp7mMitvibCe",
+        name: "Bitcoin",
+        symbol: "BTC",
+        logo: "https://res.coinpaper.com/coinpaper/bitcoin_btc_logo_62c59b827e.png",
+        decimals: 8,
+        balance: "0.00000000",
+        unitPrice: 107294,
+        usdValue: "0.00",
+        chain: "Bitcoin",
+      },
+      {
+        tokenAddress: "CfFobbBgqVxrujmywMKZ73de2XEGpNDg5fgHdBwggK3x",
+        name: "Solana",
+        symbol: "SOL",
+        logo: "https://res.coinpaper.com/coinpaper/solana_sol_logo_32f9962968.png",
+        decimals: 9,
+        balance: "0.000000000",
+        unitPrice: 147.51,
+        usdValue: "0.00",
+        chain: "Solana",
+      },
+      {
+        tokenAddress: "TBTisrZmB2PMRHCoL8YZZL1MeTB6gokhoH",
+        name: "Tron",
+        symbol: "TRX",
+        logo: "https://res.coinpaper.com/coinpaper/tron_trx_logo_7ee394d58b.png",
+        decimals: 6,
+        balance: "0.000000",
+        unitPrice: 0.282014,
+        usdValue: "0.00",
+        chain: "Tron",
+      },
+      {
+        tokenAddress: "0xfd966f160D0a70bF9Aa295859a794F7c44700A40",
+        name: "Ether",
+        symbol: "ETH",
+        logo: "https://cdn.moralis.io/eth/0x.png",
+        decimals: 18,
+        balance: "0",
+        unitPrice: 2439.07003688866,
+        usdValue: 0,
+        chain: "Ethereum",
+      },
+      {
+        tokenAddress: "0x0000000000000000000000000000000000001010",
+        name: "Polygon Ecosystem Token",
+        symbol: "POL",
+        logo: "https://cdn.moralis.io/polygon/0x.png",
+        decimals: 18,
+        balance: "0",
+        unitPrice: 0.17911996839375563,
+        usdValue: 0,
+        chain: "Polygon",
+      },
+      {
+        tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        name: "Avalanche",
+        symbol: "AVAX",
+        logo: "https://cdn.moralis.io/avalanche/0x.png",
+        decimals: 18,
+        balance: "0",
+        unitPrice: 17.475504518382884,
+        usdValue: 0,
+        chain: "Avalanche",
+      },
+      {
+        tokenAddress: "0xfd966f160D0a70bF9Aa295859a794F7c44700A40",
+        name: "Ether",
+        symbol: "ETH",
+        logo: "https://cdn.moralis.io/eth/0x.png",
+        decimals: 18,
+        balance: "0",
+        unitPrice: 2439.2833182025697,
+        usdValue: 0,
+        chain: "Arbitrum",
+      },
+      {
+        tokenAddress: "0xfd966f160D0a70bF9Aa295859a794F7c44700A40",
+        name: "Ether",
+        symbol: "ETH",
+        logo: "https://cdn.moralis.io/eth/0x.png",
+        decimals: 18,
+        balance: "0",
+        unitPrice: 2438.472999429065,
+        usdValue: 0,
+        chain: "Optimism",
+      },
+      {
+        tokenAddress: "0xfd966f160D0a70bF9Aa295859a794F7c44700A40",
+        name: "Ether",
+        symbol: "ETH",
+        logo: "https://cdn.moralis.io/eth/0x.png",
+        decimals: 18,
+        balance: "0",
+        unitPrice: 2439.1256631288848,
+        usdValue: 0,
+        chain: "Base",
+      },
+    ],
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -76,8 +181,12 @@ const UserDetailsDialog = ({
         </Box>
       </DialogTitle>
       <DialogContent dividers>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-          <Tabs value={tabValue} onChange={handleTabChange} aria-label="user details tabs">
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            aria-label="user details tabs"
+          >
             <Tab label="Profile" />
             <Tab label="KYC Documents" />
             <Tab label="Approval Logs" />
@@ -88,7 +197,13 @@ const UserDetailsDialog = ({
 
         {/* Profile Tab */}
         {tabValue === 0 && (
-          <Grid container display={'flex'} alignItems={'center'} justifyContent={'space-between'} spacing={2}>
+          <Grid
+            container
+            display={"flex"}
+            alignItems={"center"}
+            justifyContent={"space-between"}
+            spacing={2}
+          >
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1">Username:</Typography>
               <Typography variant="body1">
@@ -101,17 +216,23 @@ const UserDetailsDialog = ({
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1">Date Registered:</Typography>
-              <Typography variant="body1">{dayjs(user.createdAt).format('DD MM, YYYY')}</Typography>
+              <Typography variant="body1">
+                {dayjs(user.createdAt).format("DD MM, YYYY")}
+              </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1">KYC Status:</Typography>
-              <Chip label={'--'} color={kycStatusColors[user.kycStatus]} />
+              <Chip label={"--"} color={kycStatusColors[user.kycStatus]} />
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1">Account Status:</Typography>
               <Chip
-                label={user.isActive === true ? 'Active' : 'InActive'}
-                color={accountStatusColors[user.isActive === true ? 'Active' : 'InActive']}
+                label={user.isActive === true ? "Active" : "InActive"}
+                color={
+                  accountStatusColors[
+                    user.isActive === true ? "Active" : "InActive"
+                  ]
+                }
               />
             </Grid>
           </Grid>
@@ -140,7 +261,11 @@ const UserDetailsDialog = ({
                         <TableCell>{doc.type}</TableCell>
                         <TableCell>{doc.uploadDate}</TableCell>
                         <TableCell>
-                          <Chip label={doc.status} color={kycStatusColors[doc.status]} size="small" />
+                          <Chip
+                            label={doc.status}
+                            color={kycStatusColors[doc.status]}
+                            size="small"
+                          />
                         </TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={1}>
@@ -149,15 +274,17 @@ const UserDetailsDialog = ({
                                 <DownloadIcon />
                               </IconButton>
                             </Tooltip>
-                            {doc.status === 'Pending' && (
+                            {doc.status === "Pending" && (
                               <>
                                 <Tooltip title="Approve">
                                   <IconButton
                                     size="small"
                                     color="success"
                                     onClick={() =>
-                                      openConfirmDialog('Approve Document', `Are you sure you want to approve this ${doc.type}?`, () =>
-                                        handleKycAction('approve', doc.id)
+                                      openConfirmDialog(
+                                        "Approve Document",
+                                        `Are you sure you want to approve this ${doc.type}?`,
+                                        () => handleKycAction("approve", doc.id)
                                       )
                                     }
                                   >
@@ -169,8 +296,10 @@ const UserDetailsDialog = ({
                                     size="small"
                                     color="error"
                                     onClick={() =>
-                                      openConfirmDialog('Reject Document', `Are you sure you want to reject this ${doc.type}?`, () =>
-                                        handleKycAction('reject', doc.id)
+                                      openConfirmDialog(
+                                        "Reject Document",
+                                        `Are you sure you want to reject this ${doc.type}?`,
+                                        () => handleKycAction("reject", doc.id)
                                       )
                                     }
                                   >
@@ -218,7 +347,13 @@ const UserDetailsDialog = ({
                       <TableRow key={log.id}>
                         <TableCell>{log.date}</TableCell>
                         <TableCell>
-                          <Chip label={log.action} color={log.action === 'Approved' ? 'success' : 'error'} size="small" />
+                          <Chip
+                            label={log.action}
+                            color={
+                              log.action === "Approved" ? "success" : "error"
+                            }
+                            size="small"
+                          />
                         </TableCell>
                         <TableCell>{log.adminUser}</TableCell>
                         <TableCell>{log.notes}</TableCell>
@@ -248,50 +383,57 @@ const UserDetailsDialog = ({
                 <CircularProgress />
               </Box>
             ) : userWalletBalances ? (
-              userWalletBalances.length > 0 ? (
+              <>
                 <Grid container spacing={2}>
                   {userWalletBalances.map((balance) => (
-                    <Grid item xs={12} sm={6} md={4} key={balance.currency}>
+                    <Grid item xs={12} sm={6} md={4} key={balance.tokenAddress}>
                       <Card variant="outlined">
                         <CardContent>
-                          <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                            <Typography variant="h6" display="flex" alignItems="center" gap={1}>
-                              <AccountBalanceWalletIcon color="primary" />
-                              {balance.currency}
-                            </Typography>
+                          <Box
+                            display="flex"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            mb={1}
+                          >
+                            <Box display="flex" alignItems="center" gap={1}>
+                              <img
+                                src={balance.logo}
+                                alt={balance.name}
+                                style={{ width: 24, height: 24 }}
+                              />
+                              <Typography variant="h6">
+                                {balance.symbol}
+                              </Typography>
+                            </Box>
                             <Chip
-                              label={balance.status}
-                              color={balance.status === 'healthy' ? 'success' : balance.status === 'warning' ? 'warning' : 'error'}
+                              label={balance.chain}
+                              color="primary"
                               size="small"
                             />
                           </Box>
-                          <Typography variant="h4" gutterBottom>
-                            {parseFloat(balance.amount).toLocaleString()}
+                          <Typography variant="body1">
+                            {balance.name}
+                          </Typography>
+                          <Typography variant="h5" gutterBottom>
+                            {parseFloat(balance.balance).toLocaleString()}{" "}
+                            {balance.symbol}
                           </Typography>
                           <Typography variant="body2" color="textSecondary">
+                            Unit Price: ${balance.unitPrice.toLocaleString()}
+                          </Typography>
+                          <Typography variant="body1" color="primary">
                             ≈ ${parseFloat(balance.usdValue).toLocaleString()}
                           </Typography>
-                          {balance.lastUpdated && (
-                            <Typography variant="caption" color="textSecondary" display="block" mt={1}>
-                              Last updated: {dayjs(balance.lastUpdated).format('MMM DD, YYYY HH:mm')}
-                            </Typography>
-                          )}
                         </CardContent>
                       </Card>
                     </Grid>
                   ))}
                 </Grid>
-              ) : (
-                <Box display="flex" justifyContent="center" p={3}>
-                  <Typography variant="body1" color="textSecondary">
-                    No wallet balances found for this user
-                  </Typography>
-                </Box>
-              )
+              </>
             ) : (
               <Box display="flex" justifyContent="center" p={3}>
                 <Typography variant="body1" color="textSecondary">
-                  Click to load wallet balances
+                  No wallet balances found
                 </Typography>
               </Box>
             )}
@@ -306,10 +448,14 @@ const UserDetailsDialog = ({
                 Account Actions
               </Typography>
               <Typography variant="body2" color="textSecondary" paragraph>
-                Current Status:{' '}
+                Current Status:{" "}
                 <Chip
-                  label={user.isActive === true ? 'Active' : 'InActive'}
-                  color={accountStatusColors[user.isActive === true ? 'Active' : 'InActive']}
+                  label={user.isActive === true ? "Active" : "InActive"}
+                  color={
+                    accountStatusColors[
+                      user.isActive === true ? "Active" : "InActive"
+                    ]
+                  }
                 />
               </Typography>
             </Grid>
@@ -322,9 +468,9 @@ const UserDetailsDialog = ({
                   startIcon={<LockIcon />}
                   onClick={() =>
                     openConfirmDialog(
-                      'Lock Account',
+                      "Lock Account",
                       `Are you sure you want to lock ${user.firstname}'s account? They will not be able to log in until the account is unlocked. This action preserves all transaction history.`,
-                      () => handleAccountStatusChange('lock')
+                      () => handleAccountStatusChange("lock")
                     )
                   }
                 >
@@ -338,9 +484,9 @@ const UserDetailsDialog = ({
                   startIcon={<BlockIcon />}
                   onClick={() =>
                     openConfirmDialog(
-                      'Suspend Account',
+                      "Suspend Account",
                       `Are you sure you want to suspend ${user.firstname}'s account? This will prevent them from using the platform until reactivated.`,
-                      () => handleAccountStatusChange('suspend')
+                      () => handleAccountStatusChange("suspend")
                     )
                   }
                 >
@@ -353,8 +499,10 @@ const UserDetailsDialog = ({
                   disabled={user?.isActive === true}
                   startIcon={<RestoreIcon />}
                   onClick={() =>
-                    openConfirmDialog('Reactivate Account', `Are you sure you want to reactivate ${user.firstname}'s account?`, () =>
-                      handleAccountStatusChange('reactivate')
+                    openConfirmDialog(
+                      "Reactivate Account",
+                      `Are you sure you want to reactivate ${user.firstname}'s account?`,
+                      () => handleAccountStatusChange("reactivate")
                     )
                   }
                 >
@@ -366,8 +514,10 @@ const UserDetailsDialog = ({
                   color="primary"
                   startIcon={<KeyIcon />}
                   onClick={() =>
-                    openConfirmDialog('Reset Password', `Are you sure you want to send a password reset link to ${user.email}?`, () =>
-                      handleSecurityReset('password')
+                    openConfirmDialog(
+                      "Reset Password",
+                      `Are you sure you want to send a password reset link to ${user.email}?`,
+                      () => handleSecurityReset("password")
                     )
                   }
                 >
@@ -380,9 +530,9 @@ const UserDetailsDialog = ({
                   startIcon={<SecurityIcon />}
                   onClick={() =>
                     openConfirmDialog(
-                      'Reset 2FA',
+                      "Reset 2FA",
                       `Are you sure you want to reset 2FA for ${user.firstname}? A setup link will be sent to ${user.email}.`,
-                      () => handleSecurityReset('2fa')
+                      () => handleSecurityReset("2fa")
                     )
                   }
                 >
