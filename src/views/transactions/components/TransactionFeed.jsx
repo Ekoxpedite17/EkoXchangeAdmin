@@ -1,52 +1,142 @@
-import { Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Typography } from '@mui/material';
-import { statusColors, typeIcons } from '../data/mockData';
+import {
+  Card,
+  CardContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Avatar,
+  Box,
+  Skeleton,
+} from "@mui/material";
 
-const TransactionRow = ({ transaction, onSelect }) => {
-  return (
-    <>
-      <TableRow hover onClick={() => onSelect(transaction)} sx={{ cursor: 'pointer' }}>
-        <TableCell>{transaction.id}</TableCell>
-        <TableCell>{new Date(transaction.date).toLocaleString()}</TableCell>
-        <TableCell>
-          <Typography component="span" sx={{ mr: 1 }}>
-            {typeIcons[transaction.type]}
+const LoadingRow = () => (
+  <TableRow>
+    <TableCell>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Skeleton variant="circular" width={24} height={24} sx={{ mr: 1 }} />
+        <Skeleton width={150} />
+      </Box>
+    </TableCell>
+    <TableCell>
+      <Skeleton width={100} />
+    </TableCell>
+    <TableCell>
+      <Skeleton width={200} />
+    </TableCell>
+    <TableCell>
+      <Skeleton width={200} />
+    </TableCell>
+    <TableCell>
+      <Skeleton width={150} />
+    </TableCell>
+  </TableRow>
+);
+
+const TransactionRow = ({ transaction, onSelect }) => (
+  <TableRow
+    hover
+    onClick={() => onSelect(transaction)}
+    sx={{ cursor: "pointer" }}
+  >
+    <TableCell>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Avatar src={transaction.logo} sx={{ width: 24, height: 24, mr: 1 }} />
+        <Typography>
+          {transaction.name} ({transaction.symbol})
+        </Typography>
+      </Box>
+    </TableCell>
+    <TableCell>{transaction.balance}</TableCell>
+    <TableCell
+      sx={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }}
+    >
+      {transaction.from}
+    </TableCell>
+    <TableCell
+      sx={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }}
+    >
+      {transaction.to}
+    </TableCell>
+    <TableCell>
+      {new Date(transaction.blockTimestamp).toLocaleString()}
+    </TableCell>
+  </TableRow>
+);
+
+const TransactionFeed = ({
+  transactionFeed,
+  onSelectTransaction,
+  isLoading,
+}) => {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            <Skeleton width={200} />
           </Typography>
-          {transaction.type}
-        </TableCell>
-        <TableCell>
-          <Chip label={transaction.status} color={statusColors[transaction.status]} size="small" />
-        </TableCell>
-        <TableCell>{transaction.amount}</TableCell>
-      </TableRow>
-    </>
-  );
-};
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Asset</TableCell>
+                  <TableCell>Balance</TableCell>
+                  <TableCell>From</TableCell>
+                  <TableCell>To</TableCell>
+                  <TableCell>Timestamp</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <LoadingRow key={i} />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
+    );
+  }
 
-const TransactionFeed = ({ transactions, onSelectTransaction }) => {
   return (
     <Card>
       <CardContent>
         <Typography variant="h5" gutterBottom>
-          Transactions
+          Transaction Feed
         </Typography>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Amount</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {transactions.map((transaction) => (
-                <TransactionRow key={transaction.id} transaction={transaction} onSelect={onSelectTransaction} />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {transactionFeed?.balances?.map((dateGroup, index) => (
+          <Box key={index} sx={{ mb: 3 }}>
+            <Typography variant="h6" sx={{ my: 2 }}>
+              {dateGroup.date}
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Asset</TableCell>
+                    <TableCell>Balance</TableCell>
+                    <TableCell>From</TableCell>
+                    <TableCell>To</TableCell>
+                    <TableCell>Timestamp</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {dateGroup.transactions.map((transaction, tIndex) => (
+                    <TransactionRow
+                      key={tIndex}
+                      transaction={transaction}
+                      onSelect={onSelectTransaction}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        ))}
       </CardContent>
     </Card>
   );
