@@ -24,7 +24,7 @@ import useConfig from "../../../../hooks/useConfig";
 import User1 from "../../../../assets/images/users/user-round.svg";
 import { IconLogout, IconSettings } from "@tabler/icons-react";
 import { saveUserData } from "../../../../redux/reducers/auth.reducer";
-import { useAppDispatch } from "../../../../redux/store";
+import { useAppDispatch, useAppSelector } from "../../../../redux/store";
 
 // ==============================|| PROFILE MENU ||============================== //
 
@@ -36,6 +36,7 @@ export default function ProfileSection() {
   const dispatch = useAppDispatch();
   const anchorRef = useRef(null);
   const prevOpen = useRef(open);
+  const { user } = useAppSelector((state) => state.auth);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -63,6 +64,13 @@ export default function ProfileSection() {
         isAuthenticated: false,
       })
     );
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
   };
 
   return (
@@ -135,17 +143,17 @@ export default function ProfileSection() {
                           spacing={0.5}
                           sx={{ alignItems: "center" }}
                         >
-                          <Typography variant="h4">Good Morning,</Typography>
+                          <Typography variant="h4">{getGreeting()},</Typography>
                           <Typography
                             component="span"
                             variant="h4"
                             sx={{ fontWeight: 400 }}
                           >
-                            Johne Doe
+                            {user?.firstname} {user?.lastname}
                           </Typography>
                         </Stack>
                         <Typography variant="subtitle2">
-                          Project Admin
+                          {user?.userType}
                         </Typography>
                       </Stack>
 
