@@ -127,7 +127,7 @@ const EkoServices_Admin = {
   getUserWalletBalances: async (userId) => {
     try {
       const response = await axiosInstance.get(
-        `/dashboard/admin/wallet-users/wallet-balances/${userId}`,
+        `/dashboard/admin/wallet-users/${userId}/get/`,
         {
           withCredentials: true,
         }
