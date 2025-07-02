@@ -5,8 +5,9 @@ const TransactionFilters = ({ onFilterChange }) => {
   const [filters, setFilters] = useState({
     dateFrom: null,
     dateTo: null,
-    type: 'all',
-    status: 'all'
+    cryptocurrency: 'all',
+    fromAddress: '',
+    toAddress: ''
   });
 
   const handleFilterChange = (field, value) => {
@@ -19,7 +20,7 @@ const TransactionFilters = ({ onFilterChange }) => {
     <Card>
       <CardContent>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={2}>
             <TextField
               fullWidth
               id="date-from"
@@ -27,13 +28,13 @@ const TransactionFilters = ({ onFilterChange }) => {
               type="date"
               name="dateFrom"
               value={filters.dateFrom}
-              onChange={handleFilterChange}
+              onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
               InputLabelProps={{
                 shrink: true
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={2}>
             <TextField
               fullWidth
               id="date-to"
@@ -41,7 +42,7 @@ const TransactionFilters = ({ onFilterChange }) => {
               type="date"
               name="dateTo"
               value={filters.dateTo}
-              onChange={handleFilterChange}
+              onChange={(e) => handleFilterChange('dateTo', e.target.value)}
               InputLabelProps={{
                 shrink: true
               }}
@@ -51,28 +52,33 @@ const TransactionFilters = ({ onFilterChange }) => {
             <TextField
               select
               fullWidth
-              label="Transaction Type"
-              value={filters.type}
-              onChange={(e) => handleFilterChange('type', e.target.value)}
+              label="Cryptocurrency"
+              value={filters.cryptocurrency}
+              onChange={(e) => handleFilterChange('cryptocurrency', e.target.value)}
             >
-              <MenuItem value="all">All Types</MenuItem>
-              <MenuItem value="crypto">Crypto</MenuItem>
-              <MenuItem value="giftcard">Gift Card</MenuItem>
+              <MenuItem value="all">All Cryptocurrencies</MenuItem>
+              <MenuItem value="BTC">Bitcoin (BTC)</MenuItem>
+              <MenuItem value="TRX">Tron (TRX)</MenuItem>
+              <MenuItem value="SOL">Solana (SOL)</MenuItem>
             </TextField>
           </Grid>
           <Grid item xs={12} sm={6} md={2}>
             <TextField
-              select
               fullWidth
-              label="Status"
-              value={filters.status}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
-            >
-              <MenuItem value="all">All Status</MenuItem>
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="completed">Completed</MenuItem>
-              <MenuItem value="flagged">Flagged</MenuItem>
-            </TextField>
+              label="From Address"
+              value={filters.fromAddress}
+              onChange={(e) => handleFilterChange('fromAddress', e.target.value)}
+              placeholder="Enter sender address"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <TextField
+              fullWidth
+              label="To Address"
+              value={filters.toAddress}
+              onChange={(e) => handleFilterChange('toAddress', e.target.value)}
+              placeholder="Enter recipient address"
+            />
           </Grid>
           <Grid item xs={12} sm={6} md={2}>
             <Box display="flex" gap={1}>
@@ -85,8 +91,9 @@ const TransactionFilters = ({ onFilterChange }) => {
                   setFilters({
                     dateFrom: null,
                     dateTo: null,
-                    type: 'all',
-                    status: 'all'
+                    cryptocurrency: 'all',
+                    fromAddress: '',
+                    toAddress: ''
                   })
                 }
               >
