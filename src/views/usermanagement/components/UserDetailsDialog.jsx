@@ -62,113 +62,10 @@ const UserDetailsDialog = ({
   handleAccountStatusChange,
   userWalletBalances,
   walletLoading,
+  userTransactions,
+  transactionsLoading,
 }) => {
   if (!user) return null;
-
-  const WalletbalancesResponse = {
-    totalValue: 0,
-    balances: [
-      {
-        tokenAddress: "192dNm5Ed2BaACAKL2MaUURp7mMitvibCe",
-        name: "Bitcoin",
-        symbol: "BTC",
-        logo: "https://res.coinpaper.com/coinpaper/bitcoin_btc_logo_62c59b827e.png",
-        decimals: 8,
-        balance: "0.00000000",
-        unitPrice: 107294,
-        usdValue: "0.00",
-        chain: "Bitcoin",
-      },
-      {
-        tokenAddress: "CfFobbBgqVxrujmywMKZ73de2XEGpNDg5fgHdBwggK3x",
-        name: "Solana",
-        symbol: "SOL",
-        logo: "https://res.coinpaper.com/coinpaper/solana_sol_logo_32f9962968.png",
-        decimals: 9,
-        balance: "0.000000000",
-        unitPrice: 147.51,
-        usdValue: "0.00",
-        chain: "Solana",
-      },
-      {
-        tokenAddress: "TBTisrZmB2PMRHCoL8YZZL1MeTB6gokhoH",
-        name: "Tron",
-        symbol: "TRX",
-        logo: "https://res.coinpaper.com/coinpaper/tron_trx_logo_7ee394d58b.png",
-        decimals: 6,
-        balance: "0.000000",
-        unitPrice: 0.282014,
-        usdValue: "0.00",
-        chain: "Tron",
-      },
-      {
-        tokenAddress: "0xfd966f160D0a70bF9Aa295859a794F7c44700A40",
-        name: "Ether",
-        symbol: "ETH",
-        logo: "https://cdn.moralis.io/eth/0x.png",
-        decimals: 18,
-        balance: "0",
-        unitPrice: 2439.07003688866,
-        usdValue: 0,
-        chain: "Ethereum",
-      },
-      {
-        tokenAddress: "0x0000000000000000000000000000000000001010",
-        name: "Polygon Ecosystem Token",
-        symbol: "POL",
-        logo: "https://cdn.moralis.io/polygon/0x.png",
-        decimals: 18,
-        balance: "0",
-        unitPrice: 0.17911996839375563,
-        usdValue: 0,
-        chain: "Polygon",
-      },
-      {
-        tokenAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        name: "Avalanche",
-        symbol: "AVAX",
-        logo: "https://cdn.moralis.io/avalanche/0x.png",
-        decimals: 18,
-        balance: "0",
-        unitPrice: 17.475504518382884,
-        usdValue: 0,
-        chain: "Avalanche",
-      },
-      {
-        tokenAddress: "0xfd966f160D0a70bF9Aa295859a794F7c44700A40",
-        name: "Ether",
-        symbol: "ETH",
-        logo: "https://cdn.moralis.io/eth/0x.png",
-        decimals: 18,
-        balance: "0",
-        unitPrice: 2439.2833182025697,
-        usdValue: 0,
-        chain: "Arbitrum",
-      },
-      {
-        tokenAddress: "0xfd966f160D0a70bF9Aa295859a794F7c44700A40",
-        name: "Ether",
-        symbol: "ETH",
-        logo: "https://cdn.moralis.io/eth/0x.png",
-        decimals: 18,
-        balance: "0",
-        unitPrice: 2438.472999429065,
-        usdValue: 0,
-        chain: "Optimism",
-      },
-      {
-        tokenAddress: "0xfd966f160D0a70bF9Aa295859a794F7c44700A40",
-        name: "Ether",
-        symbol: "ETH",
-        logo: "https://cdn.moralis.io/eth/0x.png",
-        decimals: 18,
-        balance: "0",
-        unitPrice: 2439.1256631288848,
-        usdValue: 0,
-        chain: "Base",
-      },
-    ],
-  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -191,6 +88,7 @@ const UserDetailsDialog = ({
             <Tab label="KYC Documents" />
             <Tab label="Approval Logs" />
             <Tab label="Wallet Balances" />
+            <Tab label="Transaction History" /> {/* Add new tab */}
             <Tab label="Account Actions" />
           </Tabs>
         </Box>
@@ -440,8 +338,89 @@ const UserDetailsDialog = ({
           </>
         )}
 
-        {/* Account Actions Tab */}
+        {/* Transaction History Tab */}
         {tabValue === 4 && (
+          <>
+            <Typography variant="h6" gutterBottom>
+              Transaction History
+            </Typography>
+            {transactionsLoading ? (
+              <Box display="flex" justifyContent="center" p={3}>
+                <CircularProgress />
+              </Box>
+            ) : userTransactions?.length > 0 ? (
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Date</TableCell>
+                      <TableCell>Asset</TableCell>
+                      <TableCell>From</TableCell>
+                      <TableCell>To</TableCell>
+                      <TableCell>Amount</TableCell>
+                      <TableCell>Chain</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {userTransactions.map((transaction) => (
+                      <TableRow key={transaction.blockTimestamp}>
+                        <TableCell>
+                          {new Date(
+                            transaction.blockTimestamp
+                          ).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <img
+                              src={transaction.logo}
+                              alt={transaction.name}
+                              style={{ width: 24, height: 24 }}
+                            />
+                            <Typography>{transaction.symbol}</Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip title={transaction.from}>
+                            <Typography noWrap sx={{ maxWidth: 150 }}>
+                              {transaction.from}
+                            </Typography>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip title={transaction.to}>
+                            <Typography noWrap sx={{ maxWidth: 150 }}>
+                              {transaction.to}
+                            </Typography>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>
+                          {parseFloat(transaction.balance).toLocaleString()}{" "}
+                          {transaction.symbol}
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={transaction.chain}
+                            color="primary"
+                            size="small"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Box display="flex" justifyContent="center" p={3}>
+                <Typography variant="body1" color="textSecondary">
+                  No transactions found
+                </Typography>
+              </Box>
+            )}
+          </>
+        )}
+
+        {/* Account Actions Tab - update index */}
+        {tabValue === 5 && (
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
