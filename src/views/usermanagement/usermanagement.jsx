@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Grid, Box, CircularProgress, Typography, Skeleton, Backdrop } from "@mui/material";
+import {
+  Grid,
+  Box,
+  CircularProgress,
+  Typography,
+  Skeleton,
+  Backdrop,
+} from "@mui/material";
 
 import MainCard from "../../ui-component/cards/MainCard";
 import UserSearchFilter from "./components/UserSearchFilter";
@@ -332,7 +339,12 @@ const UserManagement = () => {
   // Loading skeleton for user table
   const UserTableSkeleton = () => (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
         <Skeleton variant="text" width={200} height={40} />
         <Skeleton variant="rectangular" width={120} height={40} />
       </Box>
@@ -386,6 +398,8 @@ const UserManagement = () => {
           open={userDialogOpen}
           onClose={handleCloseUserDialog}
           user={selectedUser}
+          userTransactions={[]} // change this later
+          transactionsLoading={false} // change this later
           tabValue={tabValue}
           handleTabChange={handleTabChange}
           kycDocuments={selectedUser ? [] : []}
@@ -411,7 +425,7 @@ const UserManagement = () => {
 
       {/* Global loading overlay for actions */}
       <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={confirmActionLoader}
       >
         <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
