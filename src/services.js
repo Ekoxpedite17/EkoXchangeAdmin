@@ -299,10 +299,90 @@ const EkoServices_Transactions = {
   },
 };
 
+const EkoServices_Disputes = {
+  getDisputeList: async ({ limit, skip = 0 }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/admin/support/disputes/list?skip=${skip}&limit=${limit}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Get dispute list failed:", error);
+      throw error;
+    }
+  },
+
+  createTicket: async (payload) => {
+    try {
+      const response = await axiosInstance.post(
+        `/admin/support/ticket`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Create ticket failed:", error);
+      throw error;
+    }
+  },
+
+  escalateDispute: async (payload) => {
+    try {
+      const response = await axiosInstance.post(
+        `/admin/support/dispute`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Escalate dispute failed:", error);
+      throw error;
+    }
+  },
+
+  resolveDispute: async (id) => {
+    try {
+      const response = await axiosInstance.put(
+        `/admin/dispute-management/resolve/${id}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Resolve dispute failed:", error);
+      throw error;
+    }
+  },
+
+  exportDispute: async (id) => {
+    try {
+      const response = await axiosInstance.put(
+        `/admin/dispute-management/export/${id}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Export dispute failed:", error);
+      throw error;
+    }
+  },
+};
+
 export {
   EkoServices_Auth,
   EkoServices_Admin,
   EkoServices_Roles,
   EkoServices_Crypty,
   EkoServices_Transactions,
+  EkoServices_Disputes,
 };
