@@ -138,6 +138,21 @@ const EkoServices_Admin = {
       throw error;
     }
   },
+
+  getAdmins: async () => {
+    try {
+      const response = await axiosInstance.get(
+        "/dashboard/admin/admin-users/get",
+        {
+          withCredentials: true,
+        }
+      );
+      return response?.data?.users;
+    } catch (error) {
+      console.error("Get admins failed:", error);
+      throw error;
+    }
+  },
 };
 
 const EkoServices_Roles = {
@@ -300,7 +315,7 @@ const EkoServices_Transactions = {
 };
 
 const EkoServices_Disputes = {
-  getDisputeList: async ({ limit, skip = 0 }) => {
+  getDisputeList: async ({ limit = 30, skip = 0 }) => {
     try {
       const response = await axiosInstance.get(
         `/admin/support/disputes/list?skip=${skip}&limit=${limit}`,
@@ -347,10 +362,16 @@ const EkoServices_Disputes = {
     }
   },
 
-  resolveDispute: async (id) => {
+  resolveDispute: async (
+    payload = {
+      disputeId: "",
+      decision: "",
+    }
+  ) => {
     try {
-      const response = await axiosInstance.put(
-        `/admin/dispute-management/resolve/${id}`,
+      const response = await axiosInstance.post(
+        `/admin/support/resolution`,
+        payload,
         {
           withCredentials: true,
         }

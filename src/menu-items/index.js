@@ -1,4 +1,4 @@
-import dashboard from './dashboard';
+import dashboard from "./dashboard";
 import {
   userManagement,
   giftCardManagement,
@@ -6,8 +6,9 @@ import {
   cryptoManagement,
   disputesSupport,
   reportingAnalytics,
-  rolesPermissions
-} from './pages';
+  rolesPermissions,
+  referrals,
+} from "./pages";
 
 // ==============================|| MENU ITEMS ||============================== //
 
@@ -18,10 +19,11 @@ const menuItems = {
     cryptoManagement,
     transactionMonitoring,
     giftCardManagement,
+    referrals,
     disputesSupport,
     reportingAnalytics,
-    rolesPermissions
-  ]
+    rolesPermissions,
+  ],
 };
 
 export default menuItems;
