@@ -6,6 +6,7 @@ import {
   IconMessageCircle,
   IconChartBar,
   IconShieldLock,
+  IconSettings,
 } from "@tabler/icons-react";
 
 // User Management Group
@@ -144,6 +145,22 @@ const referrals = {
   ],
 };
 
+const settings = {
+  id: "settings-group",
+  title: "Settings",
+  type: "group",
+  children: [
+    {
+      id: "settings",
+      title: "Settings",
+      type: "item",
+      url: "/settings",
+      icon: IconSettings,
+      target: false,
+    },
+  ],
+};
+
 export {
   userManagement,
   transactionMonitoring,
@@ -153,4 +170,5 @@ export {
   reportingAnalytics,
   rolesPermissions,
   referrals,
+  settings,
 };

@@ -8,6 +8,7 @@ import {
   reportingAnalytics,
   rolesPermissions,
   referrals,
+  settings,
 } from "./pages";
 
 // ==============================|| MENU ITEMS ||============================== //
@@ -23,6 +24,7 @@ const menuItems = {
     disputesSupport,
     reportingAnalytics,
     rolesPermissions,
+    settings,
   ],
 };
 

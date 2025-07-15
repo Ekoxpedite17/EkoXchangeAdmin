@@ -12,6 +12,7 @@ import DisputesSupport from "../views/disputes/disputes";
 import ReportingAnalytics from "../views/reporting/reporting";
 import RolesPermissions from "../views/roles/roles";
 import Referrals from "../views/referrals/referrals";
+import Settings from "../views/settings/settings";
 
 // dashboard routing
 const DashboardDefault = Loadable(
@@ -61,6 +62,10 @@ const MainRoutes = {
         {
           path: "/roles-permissions",
           element: <RolesPermissions />,
+        },
+        {
+          path: "/settings",
+          element: <Settings />,
         },
       ],
     },
