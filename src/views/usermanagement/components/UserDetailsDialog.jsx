@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Button,
@@ -23,6 +22,7 @@ import {
   CardContent,
   CircularProgress,
 } from "@mui/material";
+import dayjs from "dayjs";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -32,8 +32,6 @@ import RestoreIcon from "@mui/icons-material/Restore";
 import DownloadIcon from "@mui/icons-material/Download";
 import KeyIcon from "@mui/icons-material/Key";
 import SecurityIcon from "@mui/icons-material/Security";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-import dayjs from "dayjs";
 
 // Status color mapping
 const kycStatusColors = {
@@ -349,66 +347,83 @@ const UserDetailsDialog = ({
                 <CircularProgress />
               </Box>
             ) : userTransactions?.length > 0 ? (
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Date</TableCell>
-                      <TableCell>Asset</TableCell>
-                      <TableCell>From</TableCell>
-                      <TableCell>To</TableCell>
-                      <TableCell>Amount</TableCell>
-                      <TableCell>Chain</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {userTransactions.map((transaction) => (
-                      <TableRow key={transaction.blockTimestamp}>
-                        <TableCell>
-                          {new Date(
-                            transaction.blockTimestamp
-                          ).toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <img
-                              src={transaction.logo}
-                              alt={transaction.name}
-                              style={{ width: 24, height: 24 }}
-                            />
-                            <Typography>{transaction.symbol}</Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title={transaction.from}>
-                            <Typography noWrap sx={{ maxWidth: 150 }}>
-                              {transaction.from}
-                            </Typography>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title={transaction.to}>
-                            <Typography noWrap sx={{ maxWidth: 150 }}>
-                              {transaction.to}
-                            </Typography>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          {parseFloat(transaction.balance).toLocaleString()}{" "}
-                          {transaction.symbol}
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={transaction.chain}
-                            color="primary"
-                            size="small"
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              <Box>
+                {userTransactions?.map((dateGroup, index) => (
+                  <Box key={index} mb={3}>
+                    <Typography
+                      variant="subtitle1"
+                      gutterBottom
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      {dateGroup.date}
+                    </Typography>
+                    <TableContainer>
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Asset</TableCell>
+                            <TableCell>From</TableCell>
+                            <TableCell>To</TableCell>
+                            <TableCell>Amount</TableCell>
+                            <TableCell>Time</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {dateGroup.transactions.map((transaction, tIndex) => (
+                            <TableRow key={`${index}-${tIndex}`}>
+                              <TableCell>
+                                <Box display="flex" alignItems="center" gap={1}>
+                                  <img
+                                    src={transaction.logo}
+                                    alt={transaction.name}
+                                    style={{ width: 24, height: 24 }}
+                                  />
+                                  <Box>
+                                    <Typography variant="body2">
+                                      {transaction.name}
+                                    </Typography>
+                                    <Typography
+                                      variant="caption"
+                                      color="textSecondary"
+                                    >
+                                      {transaction.symbol}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                              </TableCell>
+                              <TableCell>
+                                <Tooltip title={transaction.from}>
+                                  <Typography noWrap sx={{ maxWidth: 150 }}>
+                                    {transaction.from}
+                                  </Typography>
+                                </Tooltip>
+                              </TableCell>
+                              <TableCell>
+                                <Tooltip title={transaction.to}>
+                                  <Typography noWrap sx={{ maxWidth: 150 }}>
+                                    {transaction.to}
+                                  </Typography>
+                                </Tooltip>
+                              </TableCell>
+                              <TableCell>
+                                {parseFloat(
+                                  transaction.balance
+                                ).toLocaleString()}{" "}
+                                {transaction.symbol}
+                              </TableCell>
+                              <TableCell>
+                                {new Date(
+                                  transaction.blockTimestamp
+                                ).toLocaleTimeString()}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Box>
+                ))}
+              </Box>
             ) : (
               <Box display="flex" justifyContent="center" p={3}>
                 <Typography variant="body1" color="textSecondary">
