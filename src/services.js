@@ -153,6 +153,20 @@ const EkoServices_Admin = {
       throw error;
     }
   },
+
+  getUserWalletTransactionHistory: async (userid) => {
+    try {
+      const response = await axiosInstance.get(
+        `/dashboard/admin/user-transactions/${userid}/get`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response?.data;
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };
 
 const EkoServices_Roles = {
