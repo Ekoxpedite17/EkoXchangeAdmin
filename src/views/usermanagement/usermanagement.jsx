@@ -41,6 +41,7 @@ const UserManagement = () => {
     action: null,
   });
   const [userWalletBalances, setUserWalletBalances] = useState(null);
+  const [userTransactionHistory, setUserTransactionHistory] = useState([]);
   const [walletLoading, setWalletLoading] = useState(false);
   const dispatch = useAppDispatch();
   const { users: listofUsers, loading } = useAppSelector((state) => state.user);
@@ -137,6 +138,10 @@ const UserManagement = () => {
     if (newValue === 3 && selectedUser && !userWalletBalances) {
       fetchUserWalletBalances(selectedUser.id);
     }
+
+    if (newValue === 4 && selectedUser) {
+      fetchUserWalletTransactionHistory(selectedUser.id);
+    }
   };
 
   const handleCloseUserDialog = () => {
@@ -144,6 +149,7 @@ const UserManagement = () => {
     setSelectedUser(null);
     setTabValue(0);
     setUserWalletBalances(null);
+    setUserTransactionHistory([]);
   };
 
   const fetchUserWalletBalances = async (userId) => {
@@ -154,6 +160,23 @@ const UserManagement = () => {
     } catch (error) {
       console.error("Error fetching user wallet balances:", error);
       setUserWalletBalances([]);
+    } finally {
+      setWalletLoading(false);
+    }
+  };
+
+  const fetchUserWalletTransactionHistory = async (userId) => {
+    setWalletLoading(true);
+    try {
+      const response =
+        await EkoServices_Admin.getUserWalletTransactionHistory(userId);
+      if (response) {
+        console.log(response, "response")
+        setUserTransactionHistory(response?.balances);
+      }
+    } catch (error) {
+      console.error("Error fetching user transaction history:", error);
+      setUserTransactionHistory([]);
     } finally {
       setWalletLoading(false);
     }
@@ -398,7 +421,7 @@ const UserManagement = () => {
           open={userDialogOpen}
           onClose={handleCloseUserDialog}
           user={selectedUser}
-          userTransactions={[]} // change this later
+          userTransactions={userTransactionHistory} // change this later
           transactionsLoading={false} // change this later
           tabValue={tabValue}
           handleTabChange={handleTabChange}
