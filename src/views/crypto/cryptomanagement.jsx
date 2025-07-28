@@ -5,7 +5,6 @@ import { gridSpacing } from "../../store/constant";
 // Components
 import WalletBalances from "./components/WalletBalances";
 import RateManagement from "./components/RateManagement";
-import ManualWithdrawal from "./components/ManualWithdrawal";
 import FeeManagement from "./components/FeeManagement";
 
 const CryptoManagement = () => {
@@ -22,10 +21,6 @@ const CryptoManagement = () => {
 
         <Grid item size={12} md={6}>
           <RateManagement />
-        </Grid>
-
-        <Grid item xs={12}>
-          <ManualWithdrawal />
         </Grid>
       </Grid>
     </Box>

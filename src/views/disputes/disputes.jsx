@@ -20,9 +20,12 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import TicketList from "./components/TicketList";
 import ConversationLog from "./components/ConversationLog";
 import TransactionDetails from "./components/TransactionDetails";
-import { EkoServices_Disputes } from "../../services";
+import { EkoServices_Admin, EkoServices_Disputes } from "../../services";
+import ChatUI from "./components/ChatUI";
+import { useChat } from '../../contexts/ChatContext';
 
 const DisputesSupport = () => {
+  const { openChat } = useChat();
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [assignDialog, setAssignDialog] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState("");
@@ -30,9 +33,30 @@ const DisputesSupport = () => {
   const [tickets, setTickets] = useState([]);
   const [limit, setLimit] = useState(30);
   const [skip, setSkip] = useState(0);
+  const [admins, setAdmins] = useState([]);
 
-  const handleAssignTicket = () => {
-    // API call to assign ticket
+  const handleAssignTicket = async () => {
+    if (selectedAgent) {
+      const response = await EkoServices_Disputes.createTicket({
+        subject: selectedTicket?.reason,
+        description: selectedTicket?.reason,
+        transactionId: selectedTicket?.transactionId,
+        status: "open",
+        category: "wallet",
+      });
+
+      if (response) {
+        const updatedTicket = {
+          ...selectedTicket,
+          ticketId: response.ticketId,
+          status: 'open'
+        };
+        setSelectedTicket(updatedTicket);
+        openChat(response.ticketId);
+        setAssignDialog(false);
+        fetchTickets();
+      }
+    }
     setAssignDialog(false);
   };
 
@@ -48,8 +72,19 @@ const DisputesSupport = () => {
     }
   };
 
+  const fetchAdmins = async () => {
+    const data = await EkoServices_Admin.getAdmins({
+      limit: 30,
+      skip: 0,
+    });
+    if (data) {
+      setAdmins(data);
+    }
+  };
+
   useEffect(() => {
     fetchTickets();
+    fetchAdmins();
   }, []);
 
   const handleTagOutcome = async (ticketId, outcome) => {
@@ -76,11 +111,13 @@ const DisputesSupport = () => {
     return new Date(timestamp).toLocaleDateString();
   };
 
+  console.log(selectedTicket);
+
   return (
     <Box sx={{ p: 2 }}>
       <Grid container width={"100%"} spacing={2}>
         {/* Tickets List */}
-        <Grid item size={12}>
+        <Grid item size={12} md={4}>
           <Card>
             <CardContent>
               <Typography variant="h4" gutterBottom>
@@ -96,7 +133,7 @@ const DisputesSupport = () => {
         </Grid>
 
         {/* Ticket Details */}
-        <Grid item width={"40%"} xs={12} sm={12} md={8} lg={8}>
+        <Grid item size={8} md={5}>
           {selectedTicket ? (
             <Stack spacing={2}>
               <Card>
@@ -112,23 +149,25 @@ const DisputesSupport = () => {
                     <Typography variant="h4">
                       Ticket #{selectedTicket.ticketId}
                     </Typography>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Chip
-                        label={selectedTicket.status}
-                        color={
-                          selectedTicket.status === "pending"
-                            ? "error"
-                            : "success"
-                        }
-                      />
-                      <Button
-                        variant="contained"
-                        startIcon={<PersonAddIcon />}
-                        onClick={() => setAssignDialog(true)}
-                      >
-                        Assign Ticket
-                      </Button>
-                    </Box>
+                    {selectedTicket.status !== "resolved" && (
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Chip
+                          label={selectedTicket.status}
+                          color={
+                            selectedTicket.status === "pending"
+                              ? "error"
+                              : "success"
+                          }
+                        />
+                        <Button
+                          variant="contained"
+                          startIcon={<PersonAddIcon />}
+                          onClick={() => setAssignDialog(true)}
+                        >
+                          Assign Ticket
+                        </Button>
+                      </Box>
+                    )}
                   </Box>
 
                   <Grid container spacing={2}>
@@ -217,6 +256,13 @@ const DisputesSupport = () => {
             </Card>
           )}
         </Grid>
+
+        {/* Chat UI */}
+        <Grid item size={4} md={3}>
+          {selectedTicket?.ticketId && (
+            <ChatUI ticketId={selectedTicket.ticketId} />
+          )}
+        </Grid>
       </Grid>
 
       {/* Assign Ticket Dialog */}
@@ -242,9 +288,13 @@ const DisputesSupport = () => {
             onChange={(e) => setSelectedAgent(e.target.value)}
             margin="normal"
           >
-            <MenuItem value="agent1">John Doe</MenuItem>
-            <MenuItem value="agent2">Jane Smith</MenuItem>
-            <MenuItem value="agent3">Mike Johnson</MenuItem>
+            {admins.map((a, index) => {
+              return (
+                <MenuItem value={a?.id}>
+                  {a?.firstname} {a?.lastname}
+                </MenuItem>
+              );
+            })}
           </TextField>
         </DialogContent>
         <DialogActions>

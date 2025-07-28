@@ -326,6 +326,35 @@ const EkoServices_Transactions = {
       throw error;
     }
   },
+
+  getBuyOrderQueue: async () => {
+    try {
+      const response = await axiosInstance.get(
+        `admin/crypto-management/buy-order/list`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("failed to get buy order queue list", error);
+    }
+  },
+
+  updateBuyOrderQueue: async (id, payload) => {
+    try {
+      const response = await axiosInstance.put(
+        `/admin/crypto-management/buy-order/update/${id}`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("failed to update buy order queue", error);
+    }
+  },
 };
 
 const EkoServices_Disputes = {

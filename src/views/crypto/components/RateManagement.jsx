@@ -26,65 +26,37 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { EkoServices_Crypty } from "../../../services";
+import dayjs from "dayjs";
 
 const RateManagement = () => {
-  const [dummrates, setdummrates] = useState([
-    {
-      name: "Bitcoin",
-      symbol: "BTC",
-      buyRate: 59200,
-      sellRate: 58800,
-      lastUpdated: new Date(),
-      spread: 0.68,
-      source: "Binance",
-      overrideUntil: "2024-07-01 12:00",
-    },
-    {
-      name: "Ethereum",
-      symbol: "ETH",
-      buyRate: 3120,
-      sellRate: 3080,
-      lastUpdated: new Date(),
-      spread: 1.29,
-      source: "Coinbase",
-      overrideUntil: "2024-07-02 09:00",
-    },
-    {
-      name: "USDT",
-      symbol: "USDT",
-      buyRate: 1.0,
-      sellRate: 1.0,
-      lastUpdated: new Date(),
-      spread: 0.01,
-      source: "Kraken",
-      overrideUntil: "2024-07-03 18:00",
-    },
-  ]);
+  const [rates, setRates] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [rateMethod, setRateMethod] = useState("manual");
   const [loading, setLoading] = useState(false);
   const [selectedRate, setSelectedRate] = useState(null);
   const [editEnabled, setEditEnabled] = useState({});
+  const [rateForm, setRateForm] = useState({
+    buyRate: "",
+    sellRate: "",
+  });
 
-  // const fetchdummrates = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await EkoServices_Crypty.getdummrates();
-  //     if (response) {
-  //       setdummrates(response);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching dummrates:", error);
-  //   }
-  //   setLoading(false);
-  // };
+  const fetchRates = async () => {
+    const data = await EkoServices_Crypty.getRates();
+    if (data) {
+      setRates(data);
+    }
+  };
 
-  // useEffect(() => {
-  //   fetchdummrates();
-  // }, []);
+  useEffect(() => {
+    fetchRates();
+  }, []);
 
   const handleEdit = (rate) => {
     setSelectedRate(rate);
+    setRateForm({
+      buyRate: rate.buyRate.toString(),
+      sellRate: rate.sellRate.toString(),
+    });
     setOpenDialog(true);
   };
 
@@ -96,6 +68,29 @@ const RateManagement = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedRate(null);
+    setRateForm({ buyRate: "", sellRate: "" });
+  };
+
+  const handleSaveRate = async () => {
+    if (selectedRate && rateForm.buyRate && rateForm.sellRate) {
+      try {
+        setLoading(true);
+
+        await EkoServices_Crypty.updateRates({
+          tokenName: selectedRate.tokenName.toUpperCase(),
+          buyRate: parseFloat(rateForm.buyRate),
+          sellRate: parseFloat(rateForm.sellRate),
+        });
+
+        fetchRates();
+
+        handleCloseDialog();
+      } catch (error) {
+        console.error("Error updating rate:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
@@ -118,62 +113,86 @@ const RateManagement = () => {
             <TableHead>
               <TableRow>
                 <TableCell>Cryptocurrency</TableCell>
-                <TableCell>Buy Rate</TableCell>
-                <TableCell>Sell Rate</TableCell>
+                <TableCell>Buy Rate (NGN)</TableCell>
+                <TableCell>Sell Rate (NGN)</TableCell>
                 <TableCell>Spread (%)</TableCell>
-                <TableCell>Source</TableCell>
-                <TableCell>Override Until</TableCell>
                 <TableCell>Last Updated</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {dummrates?.map((rate) => (
-                <TableRow key={rate?.symbol} hover sx={{ cursor: "default" }}>
-                  <TableCell>
-                    {rate?.name}{" "}
-                    <Typography component="span" color="grey.700">
-                      {rate.symbol}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>${rate?.buyRate.toLocaleString()}</TableCell>
-                  <TableCell>${rate?.sellRate.toLocaleString()}</TableCell>
-                  <TableCell>{rate.spread}</TableCell>
-                  <TableCell>{rate.source}</TableCell>
-                  <TableCell>{rate.overrideUntil}</TableCell>
-                  <TableCell>&lt; 1 min ago</TableCell>
-                  <TableCell
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <Button
-                      variant="contained"
-                      onClick={() => handleEdit(rate)}
-                      sx={{ color: "white", bgcolor: "#1976d2" }}
-                      disabled={!editEnabled[rate.symbol]}
+              {rates?.map((rate) => {
+                const spread = (
+                  ((rate.sellRate - rate.buyRate) / rate.buyRate) *
+                  100
+                ).toFixed(2);
+                const lastUpdated = dayjs(rate.updatedAt).format(
+                  "DD/MM/YYYY HH:mm:ss"
+                );
+
+                return (
+                  <TableRow key={rate?._id} hover sx={{ cursor: "default" }}>
+                    <TableCell>
+                      <Typography variant="body1" fontWeight="medium">
+                        {rate.tokenName.toUpperCase()}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" fontWeight="medium">
+                        ₦{rate?.buyRate.toLocaleString()}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" fontWeight="medium">
+                        ₦{rate?.sellRate.toLocaleString()}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        color={spread > 2 ? "error.main" : "success.main"}
+                        fontWeight="medium"
+                      >
+                        {spread}%
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" color="text.secondary">
+                        {lastUpdated}
+                      </Typography>
+                    </TableCell>
+                    <TableCell
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
                     >
-                      Edit
-                    </Button>
-                    <Switch
-                      checked={!!editEnabled[rate.symbol]}
-                      onChange={() =>
-                        setEditEnabled((prev) => ({
-                          ...prev,
-                          [rate.symbol]: !prev[rate.symbol],
-                        }))
-                      }
-                      color="primary"
-                      size="small"
-                      sx={{ ml: 1 }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
+                      <Button
+                        variant="contained"
+                        onClick={() => handleEdit(rate)}
+                        sx={{ color: "white", bgcolor: "#1976d2" }}
+                        disabled={!editEnabled[rate.tokenName]}
+                      >
+                        Edit
+                      </Button>
+                      <Switch
+                        checked={!!editEnabled[rate.tokenName]}
+                        onChange={() =>
+                          setEditEnabled((prev) => ({
+                            ...prev,
+                            [rate.tokenName]: !prev[rate.tokenName],
+                          }))
+                        }
+                        color="primary"
+                        size="small"
+                        sx={{ ml: 1 }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
       </Card>
 
-      {/* Set Buy Rates Dialog */}
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -189,7 +208,7 @@ const RateManagement = () => {
             justifyContent: "space-between",
           }}
         >
-          Set Buy Rates
+          Set Buy / Sell Rates
           <IconButton onClick={handleCloseDialog}>
             <CloseIcon />
           </IconButton>
@@ -197,13 +216,14 @@ const RateManagement = () => {
         <DialogContent sx={{ bgcolor: "white" }}>
           <Typography variant="h6" color="black" gutterBottom>
             {selectedRate
-              ? `Set Buy Rates for ${selectedRate.name}`
+              ? `Set Buy Rates for ${selectedRate.tokenName.toUpperCase()}`
               : "Set Buy Rates"}
           </Typography>
           <FormControl component="fieldset">
             <RadioGroup
               value={rateMethod}
               onChange={(e) => setRateMethod(e.target.value)}
+              style={{ gap: 15 }}
             >
               <FormControlLabel
                 value="manual"
@@ -214,20 +234,28 @@ const RateManagement = () => {
                     <Box display="flex" gap={2} mt={1}>
                       <TextField
                         size="small"
-                        label="USD"
-                        value="11.78"
+                        label="Buy Rate (NGN)"
+                        value={rateForm.buyRate}
+                        onChange={(e) =>
+                          setRateForm({ ...rateForm, buyRate: e.target.value })
+                        }
+                        type="number"
                         sx={{
-                          width: 100,
+                          width: 150,
                           input: { color: "black" },
                           label: { color: "grey.700" },
                         }}
                       />
                       <TextField
                         size="small"
-                        label="EUR"
-                        value="1344"
+                        label="Sell Rate (NGN)"
+                        value={rateForm.sellRate}
+                        onChange={(e) =>
+                          setRateForm({ ...rateForm, sellRate: e.target.value })
+                        }
+                        type="number"
                         sx={{
-                          width: 100,
+                          width: 150,
                           input: { color: "black" },
                           label: { color: "grey.700" },
                         }}
@@ -236,6 +264,7 @@ const RateManagement = () => {
                   </Box>
                 }
               />
+
               <FormControlLabel
                 value="automatic"
                 control={<Radio />}
@@ -248,6 +277,7 @@ const RateManagement = () => {
                   </Box>
                 }
               />
+
               <FormControlLabel
                 value="integrated"
                 control={<Radio />}
@@ -264,9 +294,14 @@ const RateManagement = () => {
           </FormControl>
         </DialogContent>
         <DialogActions sx={{ bgcolor: "white" }}>
-          <Button onClick={handleCloseDialog}>Close</Button>
-          <Button variant="contained" color="primary">
-            Save
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSaveRate}
+            disabled={loading || !rateForm.buyRate || !rateForm.sellRate}
+          >
+            {loading ? "Saving..." : "Save"}
           </Button>
         </DialogActions>
       </Dialog>

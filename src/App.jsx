@@ -13,21 +13,22 @@ import { PersistGate } from "redux-persist/integration/react";
 import "./App.css";
 
 // auth provider
-
-// ==============================|| APP ||============================== //
+import { ChatProvider } from "./contexts/ChatContext";
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <ThemeCustomization>
-          <NavigationScroll>
-            <>
-              <RouterProvider router={router} />
-            </>
-          </NavigationScroll>
-        </ThemeCustomization>
-      </PersistGate>
-    </Provider>
+    <ChatProvider>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <ThemeCustomization>
+            <NavigationScroll>
+              <>
+                <RouterProvider router={router} />
+              </>
+            </NavigationScroll>
+          </ThemeCustomization>
+        </PersistGate>
+      </Provider>
+    </ChatProvider>
   );
 }

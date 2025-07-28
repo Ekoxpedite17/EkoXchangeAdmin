@@ -117,7 +117,6 @@ const ManualWithdrawal = () => {
             color="primary"
             onClick={handleWithdrawal}
             disabled={activeStep === 2}
-            fullWidth
           >
             {activeStep === 0 ? 'Request Withdrawal' : 'Approve Withdrawal'}
           </Button>

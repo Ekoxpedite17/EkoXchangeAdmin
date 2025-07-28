@@ -38,6 +38,7 @@
     "recharts": "^2.15.3",
     "redux-persist": "^6.0.0",
     "slick-carousel": "1.8.1",
+    "socket.io-client": "^4.8.1",
     "swr": "2.3.3",
     "vite": "6.3.5",
     "vite-jsconfig-paths": "2.0.1",

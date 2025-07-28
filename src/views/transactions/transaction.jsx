@@ -7,13 +7,24 @@ import {
   DialogActions,
   Button,
   Typography,
+  Card,
+  CardContent,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+  Stack,
+  IconButton,
+  Avatar,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 import TransactionFeed from "./components/TransactionFeed";
 import TransactionFilters from "./components/TransactionFilters";
 import TransactionDetails from "./components/TransactionDetails";
 import ExportTransactions from "./components/ExportTransactions";
 import OrderQueue from "./components/OrderQueue";
+import ManualWithdrawal from "../crypto/components/ManualWithdrawal";
 import { mockTransactions } from "./data/mockData";
 import { EkoServices_Transactions } from "../../services";
 
@@ -29,43 +40,11 @@ const TransactionManagement = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderModalOpen, setOrderModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [buyOrders, setBuyOrders] = useState([]);
+  const [tab, setTab] = useState(0);
 
-  // Use mock data for buy and sell orders, including user and transaction details
-  const buyOrders = [
-    {
-      id: 1,
-      amount: "0.5 BTC",
-      date: "2023-11-20T09:30:00Z",
-      user: { username: "johndoe", email: "john.doe@example.com" },
-      transactionId: "TRX-001",
-      transactionType: "crypto",
-      transactionStatus: "pending",
-      walletAddress: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-      evidence: "https://example.com/evidence/001.jpg",
-    },
-    {
-      id: 2,
-      amount: "1.2 ETH",
-      date: "2023-11-20T10:00:00Z",
-      user: { username: "mikebrown", email: "mike.brown@example.com" },
-      transactionId: "TRX-003",
-      transactionType: "crypto",
-      transactionStatus: "pending",
-      walletAddress: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-      evidence: "https://example.com/evidence/003.jpg",
-    },
-    {
-      id: 3,
-      amount: "$500 Amazon Card",
-      date: "2023-11-20T10:30:00Z",
-      user: { username: "janedoe", email: "jane.doe@example.com" },
-      transactionId: "TRX-002",
-      transactionType: "giftcard",
-      transactionStatus: "pending",
-      walletAddress: "N/A",
-      evidence: "https://example.com/evidence/002.jpg",
-    },
-  ];
   const sellOrders = [
     {
       id: 4,
@@ -116,49 +95,59 @@ const TransactionManagement = () => {
     }
   };
 
+  const fetchBuyOrderQueue = async () => {
+    const data = await EkoServices_Transactions.getBuyOrderQueue();
+    if (data) {
+      setBuyOrders(data);
+    }
+  };
+
   useEffect(() => {
     fetchTransactions();
-  }, []);
+    if (tab === 0) {
+      fetchBuyOrderQueue();
+    }
+  }, [tab]);
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
 
     let filtered = [...transactions];
-    
-    if (newFilters.cryptocurrency !== 'all') {
-      filtered = filtered.filter(item => 
-        item.transactions.some(t => t.symbol === newFilters.cryptocurrency)
+
+    if (newFilters.cryptocurrency !== "all") {
+      filtered = filtered.filter((item) =>
+        item.transactions.some((t) => t.symbol === newFilters.cryptocurrency)
       );
     }
 
     if (newFilters.fromAddress) {
-      filtered = filtered.filter(item =>
-        item.transactions.some(t => 
+      filtered = filtered.filter((item) =>
+        item.transactions.some((t) =>
           t.from.toLowerCase().includes(newFilters.fromAddress.toLowerCase())
         )
       );
     }
 
     if (newFilters.toAddress) {
-      filtered = filtered.filter(item =>
-        item.transactions.some(t => 
+      filtered = filtered.filter((item) =>
+        item.transactions.some((t) =>
           t.to.toLowerCase().includes(newFilters.toAddress.toLowerCase())
         )
       );
     }
 
     if (newFilters.dateFrom) {
-      filtered = filtered.filter(item =>
-        item.transactions.some(t => 
-          new Date(t.blockTimestamp) >= new Date(newFilters.dateFrom)
+      filtered = filtered.filter((item) =>
+        item.transactions.some(
+          (t) => new Date(t.blockTimestamp) >= new Date(newFilters.dateFrom)
         )
       );
     }
 
     if (newFilters.dateTo) {
-      filtered = filtered.filter(item =>
-        item.transactions.some(t => 
-          new Date(t.blockTimestamp) <= new Date(newFilters.dateTo)
+      filtered = filtered.filter((item) =>
+        item.transactions.some(
+          (t) => new Date(t.blockTimestamp) <= new Date(newFilters.dateTo)
         )
       );
     }
@@ -170,9 +159,39 @@ const TransactionManagement = () => {
     setSelectedOrder(order);
     setOrderModalOpen(true);
   };
+
   const handleOrderModalClose = () => {
     setOrderModalOpen(false);
     setSelectedOrder(null);
+  };
+
+  const handleImagePreview = (imageUrl) => {
+    setPreviewImage(imageUrl);
+    setImagePreviewOpen(true);
+  };
+
+  const handleImagePreviewClose = () => {
+    setImagePreviewOpen(false);
+    setPreviewImage(null);
+  };
+
+  const formatNaira = (amount) => {
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
+    }).format(amount);
+  };
+
+  const handleAcceptOrder = async (id) => {
+    const data = await EkoServices_Transactions.updateBuyOrderQueue(id, {
+      status: "completed",
+    });
+    if (data) {
+      fetchTransactions();
+      fetchBuyOrderQueue();
+      setOrderModalOpen(false);
+      setSelectedOrder(null);
+    }
   };
 
   return (
@@ -180,10 +199,18 @@ const TransactionManagement = () => {
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item size={12}>
           <OrderQueue
-            buyOrders={buyOrders}
             sellOrders={sellOrders}
             onOrderClick={handleOrderClick}
+            buyOrders={buyOrders}
+            setTab={setTab}
+            tab={tab}
           />
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid item size={12}>
+          <ManualWithdrawal />
         </Grid>
       </Grid>
 
@@ -218,7 +245,29 @@ const TransactionManagement = () => {
         </Grid>
       </Box>
 
-      {/* Overlay Sidebar */}
+      {/* Background Overlay */}
+      {(selectedTransaction || orderModalOpen) && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 1100,
+            cursor: "pointer",
+          }}
+          onClick={() => {
+            if (selectedTransaction) setSelectedTransaction(null);
+            if (orderModalOpen) {
+              setOrderModalOpen(false);
+              setSelectedOrder(null);
+            }
+          }}
+        />
+      )}
+
       <Box
         sx={{
           position: "fixed",
@@ -241,103 +290,212 @@ const TransactionManagement = () => {
         />
       </Box>
 
-      <Dialog
-        open={orderModalOpen}
-        onClose={handleOrderModalClose}
-        maxWidth="sm"
-        fullWidth
+      <Box
+        sx={{
+          position: "fixed",
+          top: 0,
+          right: 0,
+          width: "400px",
+          height: "100vh",
+          backgroundColor: "background.paper",
+          boxShadow: "-4px 0 8px rgba(0, 0, 0, 0.1)",
+          transform: orderModalOpen ? "translateX(0)" : "translateX(100%)",
+          transition: "transform 0.3s ease-in-out",
+          overflowY: "auto",
+          zIndex: 1300,
+          p: 2,
+        }}
       >
-        <DialogTitle>Order Details</DialogTitle>
-        <DialogContent>
-          {selectedOrder && (
-            <Box sx={{ mt: 1 }}>
-              <Box
-                component={"div"}
-                sx={{
-                  background: "#fafbfc",
-                  borderRadius: 2,
-                  boxShadow: 1,
-                  p: 3,
-                  mb: 2,
-                }}
-              >
-                <Typography variant="h6" gutterBottom>
+        {selectedOrder && (
+          <Box>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
+              <Typography variant="h3">Order Details</Typography>
+              <IconButton onClick={handleOrderModalClose} size="small">
+                <CloseIcon />
+              </IconButton>
+            </Box>
+
+            <Card>
+              <CardContent>
+                <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+                  <Avatar
+                    sx={{ width: 40, height: 40, bgcolor: "primary.main" }}
+                  >
+                    {selectedOrder.tokenSymbol?.charAt(0) || "O"}
+                  </Avatar>
+                  <Typography variant="h5">
+                    {selectedOrder.tokenName} ({selectedOrder.tokenSymbol})
+                  </Typography>
+                </Stack>
+
+                <Typography variant="subtitle1" gutterBottom>
                   Order Information
                 </Typography>
-                <Box sx={{ mb: 1 }}>
-                  <Typography variant="subtitle2">
-                    <strong>Order ID:</strong> {selectedOrder.id}
-                  </Typography>
-                  <Typography variant="subtitle2">
-                    <strong>Amount:</strong> {selectedOrder.amount}
-                  </Typography>
-                  <Typography variant="subtitle2">
-                    <strong>Date:</strong>{" "}
-                    {selectedOrder.date
-                      ? new Date(selectedOrder.date).toLocaleString()
-                      : ""}
-                  </Typography>
-                  <Typography variant="subtitle2">
-                    <strong>Transaction ID:</strong>{" "}
-                    {selectedOrder.transactionId}
-                  </Typography>
-                  <Typography variant="subtitle2">
-                    <strong>Type:</strong> {selectedOrder.transactionType}
-                  </Typography>
-                  <Typography variant="subtitle2">
-                    <strong>User:</strong> {selectedOrder.user?.username} (
-                    {selectedOrder.user?.email})
-                  </Typography>
-                  <Typography variant="subtitle2">
-                    <strong>Wallet Address:</strong>{" "}
-                    {selectedOrder.walletAddress}
-                  </Typography>
-                  {selectedOrder.accountNumber && (
-                    <Typography variant="subtitle2">
-                      <strong>Account Number:</strong>{" "}
-                      {selectedOrder.accountNumber}
-                    </Typography>
-                  )}
-                </Box>
-                {selectedOrder.evidence && (
-                  <Box sx={{ mt: 2, textAlign: "center" }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                      <strong>Payment Evidence:</strong>
-                    </Typography>
-                    <Box
-                      component="img"
-                      src={selectedOrder.evidence}
-                      alt="Payment Evidence"
-                      sx={{
-                        maxWidth: "100%",
-                        borderRadius: 2,
-                        border: "1px solid #e0e0e0",
-                        boxShadow: 2,
-                        mb: 1,
-                      }}
+                <List dense>
+                  <ListItem>
+                    <ListItemText
+                      primary="Order ID"
+                      secondary={selectedOrder.id}
                     />
-                  </Box>
-                )}
-              </Box>
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText
+                      primary="Unit Price (NGN)"
+                      secondary={formatNaira(selectedOrder.unitPrice)}
+                    />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText
+                      primary="USD Price"
+                      secondary={`$${selectedOrder.usdPrice}`}
+                    />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText
+                      primary="Amount to Pay (NGN)"
+                      secondary={formatNaira(selectedOrder.amountToPay)}
+                    />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText
+                      primary="Status"
+                      secondary={selectedOrder.status}
+                    />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText
+                      primary="Created At"
+                      secondary={new Date(
+                        selectedOrder.createdAt
+                      ).toLocaleString()}
+                    />
+                  </ListItem>
+                </List>
+
+                <Divider sx={{ my: 2 }} />
+
+                <Typography variant="subtitle1" gutterBottom>
+                  Bank Details
+                </Typography>
+                <List dense>
+                  <ListItem>
+                    <ListItemText
+                      primary="Bank Name"
+                      secondary={selectedOrder.bankName}
+                    />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText
+                      primary="Account Name"
+                      secondary={selectedOrder.accountName}
+                    />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText
+                      primary="Account Number"
+                      secondary={selectedOrder.accountNumber}
+                    />
+                  </ListItem>
+                </List>
+
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="subtitle1" gutterBottom>
+                  Transaction Receipt
+                </Typography>
+                <List
+                  dense
+                  sx={{ display: "flex", flexDirection: "row", gap: 1 }}
+                >
+                  <ListItem>
+                    <ListItemText
+                      primary="Status"
+                      secondary={
+                        selectedOrder.transactionReceipt
+                          ? "Uploaded"
+                          : "Not uploaded"
+                      }
+                    />
+                  </ListItem>
+                  {selectedOrder.transactionReceipt && (
+                    <ListItem>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() =>
+                          handleImagePreview(selectedOrder.transactionReceipt)
+                        }
+                        sx={{ mt: 1 }}
+                      >
+                        Preview Image
+                      </Button>
+                    </ListItem>
+                  )}
+                </List>
+              </CardContent>
+            </Card>
+
+            <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+              <Button
+                color="success"
+                variant="contained"
+                fullWidth
+                onClick={() => handleAcceptOrder(selectedOrder.id)}
+              >
+                Complete
+              </Button>
+              <Button
+                color="error"
+                variant="contained"
+                fullWidth
+                onClick={handleOrderModalClose}
+              >
+                Cancel
+              </Button>
+            </Box>
+          </Box>
+        )}
+      </Box>
+
+      <Dialog
+        open={imagePreviewOpen}
+        onClose={handleImagePreviewClose}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Transaction Receipt Preview
+          <IconButton
+            onClick={handleImagePreviewClose}
+            sx={{ position: "absolute", right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          {previewImage && (
+            <Box sx={{ textAlign: "center", mt: 2 }}>
+              <Box
+                component="img"
+                src={previewImage}
+                alt="Transaction Receipt"
+                sx={{
+                  maxWidth: "100%",
+                  maxHeight: "70vh",
+                  borderRadius: 2,
+                  border: "1px solid #e0e0e0",
+                  boxShadow: 2,
+                }}
+              />
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button
-            color="success"
-            variant="contained"
-            onClick={handleOrderModalClose}
-          >
-            Accept
-          </Button>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleOrderModalClose}
-          >
-            Reject
-          </Button>
-          <Button onClick={handleOrderModalClose}>Close</Button>
+          <Button onClick={handleImagePreviewClose}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>
