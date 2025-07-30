@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -14,24 +14,32 @@ import {
   Stepper,
   Step,
   StepLabel,
-  Box
-} from '@mui/material';
-import { mockWithdrawals, mockWithdrawalLimits } from '../data/mockData';
+  Box,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
+import { mockWithdrawals, mockWithdrawalLimits } from "../data/mockData";
 
 const ManualWithdrawal = () => {
   const [withdrawals, setWithdrawals] = useState(mockWithdrawals);
   const [limits] = useState(mockWithdrawalLimits);
   const [withdrawal, setWithdrawal] = useState({
-    currency: '',
-    amount: '',
-    address: '',
-    reason: ''
+    currency: "NGN",
+    amount: "",
+    address: "",
+    reason: "",
   });
   const [confirmDialog, setConfirmDialog] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [approvals, setApprovals] = useState([]);
 
-  const steps = ['Initial Request', 'First Admin Approval', 'Second Admin Approval'];
+  const steps = [
+    "Initial Request",
+    "First Admin Approval",
+    "Second Admin Approval",
+  ];
 
   const handleWithdrawal = () => {
     setConfirmDialog(true);
@@ -39,20 +47,19 @@ const ManualWithdrawal = () => {
 
   const handleApproval = async () => {
     try {
-      // Replace with actual API call
-      await fetch('/api/crypto/withdrawals/approve', {
-        method: 'POST',
-        body: JSON.stringify({ ...withdrawal, adminId: 'current_admin' })
+      await fetch("/api/crypto/withdrawals/approve", {
+        method: "POST",
+        body: JSON.stringify({ ...withdrawal, adminId: "current_admin" }),
       });
-      
-      setApprovals([...approvals, 'current_admin']);
+
+      setApprovals([...approvals, "current_admin"]);
       setActiveStep(activeStep + 1);
-      
+
       if (activeStep === 1) {
         setConfirmDialog(false);
       }
     } catch (error) {
-      console.error('Error approving withdrawal:', error);
+      console.error("Error approving withdrawal:", error);
     }
   };
 
@@ -65,12 +72,19 @@ const ManualWithdrawal = () => {
 
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
-            <TextField
-              label="Currency"
-              fullWidth
-              value={withdrawal.currency}
-              onChange={(e) => setWithdrawal({ ...withdrawal, currency: e.target.value })}
-            />
+            <FormControl fullWidth>
+              <InputLabel>Currency</InputLabel>
+              <Select
+                value={withdrawal.currency}
+                label="Currency"
+                onChange={(e) =>
+                  setWithdrawal({ ...withdrawal, currency: e.target.value })
+                }
+              >
+                <MenuItem value="NGN">₦ NGN (Nigerian Naira)</MenuItem>
+                <MenuItem value="USD">$ USD (US Dollar)</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
@@ -78,7 +92,9 @@ const ManualWithdrawal = () => {
               type="number"
               fullWidth
               value={withdrawal.amount}
-              onChange={(e) => setWithdrawal({ ...withdrawal, amount: e.target.value })}
+              onChange={(e) =>
+                setWithdrawal({ ...withdrawal, amount: e.target.value })
+              }
             />
           </Grid>
           <Grid item xs={12}>
@@ -86,7 +102,9 @@ const ManualWithdrawal = () => {
               label="Wallet Address"
               fullWidth
               value={withdrawal.address}
-              onChange={(e) => setWithdrawal({ ...withdrawal, address: e.target.value })}
+              onChange={(e) =>
+                setWithdrawal({ ...withdrawal, address: e.target.value })
+              }
             />
           </Grid>
           <Grid item xs={12}>
@@ -96,7 +114,9 @@ const ManualWithdrawal = () => {
               rows={4}
               fullWidth
               value={withdrawal.reason}
-              onChange={(e) => setWithdrawal({ ...withdrawal, reason: e.target.value })}
+              onChange={(e) =>
+                setWithdrawal({ ...withdrawal, reason: e.target.value })
+              }
             />
           </Grid>
         </Grid>
@@ -118,7 +138,7 @@ const ManualWithdrawal = () => {
             onClick={handleWithdrawal}
             disabled={activeStep === 2}
           >
-            {activeStep === 0 ? 'Request Withdrawal' : 'Approve Withdrawal'}
+            {activeStep === 0 ? "Request Withdrawal" : "Approve Withdrawal"}
           </Button>
         </Box>
 
@@ -135,7 +155,11 @@ const ManualWithdrawal = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setConfirmDialog(false)}>Cancel</Button>
-            <Button onClick={handleApproval} variant="contained" color="primary">
+            <Button
+              onClick={handleApproval}
+              variant="contained"
+              color="primary"
+            >
               Approve
             </Button>
           </DialogActions>

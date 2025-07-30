@@ -15,8 +15,10 @@ import {
   Typography,
   Chip,
   TablePagination,
+  Tooltip,
 } from "@mui/material";
 import dayjs from "dayjs";
+import ContentCopy from "@mui/icons-material/ContentCopy";
 
 const OrderQueue = ({ buyOrders, sellOrders, onOrderClick, tab, setTab }) => {
   const [page, setPage] = useState(0);
@@ -167,6 +169,23 @@ const OrderQueue = ({ buyOrders, sellOrders, onOrderClick, tab, setTab }) => {
                           {order.accountNumber}
                         </Typography> */}
                         Wallet Address not listed as part of object
+                        <Tooltip title="Copy address">
+                          <ContentCopy
+                            fontSize="small"
+                            sx={{
+                              cursor: "pointer",
+                              color: "text.secondary",
+                              zIndex: 1000,
+                              position: "relative",
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(
+                                "order.walletAddress"
+                              );
+                            }}
+                          />
+                        </Tooltip>
                       </Box>
                     </TableCell>
 

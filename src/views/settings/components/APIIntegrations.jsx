@@ -7,15 +7,22 @@ import {
   Button,
   Box,
   InputAdornment,
-  IconButton
+  IconButton,
+  MenuItem,
 } from "@mui/material";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 export default function APIIntegrations() {
-  const [kycApiKey, setKycApiKey] = useState("sk_live_************");
-  const [showKycApiKey, setShowKycApiKey] = useState(false);
-  const [priceFeedUrl, setPriceFeedUrl] = useState("https://api.crypto.com/prices");
+  const [apiKeys, setApiKeys] = useState([
+    { key: "sk_live_************", active: true },
+  ]);
+  const [accessRole, setAccessRole] = useState("Admin");
+  const [priceSource, setPriceSource] = useState("CoinGecko");
+  const [priceInterval, setPriceInterval] = useState("30");
+  const [webhooks, setWebhooks] = useState([
+    { event: "Order Update", url: "" },
+  ]);
   const [fraudApiToken, setFraudApiToken] = useState("fd_live_************");
   const [showFraudApiToken, setShowFraudApiToken] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -35,43 +42,101 @@ export default function APIIntegrations() {
         <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
           API Integrations
         </Typography>
-        <Box component="form" noValidate autoComplete="off" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box
+          component="form"
+          noValidate
+          autoComplete="off"
+          sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+        >
+          {apiKeys.map((item, idx) => (
+            <TextField
+              key={idx}
+              label={`API Key ${idx + 1}`}
+              type="password"
+              value={item.key}
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => {
+                        const updated = [...apiKeys];
+                        updated[idx].active = !updated[idx].active;
+                        setApiKeys(updated);
+                      }}
+                    >
+                      {item.active ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          ))}
           <TextField
-            label="KYC API Key"
-            type={showKycApiKey ? "text" : "password"}
-            value={kycApiKey}
-            onChange={e => setKycApiKey(e.target.value)}
+            select
+            label="API Access Role"
+            value={accessRole}
+            onChange={(e) => setAccessRole(e.target.value)}
             fullWidth
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={() => setShowKycApiKey(v => !v)} edge="end">
-                    {showKycApiKey ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
-          />
+          >
+            {["Admin", "Partner", "Read-only"].map((role) => (
+              <MenuItem key={role} value={role}>
+                {role}
+              </MenuItem>
+            ))}
+          </TextField>
+          
           <TextField
-            label="Crypto Price Feed URL"
-            value={priceFeedUrl}
-            onChange={e => setPriceFeedUrl(e.target.value)}
+            select
+            label="Crypto Price Feed Source"
+            value={priceSource}
+            onChange={(e) => setPriceSource(e.target.value)}
+            fullWidth
+          >
+            {["CoinGecko", "CoinMarketCap"].map((src) => (
+              <MenuItem key={src} value={src}>
+                {src}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            label="Price Sync Interval (in seconds)"
+            value={priceInterval}
+            onChange={(e) => setPriceInterval(e.target.value)}
             fullWidth
           />
+          {webhooks.map((hook, idx) => (
+            <TextField
+              key={idx}
+              label={`Webhook for ${hook.event}`}
+              placeholder="https://yourapp.com/webhook"
+              value={hook.url}
+              onChange={(e) => {
+                const updated = [...webhooks];
+                updated[idx].url = e.target.value;
+                setWebhooks(updated);
+              }}
+              fullWidth
+            />
+          ))}
           <TextField
             label="Fraud Detection API Token"
             type={showFraudApiToken ? "text" : "password"}
             value={fraudApiToken}
-            onChange={e => setFraudApiToken(e.target.value)}
+            onChange={(e) => setFraudApiToken(e.target.value)}
             fullWidth
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={() => setShowFraudApiToken(v => !v)} edge="end">
+                  <IconButton
+                    onClick={() => setShowFraudApiToken((v) => !v)}
+                    edge="end"
+                  >
                     {showFraudApiToken ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
-              )
+              ),
             }}
           />
           <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
@@ -88,4 +153,4 @@ export default function APIIntegrations() {
       </CardContent>
     </Card>
   );
-} 
+}

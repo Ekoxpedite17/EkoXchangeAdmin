@@ -208,11 +208,13 @@ const TransactionManagement = () => {
         </Grid>
       </Grid>
 
-      <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item size={12}>
-          <ManualWithdrawal />
+      {tab === 0 && (
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid item size={8}>
+            <ManualWithdrawal />
+          </Grid>
         </Grid>
-      </Grid>
+      )}
 
       <Box
         display={"flex"}
@@ -403,39 +405,45 @@ const TransactionManagement = () => {
                   </ListItem>
                 </List>
 
-                <Divider sx={{ my: 2 }} />
-                <Typography variant="subtitle1" gutterBottom>
-                  Transaction Receipt
-                </Typography>
-                <List
-                  dense
-                  sx={{ display: "flex", flexDirection: "row", gap: 1 }}
-                >
-                  <ListItem>
-                    <ListItemText
-                      primary="Status"
-                      secondary={
-                        selectedOrder.transactionReceipt
-                          ? "Uploaded"
-                          : "Not uploaded"
-                      }
-                    />
-                  </ListItem>
-                  {selectedOrder.transactionReceipt && (
-                    <ListItem>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() =>
-                          handleImagePreview(selectedOrder.transactionReceipt)
-                        }
-                        sx={{ mt: 1 }}
-                      >
-                        Preview Image
-                      </Button>
-                    </ListItem>
-                  )}
-                </List>
+                {tab === 0 && (
+                  <>
+                    <Divider sx={{ my: 2 }} />
+                    <Typography variant="subtitle1" gutterBottom>
+                      Transaction Receipt
+                    </Typography>
+                    <List
+                      dense
+                      sx={{ display: "flex", flexDirection: "row", gap: 1 }}
+                    >
+                      <ListItem>
+                        <ListItemText
+                          primary="Status"
+                          secondary={
+                            selectedOrder.transactionReceipt
+                              ? "Uploaded"
+                              : "Not uploaded"
+                          }
+                        />
+                      </ListItem>
+                      {selectedOrder.transactionReceipt && (
+                        <ListItem>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() =>
+                              handleImagePreview(
+                                selectedOrder.transactionReceipt
+                              )
+                            }
+                            sx={{ mt: 1 }}
+                          >
+                            Preview Image
+                          </Button>
+                        </ListItem>
+                      )}
+                    </List>
+                  </>
+                )}
               </CardContent>
             </Card>
 

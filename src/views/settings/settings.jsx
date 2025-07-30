@@ -39,7 +39,7 @@ export default function Settings() {
         </Tabs>
       </Card>
       <Grid container spacing={3}>
-        <Grid item size={6}>
+        <Grid item size={8}>
           {tabSections[tab].component}
         </Grid>
       </Grid>
