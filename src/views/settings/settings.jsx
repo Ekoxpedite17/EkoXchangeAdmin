@@ -6,6 +6,7 @@ import NotificationSettings from "./components/NotificationSettings";
 import APIIntegrations from "./components/APIIntegrations";
 import UserRoleConfig from "./components/UserRoleConfig";
 import LoggingAudit from "./components/LoggingAudit";
+import AdBanner from "./components/AdBanner";
 
 const tabSections = [
   { label: "General", component: <GeneralSettings /> },
@@ -14,6 +15,7 @@ const tabSections = [
   { label: "API Integration", component: <APIIntegrations /> },
   { label: "User Role Config", component: <UserRoleConfig /> },
   { label: "Logging & Audit", component: <LoggingAudit /> },
+  { label: "Ad banner", component: <AdBanner /> },
 ];
 
 export default function Settings() {
