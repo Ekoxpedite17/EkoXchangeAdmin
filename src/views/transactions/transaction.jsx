@@ -43,46 +43,10 @@ const TransactionManagement = () => {
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [buyOrders, setBuyOrders] = useState([]);
+  const [sellOrders, setSellOrders] = useState([]);
   const [tab, setTab] = useState(0);
-
-  const sellOrders = [
-    {
-      id: 4,
-      amount: "0.3 BTC",
-      date: "2023-11-20T11:00:00Z",
-      user: { username: "johndoe", email: "john.doe@example.com" },
-      transactionId: "TRX-001",
-      transactionType: "crypto",
-      transactionStatus: "pending",
-      walletAddress: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-      accountNumber: "1234567890",
-      evidence: "https://example.com/evidence/001.jpg",
-    },
-    {
-      id: 5,
-      amount: "$300 iTunes Card",
-      date: "2023-11-20T11:30:00Z",
-      user: { username: "janedoe", email: "jane.doe@example.com" },
-      transactionId: "TRX-002",
-      transactionType: "giftcard",
-      transactionStatus: "pending",
-      walletAddress: "N/A",
-      accountNumber: "9876543210",
-      evidence: "https://example.com/evidence/002.jpg",
-    },
-    {
-      id: 6,
-      amount: "2.0 ETH",
-      date: "2023-11-20T12:00:00Z",
-      user: { username: "mikebrown", email: "mike.brown@example.com" },
-      transactionId: "TRX-003",
-      transactionType: "crypto",
-      transactionStatus: "pending",
-      walletAddress: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-      accountNumber: "1122334455",
-      evidence: "https://example.com/evidence/003.jpg",
-    },
-  ];
+  const [skip, setSkip] = useState(0);
+  const [limit, setLimit] = useState(30);
 
   const fetchTransactions = async () => {
     setLoading(true);
@@ -102,10 +66,22 @@ const TransactionManagement = () => {
     }
   };
 
+  const fetchSellOrderQueue = async () => {
+    const data = await EkoServices_Transactions.getSellOrderQueue({
+      skip,
+      limit,
+    });
+    if (data) {
+      setSellOrders(data);
+    }
+  };
+
   useEffect(() => {
     fetchTransactions();
     if (tab === 0) {
       fetchBuyOrderQueue();
+    } else if (tab === 1) {
+      fetchSellOrderQueue();
     }
   }, [tab]);
 

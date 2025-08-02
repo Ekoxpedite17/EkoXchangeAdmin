@@ -341,6 +341,17 @@ const EkoServices_Transactions = {
     }
   },
 
+  getSellOrderQueue: async ({ skip = 0, limit = 30 }) => {
+    try {
+      const response = await axiosInstance.get(`sell/list/${skip}/${limit}`, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.log("failed to get sell order queue list", error);
+    }
+  },
+
   updateBuyOrderQueue: async (id, payload) => {
     try {
       const response = await axiosInstance.put(
