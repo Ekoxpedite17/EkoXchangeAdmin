@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { Box, Grid } from "@mui/material";
 import { gridSpacing } from "../../store/constant";
 
-// Components
 import WalletBalances from "./components/WalletBalances";
 import RateManagement from "./components/RateManagement";
 import FeeManagement from "./components/FeeManagement";

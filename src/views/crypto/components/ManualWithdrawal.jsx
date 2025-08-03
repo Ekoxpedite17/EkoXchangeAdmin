@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -21,6 +21,7 @@ import {
   InputLabel,
 } from "@mui/material";
 import { mockWithdrawals, mockWithdrawalLimits } from "../data/mockData";
+import { EkoServices_Crypty } from "../../../services";
 
 const ManualWithdrawal = () => {
   const [withdrawals, setWithdrawals] = useState(mockWithdrawals);
@@ -34,6 +35,36 @@ const ManualWithdrawal = () => {
   const [confirmDialog, setConfirmDialog] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [approvals, setApprovals] = useState([]);
+  const [balances, setBalances] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [processedBalances, setProcessedBalances] = useState([]);
+
+  const fetchDatas = async () => {
+    try {
+      const [balancesResult] = await Promise.allSettled([
+        EkoServices_Crypty.refreshWalletBalances(),
+      ]);
+
+      if (balancesResult.status === "fulfilled") {
+        const response = balancesResult.value;
+        const mappedBalances = response.balances.map((item) => ({
+          currency: item.symbol,
+          amount: item.balance,
+          usdValue: item.usdValue,
+          status: parseFloat(item.balance) > 0 ? "healthy" : "empty",
+        }));
+        setBalances(mappedBalances);
+      }
+    } catch (error) {
+      console.error("Error fetching balances:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDatas();
+  }, []);
 
   const steps = [
     "Initial Request",
@@ -63,6 +94,29 @@ const ManualWithdrawal = () => {
     }
   };
 
+  const processBalances = (balances) => {
+    const counts = {};
+
+    return balances.map((balance) => {
+      if (!counts[balance.currency]) {
+        counts[balance.currency] = 1;
+        return { ...balance, displayName: balance.currency };
+      } else {
+        counts[balance.currency]++;
+        return {
+          ...balance,
+          displayName: `${balance.currency} (${counts[balance.currency]})`,
+        };
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (balances) {
+      setProcessedBalances(processBalances(balances));
+    }
+  }, [balances]);
+
   return (
     <Card>
       <CardContent>
@@ -71,18 +125,31 @@ const ManualWithdrawal = () => {
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid item size={3}>
             <FormControl fullWidth>
-              <InputLabel>Currency</InputLabel>
+              <InputLabel>Available Tokens</InputLabel>
               <Select
                 value={withdrawal.currency}
-                label="Currency"
+                label="Available Tokens"
                 onChange={(e) =>
                   setWithdrawal({ ...withdrawal, currency: e.target.value })
                 }
+                displayEmpty
+                placeholder="Select a token"
               >
-                <MenuItem value="NGN">₦ NGN (Nigerian Naira)</MenuItem>
-                <MenuItem value="USD">$ USD (US Dollar)</MenuItem>
+                <MenuItem disabled value="">
+                  Select a token
+                </MenuItem>
+                {processedBalances?.map((balance) => (
+                  // <MenuItem
+                  //   key={balance.displayName}
+                  //   value={balance.displayName}
+                  // >
+                  //   {balance.displayName} ({balance.amount} - $
+                  //   {balance.usdValue})
+                  // </MenuItem>
+                  <></>
+                ))}
               </Select>
             </FormControl>
           </Grid>
