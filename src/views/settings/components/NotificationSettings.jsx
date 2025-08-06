@@ -25,7 +25,6 @@ export default function NotificationSettings() {
   const [saving, setSaving] = useState(false);
   const [senderEmail, setSenderEmail] = useState("noreply@ekoxchange.com");
   const [notificationTypes, setNotificationTypes] = useState([]);
-  const [smsGateway, setSmsGateway] = useState("");
 
   const handleSave = () => {
     setSaving(true);
@@ -72,39 +71,16 @@ export default function NotificationSettings() {
             onChange={(e) => setSenderEmail(e.target.value)}
             fullWidth
           />
-          <TextField
-            label="SMS Gateway Integration (e.g., Twilio, Termii API Key)"
-            value={smsGateway}
-            onChange={(e) => setSmsGateway(e.target.value)}
-            fullWidth
-          />
-          <TextField
-            select
-            label="Notification Types"
-            SelectProps={{ multiple: true }}
-            value={notificationTypes}
-            onChange={(e) => setNotificationTypes(e.target.value)}
-            fullWidth
-          >
-            {["Buy Order", "Sell Order", "KYC Status", "Support Reply"].map(
-              (type) => (
-                <MenuItem key={type} value={type}>
-                  {type}
-                </MenuItem>
-              )
-            )}
-          </TextField>
-          <Button
-            variant="outlined"
-            onClick={() => setOpenTemplate(true)}
-            sx={{ alignSelf: "flex-start" }}
-          >
-            Edit Email Template
-          </Button>
+
           <Box sx={{ display: "flex", gap: 2 }}>
-            <Button variant="outlined" onClick={() => setOpenTemplate(true)}>
-              Manage Email Templates
+            <Button
+              variant="outlined"
+              onClick={() => setOpenTemplate(true)}
+              sx={{ alignSelf: "flex-start" }}
+            >
+              Edit Email Template
             </Button>
+
             <Button
               variant="outlined"
               color="secondary"

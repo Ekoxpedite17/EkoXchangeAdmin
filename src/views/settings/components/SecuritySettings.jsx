@@ -9,7 +9,6 @@ import {
   Button,
   Box,
 } from "@mui/material";
-import { useNavigate } from "react-router";
 
 export default function SecuritySettings() {
   const [enforce2FA, setEnforce2FA] = useState(true);
@@ -18,7 +17,6 @@ export default function SecuritySettings() {
   const [loginAttemptLimit, setLoginAttemptLimit] = useState(5);
   const [ipList, setIpList] = useState("");
   const [saving, setSaving] = useState(false);
-  const navigate = useNavigate();
 
   const handleSave = () => {
     setSaving(true);
@@ -26,10 +24,6 @@ export default function SecuritySettings() {
       setSaving(false);
       alert("Security settings saved!");
     }, 1000);
-  };
-
-  const handleRolePermissions = () => {
-    navigate("/roles-permissions");
   };
 
   return (
@@ -86,13 +80,7 @@ export default function SecuritySettings() {
             placeholder="e.g., 192.168.1.1, 10.0.0.1"
             fullWidth
           />
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={handleRolePermissions}
-          >
-            Manage Role-Based Permissions
-          </Button>
+
           <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
             <Button
               variant="contained"

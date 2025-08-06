@@ -30,8 +30,6 @@ export default function GeneralSettings() {
   const [maintenance, setMaintenance] = useState(false);
   const [saving, setSaving] = useState(false);
   const [currency, setCurrency] = useState("NGN");
-  const [language, setLanguage] = useState("en");
-  const [logo, setLogo] = useState(null);
 
   const handleSave = () => {
     setSaving(true);
@@ -39,12 +37,6 @@ export default function GeneralSettings() {
       setSaving(false);
       alert("Settings saved!");
     }, 1000);
-  };
-
-  const handleLogoUpload = (e) => {
-    if (e.target.files.length > 0) {
-      setLogo(e.target.files[0]);
-    }
   };
 
   return (
@@ -78,37 +70,8 @@ export default function GeneralSettings() {
               <MenuItem value="EUR">EUR</MenuItem>
             </Select>
           </FormControl>
-          <FormControl fullWidth>
-            <InputLabel>Default Language</InputLabel>
-            <Select
-              value={language}
-              label="Default Language"
-              onChange={(e) => setLanguage(e.target.value)}
-            >
-              <MenuItem value="en">English</MenuItem>
-              <MenuItem value="fr">French</MenuItem>
-              <MenuItem value="es">Spanish</MenuItem>
-            </Select>
-          </FormControl>
-          <Box>
-            <Typography variant="body2" sx={{ mb: 1 }}>
-              Upload Logo
-            </Typography>
-            <Button variant="outlined" component="label">
-              Upload
-              <input
-                hidden
-                accept="image/*"
-                type="file"
-                onChange={handleLogoUpload}
-              />
-            </Button>
-            {logo && (
-              <Box mt={1}>
-                <Typography variant="caption">{logo.name}</Typography>
-              </Box>
-            )}
-          </Box>
+          
+
           {/* End new fields */}
           <FormControl fullWidth>
             <InputLabel>Timezone</InputLabel>

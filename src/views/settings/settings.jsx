@@ -3,6 +3,7 @@ import { Box, Tabs, Tab, Card, Typography, Grid } from "@mui/material";
 import GeneralSettings from "./components/GeneralSettings";
 import SecuritySettings from "./components/SecuritySettings";
 import NotificationSettings from "./components/NotificationSettings";
+import RateManagementNotificationSettings from "./components/RateManagementNotificationSettings";
 import APIIntegrations from "./components/APIIntegrations";
 import UserRoleConfig from "./components/UserRoleConfig";
 import LoggingAudit from "./components/LoggingAudit";
@@ -12,6 +13,7 @@ const tabSections = [
   { label: "General", component: <GeneralSettings /> },
   { label: "Security", component: <SecuritySettings /> },
   { label: "Notification", component: <NotificationSettings /> },
+  { label: "Rate Management", component: <RateManagementNotificationSettings /> },
   { label: "API Integration", component: <APIIntegrations /> },
   { label: "User Role Config", component: <UserRoleConfig /> },
   { label: "Logging & Audit", component: <LoggingAudit /> },
