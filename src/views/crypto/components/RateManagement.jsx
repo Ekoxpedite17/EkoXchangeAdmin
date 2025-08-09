@@ -53,6 +53,7 @@ const RateManagement = () => {
   const [rateForm, setRateForm] = useState({
     tokenName: "",
     tokenSymbol: "",
+    networkType: "mainnet",
     transactionType: "buy_sell",
     buyRate: "",
     sellRate: "",
@@ -80,6 +81,17 @@ const RateManagement = () => {
     { value: "sell_only", label: "Sell Only" },
   ];
 
+  const networkTypes = [
+    { value: "mainnet", label: "Mainnet" },
+    { value: "testnet", label: "Testnet" },
+    { value: "bsc", label: "Binance Smart Chain (BSC)" },
+    { value: "polygon", label: "Polygon" },
+    { value: "arbitrum", label: "Arbitrum" },
+    { value: "optimism", label: "Optimism" },
+    { value: "avalanche", label: "Avalanche" },
+    { value: "fantom", label: "Fantom" },
+  ];
+
   const fetchRates = async () => {
     const data = await EkoServices_Crypty.getRates();
     if (data) {
@@ -96,6 +108,7 @@ const RateManagement = () => {
     setRateForm({
       tokenName: rate.tokenName || "",
       tokenSymbol: rate.tokenSymbol || "",
+      networkType: rate.networkType || "mainnet",
       transactionType: rate.transactionType || "buy_sell",
       buyRate: rate.buyRate?.toString() || "",
       sellRate: rate.sellRate?.toString() || "",
@@ -124,6 +137,7 @@ const RateManagement = () => {
     setRateForm({
       tokenName: "",
       tokenSymbol: "",
+      networkType: "mainnet",
       transactionType: "buy_sell",
       buyRate: "",
       sellRate: "",
@@ -143,6 +157,7 @@ const RateManagement = () => {
     setRateForm({
       tokenName: "",
       tokenSymbol: "",
+      networkType: "mainnet",
       transactionType: "buy_sell",
       buyRate: "",
       sellRate: "",
@@ -195,6 +210,7 @@ const RateManagement = () => {
       const rateData = {
         tokenName: rateForm.tokenName,
         tokenSymbol: rateForm.tokenSymbol,
+        networkType: rateForm.networkType,
         transactionType: rateForm.transactionType,
         buyRate:
           rateForm.transactionType !== "sell_only"
@@ -300,7 +316,7 @@ const RateManagement = () => {
             <TableHead>
               <TableRow>
                 <TableCell>Cryptocurrency</TableCell>
-
+                <TableCell>Network</TableCell>
                 <TableCell>Buy Rate (NGN)</TableCell>
                 <TableCell>Sell Rate (NGN)</TableCell>
                 <TableCell>Spread (%)</TableCell>
@@ -340,6 +356,14 @@ const RateManagement = () => {
                           {rate.tokenSymbol}
                         </Typography>
                       </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={rate.networkType || "Mainnet"}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
                     </TableCell>
 
                     <TableCell>
@@ -464,6 +488,24 @@ const RateManagement = () => {
                 {availableCryptos.map((crypto) => (
                   <MenuItem key={crypto.symbol} value={crypto.symbol}>
                     {crypto.name} ({crypto.symbol})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Network Type */}
+            <FormControl fullWidth>
+              <InputLabel>Network Type</InputLabel>
+              <Select
+                value={rateForm.networkType}
+                onChange={(e) =>
+                  setRateForm({ ...rateForm, networkType: e.target.value })
+                }
+                label="Network Type"
+              >
+                {networkTypes.map((network) => (
+                  <MenuItem key={network.value} value={network.value}>
+                    {network.label}
                   </MenuItem>
                 ))}
               </Select>
@@ -603,6 +645,16 @@ const RateManagement = () => {
                 </Typography>
                 <Typography variant="body1">
                   {selectedRate.tokenName} ({selectedRate.tokenSymbol})
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Network Type
+                </Typography>
+                <Typography variant="body1">
+                  {networkTypes.find(
+                    (n) => n.value === selectedRate.networkType
+                  )?.label || selectedRate.networkType || "Mainnet"}
                 </Typography>
               </Box>
               <Box>

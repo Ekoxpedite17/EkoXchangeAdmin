@@ -164,7 +164,7 @@ export default function NotificationSettings() {
       </Card>
 
       {/* SMS Settings */}
-      {/* <Card sx={{ bgcolor: "white", boxShadow: "none", borderRadius: 3 }}>
+      <Card sx={{ bgcolor: "white", boxShadow: "none", borderRadius: 3 }}>
         <CardContent>
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <SmsIcon sx={{ mr: 1, color: "primary.main" }} />
@@ -214,7 +214,7 @@ export default function NotificationSettings() {
             )}
           </Stack>
         </CardContent>
-      </Card> */}
+      </Card>
 
       {/* Push Notification Settings */}
       <Card sx={{ bgcolor: "white", boxShadow: "none", borderRadius: 3 }}>
@@ -236,7 +236,7 @@ export default function NotificationSettings() {
               label="Enable Push Notifications"
             />
 
-            {/* {pushAlerts && (
+            {pushAlerts && (
               <>
                 <FormControl fullWidth>
                   <InputLabel>Push Provider</InputLabel>
@@ -291,7 +291,7 @@ export default function NotificationSettings() {
                   Settings
                 </Button>
               </>
-            )} */}
+            )}
           </Stack>
         </CardContent>
       </Card>
