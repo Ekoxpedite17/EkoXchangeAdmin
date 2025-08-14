@@ -128,8 +128,8 @@ export default function LoggingAudit() {
         limit: 100,
       });
 
-      if (response && response.logs) {
-        const logs = response.logs;
+      if (response) {
+        const logs = response;
 
         // Set all logs to all three arrays since they contain the same data structure
         setActivityLogs(logs);
