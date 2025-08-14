@@ -12,7 +12,9 @@ import {
   FormControlLabel,
   Button,
   Box,
+  Alert,
 } from "@mui/material";
+import { EkoServices_Settings } from "../../../services";
 
 const timezones = [
   "UTC",
@@ -30,17 +32,31 @@ export default function GeneralSettings() {
   const [maintenance, setMaintenance] = useState(false);
   const [saving, setSaving] = useState(false);
   const [currency, setCurrency] = useState("NGN");
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaving(true);
-    setTimeout(() => {
+    const payload = {
+      appName: appName,
+      timezone: timezone,
+      defaultCurrency: currency,
+      maintenance: maintenance,
+    };
+    const response = await EkoServices_Settings.updateGeneralSettings(payload);
+    if (response) {
+      setSuccess("General settings updated successfully");
       setSaving(false);
-      alert("Settings saved!");
-    }, 1000);
+    } else {
+      setError("Failed to update general settings");
+      setSaving(false);
+    }
   };
 
   return (
     <Card sx={{ bgcolor: "white", boxShadow: "none", borderRadius: 3 }}>
+      {success && <Alert severity="success">{success}</Alert>}
+
       <CardContent>
         <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
           General Settings
@@ -70,7 +86,6 @@ export default function GeneralSettings() {
               <MenuItem value="EUR">EUR</MenuItem>
             </Select>
           </FormControl>
-          
 
           {/* End new fields */}
           <FormControl fullWidth>

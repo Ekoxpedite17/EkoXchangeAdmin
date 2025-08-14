@@ -453,6 +453,37 @@ const EkoServices_Disputes = {
   },
 };
 
+const EkoServices_Settings = {
+  updateGeneralSettings: async (payload) => {
+    try {
+      const response = await axiosInstance.put(
+        `/admin/settings/update`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  getSettingsAudits: async ({ skip = 0, limit = 30 }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/audit/logs/list?skip=${skip}&limit=${limit}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  },
+};
+
 export {
   EkoServices_Auth,
   EkoServices_Admin,
@@ -460,4 +491,5 @@ export {
   EkoServices_Crypty,
   EkoServices_Transactions,
   EkoServices_Disputes,
+  EkoServices_Settings,
 };

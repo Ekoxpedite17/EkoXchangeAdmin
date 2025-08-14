@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -32,6 +32,7 @@ import {
   Tooltip,
   Badge,
   InputAdornment,
+  CircularProgress,
 } from "@mui/material";
 import {
   FilterList,
@@ -48,242 +49,14 @@ import {
 } from "@mui/icons-material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
-
-const mockActivityLogs = [
-  {
-    id: 1,
-    action: "Updated KYC status to Verified",
-    timestamp: "2025-08-02T10:45:21.000Z",
-    admin: "admin@example.com",
-    ipAddress: "105.203.12.45",
-    userAgent: "Chrome 120.0.0 / MacOS",
-    status: "success",
-    details: {
-      entity: "User",
-      entityId: "user_123",
-      changes: [
-        { field: "kycStatus", oldValue: "pending", newValue: "verified" },
-      ],
-    },
-  },
-  {
-    id: 2,
-    action: "Approved withdrawal request",
-    timestamp: "2025-08-02T09:30:15.000Z",
-    admin: "finance@example.com",
-    ipAddress: "105.203.12.46",
-    userAgent: "Firefox 119.0 / Windows",
-    status: "success",
-    details: {
-      entity: "Withdrawal",
-      entityId: "txn_456",
-      changes: [
-        { field: "status", oldValue: "pending", newValue: "approved" },
-        {
-          field: "approvedBy",
-          oldValue: null,
-          newValue: "finance@example.com",
-        },
-      ],
-    },
-  },
-  {
-    id: 3,
-    action: "Failed to update user role",
-    timestamp: "2025-08-01T16:22:45.000Z",
-    admin: "support@example.com",
-    ipAddress: "105.203.12.47",
-    userAgent: "Safari 17.0 / iOS",
-    status: "failed",
-    details: {
-      entity: "User",
-      entityId: "user_789",
-      error: "Insufficient permissions",
-    },
-  },
-  {
-    id: 4,
-    action: "Changed system setting: Default Currency",
-    timestamp: "2025-08-01T14:10:33.000Z",
-    admin: "admin@example.com",
-    ipAddress: "105.203.12.45",
-    userAgent: "Chrome 120.0.0 / MacOS",
-    status: "success",
-    details: {
-      entity: "SystemSetting",
-      entityId: "currency",
-      changes: [{ field: "defaultCurrency", oldValue: "USD", newValue: "NGN" }],
-    },
-  },
-  {
-    id: 5,
-    action: "Assigned role 'Finance Manager' to user",
-    timestamp: "2025-07-31T11:05:27.000Z",
-    admin: "admin@example.com",
-    ipAddress: "105.203.12.45",
-    userAgent: "Chrome 120.0.0 / MacOS",
-    status: "success",
-    details: {
-      entity: "User",
-      entityId: "user_321",
-      changes: [
-        {
-          field: "role",
-          oldValue: "Support Agent",
-          newValue: "Finance Manager",
-        },
-      ],
-    },
-  },
-];
-
-const mockLoginLogs = [
-  {
-    id: 1,
-    admin: "admin@example.com",
-    loginTimestamp: "2025-08-02T10:45:21.000Z",
-    logoutTimestamp: "2025-08-02T11:30:45.000Z",
-    ipAddress: "105.203.12.45",
-    userAgent: "Chrome 120.0.0 / MacOS",
-    status: "success",
-    sessionDuration: "45m 24s",
-  },
-  {
-    id: 2,
-    admin: "finance@example.com",
-    loginTimestamp: "2025-08-02T09:30:15.000Z",
-    logoutTimestamp: "2025-08-02T10:15:22.000Z",
-    ipAddress: "105.203.12.46",
-    userAgent: "Firefox 119.0 / Windows",
-    status: "success",
-    sessionDuration: "45m 07s",
-  },
-  {
-    id: 3,
-    admin: "unknown@example.com",
-    loginTimestamp: "2025-08-01T16:22:45.000Z",
-    logoutTimestamp: null,
-    ipAddress: "105.203.12.47",
-    userAgent: "Safari 17.0 / iOS",
-    status: "failed",
-    failureReason: "Invalid credentials",
-  },
-  {
-    id: 4,
-    admin: "support@example.com",
-    loginTimestamp: "2025-08-01T14:10:33.000Z",
-    logoutTimestamp: "2025-08-01T14:45:12.000Z",
-    ipAddress: "105.203.12.48",
-    userAgent: "Edge 120.0 / Windows",
-    status: "success",
-    sessionDuration: "34m 39s",
-  },
-  {
-    id: 5,
-    admin: "support@example.com",
-    loginTimestamp: "2025-08-01T13:05:27.000Z",
-    logoutTimestamp: null,
-    ipAddress: "105.203.12.49",
-    userAgent: "Chrome 120.0.0 / Android",
-    status: "failed",
-    failureReason: "2FA required but not provided",
-  },
-  {
-    id: 6,
-    admin: "support@example.com",
-    loginTimestamp: "2025-08-01T13:06:27.000Z",
-    logoutTimestamp: null,
-    ipAddress: "105.203.12.49",
-    userAgent: "Chrome 120.0.0 / Android",
-    status: "failed",
-    failureReason: "2FA required but not provided",
-  },
-  {
-    id: 7,
-    admin: "support@example.com",
-    loginTimestamp: "2025-08-01T13:07:27.000Z",
-    logoutTimestamp: null,
-    ipAddress: "105.203.12.49",
-    userAgent: "Chrome 120.0.0 / Android",
-    status: "failed",
-    failureReason: "2FA required but not provided",
-  },
-  {
-    id: 8,
-    admin: "support@example.com",
-    loginTimestamp: "2025-08-01T13:08:27.000Z",
-    logoutTimestamp: null,
-    ipAddress: "105.203.12.49",
-    userAgent: "Chrome 120.0.0 / Android",
-    status: "failed",
-    failureReason: "2FA required but not provided",
-  },
-  {
-    id: 9,
-    admin: "support@example.com",
-    loginTimestamp: "2025-08-01T13:09:27.000Z",
-    logoutTimestamp: null,
-    ipAddress: "105.203.12.49",
-    userAgent: "Chrome 120.0.0 / Android",
-    status: "failed",
-    failureReason: "Account auto-locked after 5 failed attempts",
-  },
-];
-
-const mockSystemChanges = [
-  {
-    id: 1,
-    setting: "Default Currency",
-    oldValue: "USD",
-    newValue: "NGN",
-    changedBy: "admin@example.com",
-    timestamp: "2025-08-02T10:50:12.000Z",
-    category: "General",
-  },
-  {
-    id: 2,
-    setting: "2FA Requirement",
-    oldValue: "Optional",
-    newValue: "Required",
-    changedBy: "admin@example.com",
-    timestamp: "2025-08-01T15:30:45.000Z",
-    category: "Security",
-  },
-  {
-    id: 3,
-    setting: "Price Feed Source",
-    oldValue: "CoinGecko",
-    newValue: "Binance",
-    changedBy: "admin@example.com",
-    timestamp: "2025-07-31T09:15:22.000Z",
-    category: "API Integrations",
-  },
-  {
-    id: 4,
-    setting: "Maintenance Mode",
-    oldValue: "Off",
-    newValue: "On",
-    changedBy: "admin@example.com",
-    timestamp: "2025-07-30T18:05:33.000Z",
-    category: "System",
-  },
-  {
-    id: 5,
-    setting: "Email Notifications",
-    oldValue: "All Users",
-    newValue: "Verified Users Only",
-    changedBy: "admin@example.com",
-    timestamp: "2025-07-29T11:40:19.000Z",
-    category: "Notifications",
-  },
-];
+import { EkoServices_Settings } from "../../../services";
 
 export default function LoggingAudit() {
-  // State for tab management
   const [activeTab, setActiveTab] = useState(0);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   // State for activity logs
-  const [activityLogs, setActivityLogs] = useState(mockActivityLogs);
+  const [activityLogs, setActivityLogs] = useState([]);
   const [activityFilter, setActivityFilter] = useState({
     keyword: "",
     admin: "",
@@ -295,9 +68,10 @@ export default function LoggingAudit() {
   });
   const [activityFilterOpen, setActivityFilterOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
+  const [loadingActivity, setLoadingActivity] = useState(false);
 
   // State for login logs
-  const [loginLogs, setLoginLogs] = useState(mockLoginLogs);
+  const [loginLogs, setLoginLogs] = useState([]);
   const [loginFilter, setLoginFilter] = useState({
     admin: "",
     dateRange: {
@@ -309,9 +83,10 @@ export default function LoggingAudit() {
   });
   const [loginFilterOpen, setLoginFilterOpen] = useState(false);
   const [selectedLogin, setSelectedLogin] = useState(null);
+  const [loadingLogin, setLoadingLogin] = useState(false);
 
   // State for system changes
-  const [systemChanges, setSystemChanges] = useState(mockSystemChanges);
+  const [systemChanges, setSystemChanges] = useState([]);
   const [systemFilter, setSystemFilter] = useState({
     setting: "",
     admin: "",
@@ -323,6 +98,7 @@ export default function LoggingAudit() {
   });
   const [systemFilterOpen, setSystemFilterOpen] = useState(false);
   const [selectedChange, setSelectedChange] = useState(null);
+  const [loadingSystem, setLoadingSystem] = useState(false);
 
   // State for settings
   const [settings, setSettings] = useState({
@@ -335,6 +111,58 @@ export default function LoggingAudit() {
   // State for export operations
   const [exporting, setExporting] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Fetch logs data from API
+  const fetchLogsData = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setLoadingActivity(true);
+        setLoadingLogin(true);
+        setLoadingSystem(true);
+      } else {
+        setInitialLoading(true);
+      }
+
+      const response = await EkoServices_Settings.getSettingsAudits({
+        skip: 0,
+        limit: 100,
+      });
+
+      if (response && response.logs) {
+        const logs = response.logs;
+
+        // Set all logs to all three arrays since they contain the same data structure
+        setActivityLogs(logs);
+        setLoginLogs(logs);
+        setSystemChanges(logs);
+      } else {
+        console.warn("No logs data received from API");
+        // Set empty arrays if no data
+        setActivityLogs([]);
+        setLoginLogs([]);
+        setSystemChanges([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch logs:", error);
+      // Set empty arrays on error
+      setActivityLogs([]);
+      setLoginLogs([]);
+      setSystemChanges([]);
+    } finally {
+      if (isRefresh) {
+        setLoadingActivity(false);
+        setLoadingLogin(false);
+        setLoadingSystem(false);
+      } else {
+        setInitialLoading(false);
+      }
+    }
+  };
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchLogsData(false);
+  }, []);
 
   // Handle tab change
   const handleTabChange = (event, newValue) => {
@@ -377,41 +205,43 @@ export default function LoggingAudit() {
     }, 1500);
   };
 
-  // Filter activity logs
+  // Handle refresh
+  const handleRefresh = () => {
+    fetchLogsData(true);
+  };
+
   const getFilteredActivityLogs = () => {
     return activityLogs.filter((log) => {
-      // Filter by keyword
       if (
         activityFilter.keyword &&
-        !log.action.toLowerCase().includes(activityFilter.keyword.toLowerCase())
+        !log.description
+          .toLowerCase()
+          .includes(activityFilter.keyword.toLowerCase())
       ) {
         return false;
       }
 
-      // Filter by admin
       if (
         activityFilter.admin &&
-        !log.admin.toLowerCase().includes(activityFilter.admin.toLowerCase())
+        !log.fullName.toLowerCase().includes(activityFilter.admin.toLowerCase())
       ) {
         return false;
       }
 
-      // Filter by status
       if (activityFilter.status && log.status !== activityFilter.status) {
         return false;
       }
 
-      // Filter by date range
       if (
         activityFilter.dateRange.start &&
-        new Date(log.timestamp) < new Date(activityFilter.dateRange.start)
+        new Date(log.createdAt) < new Date(activityFilter.dateRange.start)
       ) {
         return false;
       }
 
       if (
         activityFilter.dateRange.end &&
-        new Date(log.timestamp) > new Date(activityFilter.dateRange.end)
+        new Date(log.createdAt) > new Date(activityFilter.dateRange.end)
       ) {
         return false;
       }
@@ -420,23 +250,19 @@ export default function LoggingAudit() {
     });
   };
 
-  // Filter login logs
   const getFilteredLoginLogs = () => {
     return loginLogs.filter((log) => {
-      // Filter by admin
       if (
         loginFilter.admin &&
-        !log.admin.toLowerCase().includes(loginFilter.admin.toLowerCase())
+        !log.fullName.toLowerCase().includes(loginFilter.admin.toLowerCase())
       ) {
         return false;
       }
 
-      // Filter by status
       if (loginFilter.status && log.status !== loginFilter.status) {
         return false;
       }
 
-      // Filter by IP address
       if (
         loginFilter.ipAddress &&
         !log.ipAddress.includes(loginFilter.ipAddress)
@@ -444,17 +270,16 @@ export default function LoggingAudit() {
         return false;
       }
 
-      // Filter by date range
       if (
         loginFilter.dateRange.start &&
-        new Date(log.loginTimestamp) < new Date(loginFilter.dateRange.start)
+        new Date(log.createdAt) < new Date(loginFilter.dateRange.start)
       ) {
         return false;
       }
 
       if (
         loginFilter.dateRange.end &&
-        new Date(log.loginTimestamp) > new Date(loginFilter.dateRange.end)
+        new Date(log.createdAt) > new Date(loginFilter.dateRange.end)
       ) {
         return false;
       }
@@ -463,45 +288,40 @@ export default function LoggingAudit() {
     });
   };
 
-  // Filter system changes
   const getFilteredSystemChanges = () => {
     return systemChanges.filter((change) => {
-      // Filter by setting
       if (
         systemFilter.setting &&
-        !change.setting
+        !change.description
           .toLowerCase()
           .includes(systemFilter.setting.toLowerCase())
       ) {
         return false;
       }
 
-      // Filter by admin
       if (
         systemFilter.admin &&
-        !change.changedBy
+        !change.fullName
           .toLowerCase()
           .includes(systemFilter.admin.toLowerCase())
       ) {
         return false;
       }
 
-      // Filter by category
       if (systemFilter.category && change.category !== systemFilter.category) {
         return false;
       }
 
-      // Filter by date range
       if (
         systemFilter.dateRange.start &&
-        new Date(change.timestamp) < new Date(systemFilter.dateRange.start)
+        new Date(change.createdAt) < new Date(systemFilter.dateRange.start)
       ) {
         return false;
       }
 
       if (
         systemFilter.dateRange.end &&
-        new Date(change.timestamp) > new Date(systemFilter.dateRange.end)
+        new Date(change.createdAt) > new Date(systemFilter.dateRange.end)
       ) {
         return false;
       }
@@ -510,7 +330,6 @@ export default function LoggingAudit() {
     });
   };
 
-  // Reset filters
   const resetFilters = (type) => {
     switch (type) {
       case "activity":
@@ -542,7 +361,6 @@ export default function LoggingAudit() {
     }
   };
 
-  // Render status chip
   const renderStatusChip = (status) => {
     let color = "default";
     let icon = null;
@@ -573,7 +391,6 @@ export default function LoggingAudit() {
     );
   };
 
-  // Render activity logs tab
   const renderActivityLogsTab = () => {
     const filteredLogs = getFilteredActivityLogs();
 
@@ -592,7 +409,7 @@ export default function LoggingAudit() {
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
             <TextField
-              placeholder="Search actions..."
+              placeholder="Search descriptions..."
               size="small"
               value={activityFilter.keyword}
               onChange={(e) =>
@@ -635,8 +452,12 @@ export default function LoggingAudit() {
               </IconButton>
             </Tooltip>
             <Tooltip title="Refresh">
-              <IconButton>
-                <Refresh />
+              <IconButton onClick={handleRefresh}>
+                {loadingActivity ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  <Refresh />
+                )}
               </IconButton>
             </Tooltip>
           </Box>
@@ -647,7 +468,7 @@ export default function LoggingAudit() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={3}>
                 <TextField
-                  label="Admin Email"
+                  label="Admin Name"
                   size="small"
                   fullWidth
                   value={activityFilter.admin}
@@ -738,25 +559,27 @@ export default function LoggingAudit() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Action</TableCell>
+                <TableCell>Description</TableCell>
                 <TableCell>Admin</TableCell>
                 <TableCell>Timestamp</TableCell>
-                <TableCell>IP Address</TableCell>
-                <TableCell align="center">Status</TableCell>
+                <TableCell>Created By</TableCell>
                 <TableCell align="center">Details</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredLogs.length > 0 ? (
+              {loadingActivity ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    <CircularProgress size={20} />
+                  </TableCell>
+                </TableRow>
+              ) : filteredLogs.length > 0 ? (
                 filteredLogs.map((log) => (
-                  <TableRow key={log.id} hover>
-                    <TableCell>{log.action}</TableCell>
-                    <TableCell>{log.admin}</TableCell>
-                    <TableCell>{formatDate(log.timestamp)}</TableCell>
-                    <TableCell>{log.ipAddress}</TableCell>
-                    <TableCell align="center">
-                      {renderStatusChip(log.status)}
-                    </TableCell>
+                  <TableRow key={log._id} hover>
+                    <TableCell>{log.description}</TableCell>
+                    <TableCell>{log.fullName}</TableCell>
+                    <TableCell>{formatDate(log.createdAt)}</TableCell>
+                    <TableCell>{log.createdBy}</TableCell>
                     <TableCell align="center">
                       <IconButton
                         size="small"
@@ -769,7 +592,7 @@ export default function LoggingAudit() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
+                  <TableCell colSpan={5} align="center">
                     No activity logs found matching the current filters.
                   </TableCell>
                 </TableRow>
@@ -800,7 +623,7 @@ export default function LoggingAudit() {
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
             <TextField
-              placeholder="Search by email..."
+              placeholder="Search by name..."
               size="small"
               value={loginFilter.admin}
               onChange={(e) =>
@@ -838,8 +661,12 @@ export default function LoggingAudit() {
               </IconButton>
             </Tooltip>
             <Tooltip title="Refresh">
-              <IconButton>
-                <Refresh />
+              <IconButton onClick={handleRefresh}>
+                {loadingLogin ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  <Refresh />
+                )}
               </IconButton>
             </Tooltip>
           </Box>
@@ -939,26 +766,26 @@ export default function LoggingAudit() {
             <TableHead>
               <TableRow>
                 <TableCell>Admin</TableCell>
-                <TableCell>Login Time</TableCell>
-                <TableCell>Logout Time</TableCell>
-                <TableCell>IP Address</TableCell>
-                <TableCell>Device</TableCell>
-                <TableCell align="center">Status</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Timestamp</TableCell>
+                <TableCell>Created By</TableCell>
                 <TableCell align="center">Details</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredLogs.length > 0 ? (
+              {loadingLogin ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    <CircularProgress size={20} />
+                  </TableCell>
+                </TableRow>
+              ) : filteredLogs.length > 0 ? (
                 filteredLogs.map((log) => (
-                  <TableRow key={log.id} hover>
-                    <TableCell>{log.admin}</TableCell>
-                    <TableCell>{formatDate(log.loginTimestamp)}</TableCell>
-                    <TableCell>{formatDate(log.logoutTimestamp)}</TableCell>
-                    <TableCell>{log.ipAddress}</TableCell>
-                    <TableCell>{log.userAgent}</TableCell>
-                    <TableCell align="center">
-                      {renderStatusChip(log.status)}
-                    </TableCell>
+                  <TableRow key={log._id} hover>
+                    <TableCell>{log.fullName}</TableCell>
+                    <TableCell>{log.description}</TableCell>
+                    <TableCell>{formatDate(log.createdAt)}</TableCell>
+                    <TableCell>{log.createdBy}</TableCell>
                     <TableCell align="center">
                       <IconButton
                         size="small"
@@ -971,7 +798,7 @@ export default function LoggingAudit() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
+                  <TableCell colSpan={5} align="center">
                     No login logs found matching the current filters.
                   </TableCell>
                 </TableRow>
@@ -1002,7 +829,7 @@ export default function LoggingAudit() {
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
             <TextField
-              placeholder="Search settings..."
+              placeholder="Search descriptions..."
               size="small"
               value={systemFilter.setting}
               onChange={(e) =>
@@ -1042,8 +869,12 @@ export default function LoggingAudit() {
               </IconButton>
             </Tooltip>
             <Tooltip title="Refresh">
-              <IconButton>
-                <Refresh />
+              <IconButton onClick={handleRefresh}>
+                {loadingSystem ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  <Refresh />
+                )}
               </IconButton>
             </Tooltip>
           </Box>
@@ -1147,9 +978,7 @@ export default function LoggingAudit() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Setting</TableCell>
-                <TableCell>Old Value</TableCell>
-                <TableCell>New Value</TableCell>
+                <TableCell>Description</TableCell>
                 <TableCell>Changed By</TableCell>
                 <TableCell>Category</TableCell>
                 <TableCell>Timestamp</TableCell>
@@ -1157,24 +986,36 @@ export default function LoggingAudit() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredChanges.length > 0 ? (
+              {loadingSystem ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    <CircularProgress size={20} />
+                  </TableCell>
+                </TableRow>
+              ) : filteredChanges.length > 0 ? (
                 filteredChanges.map((change) => (
-                  <TableRow key={change.id} hover>
-                    <TableCell>{change.setting}</TableCell>
-                    <TableCell>{change.oldValue}</TableCell>
-                    <TableCell>{change.newValue}</TableCell>
-                    <TableCell>{change.changedBy}</TableCell>
+                  <TableRow key={change._id} hover>
+                    <TableCell>{change.description}</TableCell>
+                    <TableCell>{change.fullName}</TableCell>
                     <TableCell>
                       <Chip
                         size="small"
-                        label={change.category}
+                        label={
+                          change.description.includes("auth")
+                            ? "Security"
+                            : change.description.includes("admin")
+                              ? "System"
+                              : "General"
+                        }
                         color={
-                          change.category === "Security" ? "error" : "default"
+                          change.description.includes("auth")
+                            ? "error"
+                            : "default"
                         }
                         variant="outlined"
                       />
                     </TableCell>
-                    <TableCell>{formatDate(change.timestamp)}</TableCell>
+                    <TableCell>{formatDate(change.createdAt)}</TableCell>
                     <TableCell align="center">
                       <IconButton
                         size="small"
@@ -1187,7 +1028,7 @@ export default function LoggingAudit() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
+                  <TableCell colSpan={5} align="center">
                     No system changes found matching the current filters.
                   </TableCell>
                 </TableRow>
@@ -1326,38 +1167,46 @@ export default function LoggingAudit() {
           </Tabs>
         </Box>
 
-        <Box
-          role="tabpanel"
-          hidden={activeTab !== 0}
-          id="tabpanel-0"
-          aria-labelledby="tab-0"
-        >
-          {activeTab === 0 && renderActivityLogsTab()}
-        </Box>
-        <Box
-          role="tabpanel"
-          hidden={activeTab !== 1}
-          id="tabpanel-1"
-          aria-labelledby="tab-1"
-        >
-          {activeTab === 1 && renderLoginLogsTab()}
-        </Box>
-        <Box
-          role="tabpanel"
-          hidden={activeTab !== 2}
-          id="tabpanel-2"
-          aria-labelledby="tab-2"
-        >
-          {activeTab === 2 && renderSystemChangesTab()}
-        </Box>
-        <Box
-          role="tabpanel"
-          hidden={activeTab !== 3}
-          id="tabpanel-3"
-          aria-labelledby="tab-3"
-        >
-          {activeTab === 3 && renderSettingsTab()}
-        </Box>
+        {initialLoading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <>
+            <Box
+              role="tabpanel"
+              hidden={activeTab !== 0}
+              id="tabpanel-0"
+              aria-labelledby="tab-0"
+            >
+              {activeTab === 0 && renderActivityLogsTab()}
+            </Box>
+            <Box
+              role="tabpanel"
+              hidden={activeTab !== 1}
+              id="tabpanel-1"
+              aria-labelledby="tab-1"
+            >
+              {activeTab === 1 && renderLoginLogsTab()}
+            </Box>
+            <Box
+              role="tabpanel"
+              hidden={activeTab !== 2}
+              id="tabpanel-2"
+              aria-labelledby="tab-2"
+            >
+              {activeTab === 2 && renderSystemChangesTab()}
+            </Box>
+            <Box
+              role="tabpanel"
+              hidden={activeTab !== 3}
+              id="tabpanel-3"
+              aria-labelledby="tab-3"
+            >
+              {activeTab === 3 && renderSettingsTab()}
+            </Box>
+          </>
+        )}
       </CardContent>
 
       {/* Activity Log Details Dialog */}
@@ -1383,81 +1232,71 @@ export default function LoggingAudit() {
           {selectedActivity && (
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2">Action</Typography>
+                <Typography variant="subtitle2">Description</Typography>
                 <Typography variant="body2">
-                  {selectedActivity.action}
+                  {selectedActivity.description}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle2">Timestamp</Typography>
                 <Typography variant="body2">
-                  {formatDate(selectedActivity.timestamp)}
+                  {formatDate(selectedActivity.createdAt)}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle2">Admin</Typography>
                 <Typography variant="body2">
-                  {selectedActivity.admin}
+                  {selectedActivity.fullName}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2">IP Address</Typography>
+                <Typography variant="subtitle2">Created By</Typography>
                 <Typography variant="body2">
-                  {selectedActivity.ipAddress}
+                  {selectedActivity.createdBy}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2">User Agent</Typography>
+                <Typography variant="subtitle2">Updated By</Typography>
                 <Typography variant="body2">
-                  {selectedActivity.userAgent}
+                  {selectedActivity.updatedBy}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2">Status</Typography>
-                <Typography variant="body2">
-                  {renderStatusChip(selectedActivity.status)}
-                </Typography>
+                <Typography variant="subtitle2">Record ID</Typography>
+                <Typography variant="body2">{selectedActivity.id}</Typography>
               </Grid>
               <Grid item xs={12}>
                 <Divider sx={{ my: 1 }} />
-                <Typography variant="subtitle2">Details</Typography>
-                {selectedActivity.status === "failed" ? (
-                  <Alert severity="error" sx={{ mt: 1 }}>
-                    Error: {selectedActivity.details.error}
-                  </Alert>
-                ) : (
-                  <TableContainer
-                    component={Paper}
-                    sx={{ mt: 1, boxShadow: "none" }}
-                  >
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Field</TableCell>
-                          <TableCell>Old Value</TableCell>
-                          <TableCell>New Value</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {selectedActivity.details.changes?.map(
-                          (change, idx) => (
-                            <TableRow key={idx}>
-                              <TableCell>{change.field}</TableCell>
-                              <TableCell>{change.oldValue || "--"}</TableCell>
-                              <TableCell>{change.newValue || "--"}</TableCell>
-                            </TableRow>
-                          )
-                        ) || (
-                          <TableRow>
-                            <TableCell colSpan={3} align="center">
-                              No changes recorded
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                )}
+                <Typography variant="subtitle2">Additional Details</Typography>
+                <TableContainer
+                  component={Paper}
+                  sx={{ mt: 1, boxShadow: "none" }}
+                >
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Field</TableCell>
+                        <TableCell>Value</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>MongoDB ID</TableCell>
+                        <TableCell>{selectedActivity._id}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Version</TableCell>
+                        <TableCell>{selectedActivity.__v}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Updated At</TableCell>
+                        <TableCell>
+                          {formatDate(selectedActivity.updatedAt)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </Grid>
             </Grid>
           )}
@@ -1488,53 +1327,71 @@ export default function LoggingAudit() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle2">Admin</Typography>
-                <Typography variant="body2">{selectedLogin.admin}</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2">Status</Typography>
                 <Typography variant="body2">
-                  {renderStatusChip(selectedLogin.status)}
+                  {selectedLogin.fullName}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2">Login Time</Typography>
+                <Typography variant="subtitle2">Description</Typography>
                 <Typography variant="body2">
-                  {formatDate(selectedLogin.loginTimestamp)}
+                  {selectedLogin.description}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2">Logout Time</Typography>
+                <Typography variant="subtitle2">Timestamp</Typography>
                 <Typography variant="body2">
-                  {formatDate(selectedLogin.logoutTimestamp) || "--"}
+                  {formatDate(selectedLogin.createdAt)}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2">IP Address</Typography>
+                <Typography variant="subtitle2">Created By</Typography>
                 <Typography variant="body2">
-                  {selectedLogin.ipAddress}
+                  {selectedLogin.createdBy}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2">Device / User Agent</Typography>
+                <Typography variant="subtitle2">Updated By</Typography>
                 <Typography variant="body2">
-                  {selectedLogin.userAgent}
+                  {selectedLogin.updatedBy}
                 </Typography>
               </Grid>
-              {selectedLogin.status === "success" && (
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="subtitle2">Session Duration</Typography>
-                  <Typography variant="body2">
-                    {selectedLogin.sessionDuration || "--"}
-                  </Typography>
-                </Grid>
-              )}
-              {selectedLogin.status === "failed" && (
-                <Grid item xs={12}>
-                  <Alert severity="error" sx={{ mt: 1 }}>
-                    Failure Reason: {selectedLogin.failureReason}
-                  </Alert>
-                </Grid>
-              )}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle2">Record ID</Typography>
+                <Typography variant="body2">{selectedLogin.id}</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="subtitle2">Additional Details</Typography>
+                <TableContainer
+                  component={Paper}
+                  sx={{ mt: 1, boxShadow: "none" }}
+                >
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Field</TableCell>
+                        <TableCell>Value</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>MongoDB ID</TableCell>
+                        <TableCell>{selectedLogin._id}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Version</TableCell>
+                        <TableCell>{selectedLogin.__v}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Updated At</TableCell>
+                        <TableCell>
+                          {formatDate(selectedLogin.updatedAt)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Grid>
             </Grid>
           )}
         </DialogContent>
@@ -1563,9 +1420,9 @@ export default function LoggingAudit() {
           {selectedChange && (
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2">Setting</Typography>
+                <Typography variant="subtitle2">Description</Typography>
                 <Typography variant="body2">
-                  {selectedChange.setting}
+                  {selectedChange.description}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -1573,9 +1430,15 @@ export default function LoggingAudit() {
                 <Typography variant="body2">
                   <Chip
                     size="small"
-                    label={selectedChange.category}
+                    label={
+                      selectedChange.description.includes("auth")
+                        ? "Security"
+                        : selectedChange.description.includes("admin")
+                          ? "System"
+                          : "General"
+                    }
                     color={
-                      selectedChange.category === "Security"
+                      selectedChange.description.includes("auth")
                         ? "error"
                         : "default"
                     }
@@ -1586,13 +1449,13 @@ export default function LoggingAudit() {
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle2">Changed By</Typography>
                 <Typography variant="body2">
-                  {selectedChange.changedBy}
+                  {selectedChange.fullName}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle2">Timestamp</Typography>
                 <Typography variant="body2">
-                  {formatDate(selectedChange.timestamp)}
+                  {formatDate(selectedChange.createdAt)}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
@@ -1605,21 +1468,31 @@ export default function LoggingAudit() {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Setting</TableCell>
-                        <TableCell>Old Value</TableCell>
-                        <TableCell>New Value</TableCell>
+                        <TableCell>Field</TableCell>
+                        <TableCell>Value</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       <TableRow>
-                        <TableCell>{selectedChange.setting}</TableCell>
-                        <TableCell>{selectedChange.oldValue}</TableCell>
-                        <TableCell>{selectedChange.newValue}</TableCell>
+                        <TableCell>Description</TableCell>
+                        <TableCell>{selectedChange.description}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Created By</TableCell>
+                        <TableCell>{selectedChange.createdBy}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Updated By</TableCell>
+                        <TableCell>{selectedChange.updatedBy}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Record ID</TableCell>
+                        <TableCell>{selectedChange.id}</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
                 </TableContainer>
-                {selectedChange.category === "Security" && (
+                {selectedChange.description.includes("auth") && (
                   <Alert severity="warning" sx={{ mt: 2 }}>
                     Security-related setting changes require additional
                     verification and are logged with high priority.
