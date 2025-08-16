@@ -39,7 +39,7 @@ import {
   setNotificationSettings,
   setNotificationLoading,
   setNotificationError,
-  setNotificationSuccess
+  setNotificationSuccess,
 } from "../../../redux/reducers/settings.reducer";
 
 export default function NotificationSettings() {
@@ -67,10 +67,16 @@ export default function NotificationSettings() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      dispatch(setNotificationSuccess("Notification settings saved successfully!"));
+      dispatch(
+        setNotificationSuccess("Notification settings saved successfully!")
+      );
       setTimeout(() => dispatch(setNotificationSuccess("")), 3000);
     } catch (error) {
-      dispatch(setNotificationError("Failed to save notification settings. Please try again."));
+      dispatch(
+        setNotificationError(
+          "Failed to save notification settings. Please try again."
+        )
+      );
       setTimeout(() => dispatch(setNotificationError("")), 5000);
     } finally {
       dispatch(setNotificationLoading(false));
@@ -81,20 +87,24 @@ export default function NotificationSettings() {
     const newCategories = push.selectedCategories.includes(category)
       ? push.selectedCategories.filter((c) => c !== category)
       : [...push.selectedCategories, category];
-    
-    dispatch(setNotificationSettings({
-      type: 'push',
-      settings: { selectedCategories: newCategories }
-    }));
+
+    dispatch(
+      setNotificationSettings({
+        type: "push",
+        settings: { selectedCategories: newCategories },
+      })
+    );
   };
 
   const handleFirebaseConfigChange = (field, value) => {
-    dispatch(setNotificationSettings({
-      type: 'push',
-      settings: { 
-        config: { ...push.config, [field]: value }
-      }
-    }));
+    dispatch(
+      setNotificationSettings({
+        type: "push",
+        settings: {
+          config: { ...push.config, [field]: value },
+        },
+      })
+    );
   };
 
   return (
@@ -117,10 +127,14 @@ export default function NotificationSettings() {
               control={
                 <Switch
                   checked={email.enabled}
-                  onChange={(e) => dispatch(setNotificationSettings({
-                    type: 'email',
-                    settings: { enabled: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    dispatch(
+                      setNotificationSettings({
+                        type: "email",
+                        settings: { enabled: e.target.checked },
+                      })
+                    )
+                  }
                 />
               }
               label="Enable Email Alerts"
@@ -128,10 +142,14 @@ export default function NotificationSettings() {
             <TextField
               label="Sender Email Address"
               value={email.senderEmail}
-              onChange={(e) => dispatch(setNotificationSettings({
-                type: 'email',
-                settings: { senderEmail: e.target.value }
-              }))}
+              onChange={(e) =>
+                dispatch(
+                  setNotificationSettings({
+                    type: "email",
+                    settings: { senderEmail: e.target.value },
+                  })
+                )
+              }
               fullWidth
               disabled={!email.enabled}
             />
@@ -139,7 +157,7 @@ export default function NotificationSettings() {
               variant="outlined"
               onClick={() => setOpenTemplate(true)}
               sx={{ alignSelf: "flex-start" }}
-              disabled={!emailAlerts}
+              disabled={!email.enabled}
             >
               Edit Email Template
             </Button>
@@ -161,48 +179,64 @@ export default function NotificationSettings() {
               control={
                 <Switch
                   checked={sms.enabled}
-                  onChange={(e) => dispatch(setNotificationSettings({
-                    type: 'sms',
-                    settings: { enabled: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    dispatch(
+                      setNotificationSettings({
+                        type: "sms",
+                        settings: { enabled: e.target.checked },
+                      })
+                    )
+                  }
                 />
               }
               label="Enable SMS Alerts"
             />
             {sms.enabled && (
               <>
-                                  <FormControl fullWidth>
-                    <InputLabel>SMS Provider</InputLabel>
-                    <Select
-                      value={sms.provider}
-                      onChange={(e) => dispatch(setNotificationSettings({
-                        type: 'sms',
-                        settings: { provider: e.target.value }
-                      }))}
-                      label="SMS Provider"
-                    >
-                      <MenuItem value="twilio">Twilio</MenuItem>
-                      <MenuItem value="africastalking">Africa's Talking</MenuItem>
-                      <MenuItem value="vonage">Vonage</MenuItem>
-                    </Select>
-                  </FormControl>
+                <FormControl fullWidth>
+                  <InputLabel>SMS Provider</InputLabel>
+                  <Select
+                    value={sms.provider}
+                    onChange={(e) =>
+                      dispatch(
+                        setNotificationSettings({
+                          type: "sms",
+                          settings: { provider: e.target.value },
+                        })
+                      )
+                    }
+                    label="SMS Provider"
+                  >
+                    <MenuItem value="twilio">Twilio</MenuItem>
+                    <MenuItem value="africastalking">Africa's Talking</MenuItem>
+                    <MenuItem value="vonage">Vonage</MenuItem>
+                  </Select>
+                </FormControl>
                 <TextField
                   label="API Key"
                   value={sms.apiKey}
-                  onChange={(e) => dispatch(setNotificationSettings({
-                    type: 'sms',
-                    settings: { apiKey: e.target.value }
-                  }))}
+                  onChange={(e) =>
+                    dispatch(
+                      setNotificationSettings({
+                        type: "sms",
+                        settings: { apiKey: e.target.value },
+                      })
+                    )
+                  }
                   fullWidth
                   type="password"
                 />
                 <TextField
                   label="From Number"
                   value={sms.fromNumber}
-                  onChange={(e) => dispatch(setNotificationSettings({
-                    type: 'sms',
-                    settings: { fromNumber: e.target.value }
-                  }))}
+                  onChange={(e) =>
+                    dispatch(
+                      setNotificationSettings({
+                        type: "sms",
+                        settings: { fromNumber: e.target.value },
+                      })
+                    )
+                  }
                   fullWidth
                   placeholder="+234XXXXXXXXX"
                 />
@@ -226,10 +260,14 @@ export default function NotificationSettings() {
               control={
                 <Switch
                   checked={push.enabled}
-                  onChange={(e) => dispatch(setNotificationSettings({
-                    type: 'push',
-                    settings: { enabled: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    dispatch(
+                      setNotificationSettings({
+                        type: "push",
+                        settings: { enabled: e.target.checked },
+                      })
+                    )
+                  }
                 />
               }
               label="Enable Push Notifications"
@@ -237,51 +275,55 @@ export default function NotificationSettings() {
 
             {push.enabled && (
               <>
-                                  <FormControl fullWidth>
-                    <InputLabel>Push Provider</InputLabel>
-                    <Select
-                      value={push.provider}
-                      onChange={(e) => dispatch(setNotificationSettings({
-                        type: 'push',
-                        settings: { provider: e.target.value }
-                      }))}
-                      label="Push Provider"
-                    >
-                      <MenuItem value="firebase">
-                        Firebase Cloud Messaging
-                      </MenuItem>
-                      <MenuItem value="onesignal">OneSignal</MenuItem>
-                      <MenuItem value="pusher">Pusher</MenuItem>
-                    </Select>
-                  </FormControl>
+                <FormControl fullWidth>
+                  <InputLabel>Push Provider</InputLabel>
+                  <Select
+                    value={push.provider}
+                    onChange={(e) =>
+                      dispatch(
+                        setNotificationSettings({
+                          type: "push",
+                          settings: { provider: e.target.value },
+                        })
+                      )
+                    }
+                    label="Push Provider"
+                  >
+                    <MenuItem value="firebase">
+                      Firebase Cloud Messaging
+                    </MenuItem>
+                    <MenuItem value="onesignal">OneSignal</MenuItem>
+                    <MenuItem value="pusher">Pusher</MenuItem>
+                  </Select>
+                </FormControl>
 
-                                  <Box>
-                    <Typography variant="subtitle2" gutterBottom>
-                      Notification Categories
-                    </Typography>
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                      {push.categories.map((category) => (
-                        <Chip
-                          key={category}
-                          label={
-                            category.charAt(0).toUpperCase() + category.slice(1)
-                          }
-                          onClick={() => handlePushCategoryToggle(category)}
-                          color={
-                            push.selectedCategories.includes(category)
-                              ? "primary"
-                              : "default"
-                          }
-                          variant={
-                            push.selectedCategories.includes(category)
-                              ? "filled"
-                              : "outlined"
-                          }
-                          clickable
-                        />
-                      ))}
-                    </Box>
+                <Box>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Notification Categories
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {push.categories.map((category) => (
+                      <Chip
+                        key={category}
+                        label={
+                          category.charAt(0).toUpperCase() + category.slice(1)
+                        }
+                        onClick={() => handlePushCategoryToggle(category)}
+                        color={
+                          push.selectedCategories.includes(category)
+                            ? "primary"
+                            : "default"
+                        }
+                        variant={
+                          push.selectedCategories.includes(category)
+                            ? "filled"
+                            : "outlined"
+                        }
+                        clickable
+                      />
+                    ))}
                   </Box>
+                </Box>
 
                 <Button
                   variant="outlined"
@@ -358,10 +400,14 @@ export default function NotificationSettings() {
           <TextField
             label="Email Template"
             value={email.template}
-            onChange={(e) => dispatch(setNotificationSettings({
-              type: 'email',
-              settings: { template: e.target.value }
-            }))}
+            onChange={(e) =>
+              dispatch(
+                setNotificationSettings({
+                  type: "email",
+                  settings: { template: e.target.value },
+                })
+              )
+            }
             multiline
             minRows={6}
             fullWidth
@@ -391,58 +437,58 @@ export default function NotificationSettings() {
           <Stack spacing={2} sx={{ mt: 1 }}>
             {push.provider === "firebase" ? (
               <>
-                                  <TextField
-                    label="API Key"
-                    value={push.config.apiKey}
-                    onChange={(e) =>
-                      handleFirebaseConfigChange("apiKey", e.target.value)
-                    }
-                    fullWidth
-                    type="password"
-                  />
-                  <TextField
-                    label="Auth Domain"
-                    value={push.config.authDomain}
-                    onChange={(e) =>
-                      handleFirebaseConfigChange("authDomain", e.target.value)
-                    }
-                    fullWidth
-                  />
-                  <TextField
-                    label="Project ID"
-                    value={push.config.projectId}
-                    onChange={(e) =>
-                      handleFirebaseConfigChange("projectId", e.target.value)
-                    }
-                    fullWidth
-                  />
-                  <TextField
-                    label="Storage Bucket"
-                    value={push.config.storageBucket}
-                    onChange={(e) =>
-                      handleFirebaseConfigChange("storageBucket", e.target.value)
-                    }
-                    fullWidth
-                  />
-                  <TextField
-                    label="Messaging Sender ID"
-                    value={push.config.messagingSenderId}
-                    onChange={(e) =>
-                      handleFirebaseConfigChange(
-                        "messagingSenderId",
-                        e.target.value
-                      )
-                    }
-                    fullWidth
-                  />
-                  <TextField
-                    label="App ID"
-                    value={push.config.appId}
-                    onChange={(e) =>
-                      handleFirebaseConfigChange("appId", e.target.value)
-                    }
-                    fullWidth
-                  />
+                <TextField
+                  label="API Key"
+                  value={push.config.apiKey}
+                  onChange={(e) =>
+                    handleFirebaseConfigChange("apiKey", e.target.value)
+                  }
+                  fullWidth
+                  type="password"
+                />
+                <TextField
+                  label="Auth Domain"
+                  value={push.config.authDomain}
+                  onChange={(e) =>
+                    handleFirebaseConfigChange("authDomain", e.target.value)
+                  }
+                  fullWidth
+                />
+                <TextField
+                  label="Project ID"
+                  value={push.config.projectId}
+                  onChange={(e) =>
+                    handleFirebaseConfigChange("projectId", e.target.value)
+                  }
+                  fullWidth
+                />
+                <TextField
+                  label="Storage Bucket"
+                  value={push.config.storageBucket}
+                  onChange={(e) =>
+                    handleFirebaseConfigChange("storageBucket", e.target.value)
+                  }
+                  fullWidth
+                />
+                <TextField
+                  label="Messaging Sender ID"
+                  value={push.config.messagingSenderId}
+                  onChange={(e) =>
+                    handleFirebaseConfigChange(
+                      "messagingSenderId",
+                      e.target.value
+                    )
+                  }
+                  fullWidth
+                />
+                <TextField
+                  label="App ID"
+                  value={push.config.appId}
+                  onChange={(e) =>
+                    handleFirebaseConfigChange("appId", e.target.value)
+                  }
+                  fullWidth
+                />
               </>
             ) : (
               <TextField
@@ -457,10 +503,14 @@ export default function NotificationSettings() {
             <TextField
               label="Push Notification Template"
               value={push.template}
-              onChange={(e) => dispatch(setNotificationSettings({
-                type: 'push',
-                settings: { template: e.target.value }
-              }))}
+              onChange={(e) =>
+                dispatch(
+                  setNotificationSettings({
+                    type: "push",
+                    settings: { template: e.target.value },
+                  })
+                )
+              }
               multiline
               minRows={3}
               fullWidth
