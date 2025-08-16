@@ -12,21 +12,24 @@ import ThemeCustomization from "./themes";
 import { PersistGate } from "redux-persist/integration/react";
 import "./App.css";
 
-// auth provider
+// providers
 import { ChatProvider } from "./contexts/ChatContext";
+import { SettingsProvider } from "./contexts/SettingsContext";
 
 export default function App() {
   return (
     <ChatProvider>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <ThemeCustomization>
-            <NavigationScroll>
-              <>
-                <RouterProvider router={router} />
-              </>
-            </NavigationScroll>
-          </ThemeCustomization>
+          <SettingsProvider>
+            <ThemeCustomization>
+              <NavigationScroll>
+                <>
+                  <RouterProvider router={router} />
+                </>
+              </NavigationScroll>
+            </ThemeCustomization>
+          </SettingsProvider>
         </PersistGate>
       </Provider>
     </ChatProvider>

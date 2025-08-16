@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Box, Tabs, Tab, Card, Typography, Grid } from "@mui/material";
+import { useSelector } from "react-redux";
+import { Box, Tabs, Tab, Card, Typography, Grid, Chip, Alert } from "@mui/material";
 import GeneralSettings from "./components/GeneralSettings";
 import SecuritySettings from "./components/SecuritySettings";
 import NotificationSettings from "./components/NotificationSettings";
@@ -22,11 +23,26 @@ const tabSections = [
 
 export default function Settings() {
   const [tab, setTab] = useState(0);
+  const settings = useSelector((state) => state.settings);
+  
   return (
     <Box sx={{ p: { xs: 1, md: 3 }, bgcolor: "#f7f8fa", minHeight: "100vh" }}>
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>
         Settings
       </Typography>
+      
+      {/* Debug Info - Shows that Redux is working */}
+      <Alert severity="info" sx={{ mb: 3 }}>
+        <Typography variant="body2">
+          <strong>Redux State Active:</strong> Settings data is being managed by Redux and will persist across page refreshes.
+          <br />
+          <strong>Current App Name:</strong> {settings.general.appName} | 
+          <strong>Timezone:</strong> {settings.general.timezone} | 
+          <strong>Currency:</strong> {settings.general.currency} | 
+          <strong>2FA Enabled:</strong> {settings.security.enforce2FA ? "Yes" : "No"}
+        </Typography>
+      </Alert>
+      
       <Card
         sx={{ bgcolor: "white", boxShadow: "none", borderRadius: 3, mb: 3 }}
       >

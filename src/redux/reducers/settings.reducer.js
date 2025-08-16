@@ -498,6 +498,39 @@ const settingsSlice = createSlice({
       state.loggingAudit.error = null;
       state.adBanners.success = null;
       state.adBanners.error = null;
+    },
+
+    // Initialize settings with default data if not already present
+    initializeSettings: (state, action) => {
+      const { settings } = action.payload;
+      
+      // Only initialize if the state is empty (first time loading)
+      if (!state.general.appName || state.general.appName === "EkoXchange") {
+        if (settings.general) {
+          state.general = { ...state.general, ...settings.general };
+        }
+        if (settings.security) {
+          state.security = { ...state.security, ...settings.security };
+        }
+        if (settings.notifications) {
+          state.notifications = { ...state.notifications, ...settings.notifications };
+        }
+        if (settings.rateManagement) {
+          state.rateManagement = { ...state.rateManagement, ...settings.rateManagement };
+        }
+        if (settings.apiIntegrations) {
+          state.apiIntegrations = { ...state.apiIntegrations, ...settings.apiIntegrations };
+        }
+        if (settings.userRoles) {
+          state.userRoles = { ...state.userRoles, ...settings.userRoles };
+        }
+        if (settings.loggingAudit) {
+          state.loggingAudit = { ...state.loggingAudit, ...settings.loggingAudit };
+        }
+        if (settings.adBanners) {
+          state.adBanners = { ...state.adBanners, ...settings.adBanners };
+        }
+      }
     }
   }
 });
@@ -578,7 +611,8 @@ export const {
   setAdBannersSuccess,
 
   // Utility
-  clearMessages
+  clearMessages,
+  initializeSettings
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;
