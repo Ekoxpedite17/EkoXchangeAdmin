@@ -57,14 +57,6 @@ export default function NotificationSettings() {
       dispatch(setNotificationLoading(true));
       dispatch(setNotificationError(""));
 
-      // TODO: API call to save all notification settings
-      // await saveNotificationSettings({
-      //   email: { enabled: email.enabled, template: email.template, sender: email.senderEmail },
-      //   sms: { enabled: sms.enabled, provider: sms.provider, apiKey: sms.apiKey, fromNumber: sms.fromNumber },
-      //   push: { enabled: push.enabled, provider: push.provider, config: push.config, template: push.template, categories: push.selectedCategories }
-      // });
-
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       dispatch(
@@ -331,7 +323,7 @@ export default function NotificationSettings() {
                   sx={{ alignSelf: "flex-start" }}
                 >
                   Configure{" "}
-                  {pushProvider === "firebase" ? "Firebase" : "Provider"}{" "}
+                  {push.provider === "firebase" ? "Firebase" : "Provider"}{" "}
                   Settings
                 </Button>
               </>
