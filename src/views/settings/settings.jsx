@@ -32,7 +32,7 @@ export default function Settings() {
       </Typography>
       
       {/* Debug Info - Shows that Redux is working */}
-      <Alert severity="info" sx={{ mb: 3 }}>
+      {/* <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
           <strong>Redux State Active:</strong> Settings data is being managed by Redux and will persist across page refreshes.
           <br />
@@ -41,7 +41,7 @@ export default function Settings() {
           <strong>Currency:</strong> {settings.general.currency} | 
           <strong>2FA Enabled:</strong> {settings.security.enforce2FA ? "Yes" : "No"}
         </Typography>
-      </Alert>
+      </Alert> */}
       
       <Card
         sx={{ bgcolor: "white", boxShadow: "none", borderRadius: 3, mb: 3 }}
