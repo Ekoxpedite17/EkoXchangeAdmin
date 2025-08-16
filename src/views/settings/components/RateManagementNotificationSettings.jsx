@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
   Card,
@@ -39,6 +40,13 @@ import {
   FilterList as FilterIcon,
 } from "@mui/icons-material";
 import dayjs from "dayjs";
+import {
+  setRateManagementSettings,
+  setRateManagementLoading,
+  setRateManagementError,
+  setRateManagementSuccess,
+  updateRateManagementLog
+} from "../../../redux/reducers/settings.reducer";
 
 const NOTIFICATION_METHODS = [
   {
@@ -78,99 +86,45 @@ const RECIPIENT_OPTIONS = [
 ];
 
 const RateManagementNotificationSettings = () => {
-  // State for settings
-  const [notifyEnabled, setNotifyEnabled] = useState(false);
-  const [lastChanged, setLastChanged] = useState({
-    by: "AdminUser",
-    at: dayjs().subtract(1, "day").format("MMM D, YYYY - hh:mm A"),
-  });
-  const [methods, setMethods] = useState(["email"]);
-  const [threshold, setThreshold] = useState(1.0);
-  const [recipients, setRecipients] = useState("admins");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const dispatch = useDispatch();
+  const { notifyEnabled, lastChanged, methods, threshold, recipients, log, loading, error, success } = useSelector(
+    (state) => state.settings.rateManagement
+  );
 
-  // State for log details dialog
-  const [logDialogOpen, setLogDialogOpen] = useState(false);
-  const [selectedLogEntry, setSelectedLogEntry] = useState(null);
-
-  // Mock log data - replace with API call
-  const [log] = useState([
-    {
-      id: 1,
-      timestamp: "2024-08-02 09:45 AM",
-      token: "BTC",
-      oldRate: 1500,
-      newRate: 1545,
-      percent: 3.0,
-      triggered: true,
-      channels: ["email", "push"],
-      recipients: "Admins",
-      status: "Success",
-      deliveryDetails: {
-        email: { status: "Success", count: 5 },
-        push: { status: "Success", count: 3 },
-      },
-    },
-    {
-      id: 2,
-      timestamp: "2024-08-01 11:20 AM",
-      token: "ETH",
-      oldRate: 2000,
-      newRate: 2010,
-      percent: 0.5,
-      triggered: false,
-      channels: ["email"],
-      recipients: "Users",
-      status: "Skipped (Below Threshold)",
-      deliveryDetails: null,
-    },
-    {
-      id: 3,
-      timestamp: "2024-08-01 08:15 AM",
-      token: "SOL",
-      oldRate: 1200,
-      newRate: 1260,
-      percent: 5.0,
-      triggered: true,
-      channels: ["email", "sms", "push"],
-      recipients: "Both",
-      status: "Partial Success",
-      deliveryDetails: {
-        email: { status: "Success", count: 12 },
-        sms: { status: "Failed", count: 2, error: "Invalid phone number" },
-        push: { status: "Success", count: 8 },
-      },
-    },
-  ]);
+  // Local state for log details dialog
+  const [logDialogOpen, setLogDialogOpen] = React.useState(false);
+  const [selectedLogEntry, setSelectedLogEntry] = React.useState(null);
 
   // Handlers
   const handleToggle = async () => {
     try {
-      setNotifyEnabled((prev) => !prev);
-      setLastChanged({
-        by: "AdminUser", // TODO: Replace with actual user from context
-        at: dayjs().format("MMM D, YYYY - hh:mm A"),
-      });
+      const newValue = !notifyEnabled;
+      dispatch(setRateManagementSettings({ notifyEnabled: newValue }));
+      dispatch(setRateManagementSettings({
+        lastChanged: {
+          by: "AdminUser", // TODO: Replace with actual user from context
+          at: dayjs().format("MMM D, YYYY - hh:mm A"),
+        }
+      }));
 
       // TODO: API call to update setting
-      // await updateNotificationSetting({ enabled: !notifyEnabled });
+      // await updateNotificationSetting({ enabled: newValue });
 
-      setSuccess(
-        `Rate change notifications ${!notifyEnabled ? "enabled" : "disabled"} successfully`
-      );
-      setTimeout(() => setSuccess(""), 3000);
+      dispatch(setRateManagementSuccess(
+        `Rate change notifications ${newValue ? "enabled" : "disabled"} successfully`
+      ));
+      setTimeout(() => dispatch(setRateManagementSuccess("")), 3000);
 
       // TODO: Audit log
       // await logAuditEvent({
       //   action: 'UPDATE_NOTIFICATION_SETTING',
       //   oldValue: notifyEnabled,
-      //   newValue: !notifyEnabled,
+      //   newValue: newValue,
       //   userId: currentUser.id
       // });
     } catch (error) {
-      setError("Failed to update notification setting. Please try again.");
-      setTimeout(() => setError(""), 5000);
+      dispatch(setRateManagementError("Failed to update notification setting. Please try again."));
+      setTimeout(() => dispatch(setRateManagementError("")), 5000);
     }
   };
 
@@ -184,21 +138,21 @@ const RateManagementNotificationSettings = () => {
       }
 
       if (updated.length === 0) {
-        setError("At least one notification method must be selected.");
+        dispatch(setRateManagementError("At least one notification method must be selected."));
         return;
       }
 
-      setMethods(updated);
-      setError("");
+      dispatch(setRateManagementSettings({ methods: updated }));
+      dispatch(setRateManagementError(""));
 
       // TODO: API call to update methods
       // await updateNotificationMethods(updated);
 
-      setSuccess("Notification methods updated successfully");
-      setTimeout(() => setSuccess(""), 3000);
+      dispatch(setRateManagementSuccess("Notification methods updated successfully"));
+      setTimeout(() => dispatch(setRateManagementSuccess("")), 3000);
     } catch (error) {
-      setError("Failed to update notification methods. Please try again.");
-      setTimeout(() => setError(""), 5000);
+      dispatch(setRateManagementError("Failed to update notification methods. Please try again."));
+      setTimeout(() => dispatch(setRateManagementError("")), 5000);
     }
   };
 
@@ -206,43 +160,43 @@ const RateManagementNotificationSettings = () => {
     try {
       let value = e.target.value;
       if (value === "") {
-        setThreshold("");
-        setError("");
+        dispatch(setRateManagementSettings({ threshold: "" }));
+        dispatch(setRateManagementError(""));
         return;
       }
 
       value = parseFloat(value);
       if (isNaN(value) || value < 0.1 || value > 50) {
-        setError("Threshold must be between 0.1% and 50%.");
+        dispatch(setRateManagementError("Threshold must be between 0.1% and 50%."));
         return;
       }
 
-      setError("");
-      setThreshold(value);
+      dispatch(setRateManagementError(""));
+      dispatch(setRateManagementSettings({ threshold: value }));
 
       // TODO: API call to update threshold
       // await updateThreshold(value);
 
-      setSuccess(`Threshold updated to ${value}%`);
-      setTimeout(() => setSuccess(""), 3000);
+      dispatch(setRateManagementSuccess(`Threshold updated to ${value}%`));
+      setTimeout(() => dispatch(setRateManagementSuccess("")), 3000);
     } catch (error) {
-      setError("Failed to update threshold. Please try again.");
-      setTimeout(() => setError(""), 5000);
+      dispatch(setRateManagementError("Failed to update threshold. Please try again."));
+      setTimeout(() => dispatch(setRateManagementError("")), 5000);
     }
   };
 
   const handleRecipientChange = async (e) => {
     try {
-      setRecipients(e.target.value);
+      dispatch(setRateManagementSettings({ recipients: e.target.value }));
 
       // TODO: API call to update recipients
       // await updateRecipients(e.target.value);
 
-      setSuccess("Notification recipients updated successfully");
-      setTimeout(() => setSuccess(""), 3000);
+      dispatch(setRateManagementSuccess("Notification recipients updated successfully"));
+      setTimeout(() => dispatch(setRateManagementSuccess("")), 3000);
     } catch (error) {
-      setError("Failed to update recipients. Please try again.");
-      setTimeout(() => setError(""), 5000);
+      dispatch(setRateManagementError("Failed to update recipients. Please try again."));
+      setTimeout(() => dispatch(setRateManagementError("")), 5000);
     }
   };
 

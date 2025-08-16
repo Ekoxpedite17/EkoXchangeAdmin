@@ -4,6 +4,7 @@ import storage from 'redux-persist/lib/storage'; // defaults to localStorage for
 import authReducer from './reducers/auth.reducer';
 import userReducer from './reducers/users.reducer';
 import rolesReducer from './reducers/roles.reducer';
+import settingsReducer from './reducers/settings.reducer';
 import { useDispatch, useSelector } from 'react-redux';
 
 const persistConfig = {
@@ -17,7 +18,8 @@ const store = configureStore({
   reducer: {
     auth: persistedAuthReducer,
     user: userReducer,
-    roles: rolesReducer
+    roles: rolesReducer,
+    settings: settingsReducer
   }
 });
 

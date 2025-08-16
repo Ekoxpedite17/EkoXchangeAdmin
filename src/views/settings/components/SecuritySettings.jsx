@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Card,
   CardContent,
@@ -9,20 +10,24 @@ import {
   Button,
   Box,
 } from "@mui/material";
+import {
+  setSecuritySettings,
+  setSecurityLoading,
+  setSecurityError,
+  setSecuritySuccess
+} from "../../../redux/reducers/settings.reducer";
 
 export default function SecuritySettings() {
-  const [enforce2FA, setEnforce2FA] = useState(true);
-  const [sessionTimeout, setSessionTimeout] = useState(30);
-  const [passwordMinLength, setPasswordMinLength] = useState(8);
-  const [loginAttemptLimit, setLoginAttemptLimit] = useState(5);
-  const [ipList, setIpList] = useState("");
-  const [saving, setSaving] = useState(false);
+  const dispatch = useDispatch();
+  const { enforce2FA, sessionTimeout, passwordMinLength, loginAttemptLimit, ipList, loading } = useSelector(
+    (state) => state.settings.security
+  );
 
   const handleSave = () => {
-    setSaving(true);
+    dispatch(setSecurityLoading(true));
     setTimeout(() => {
-      setSaving(false);
-      alert("Security settings saved!");
+      dispatch(setSecuritySuccess("Security settings saved!"));
+      dispatch(setSecurityLoading(false));
     }, 1000);
   };
 
@@ -42,7 +47,7 @@ export default function SecuritySettings() {
             control={
               <Switch
                 checked={enforce2FA}
-                onChange={(e) => setEnforce2FA(e.target.checked)}
+                onChange={(e) => dispatch(setSecuritySettings({ enforce2FA: e.target.checked }))}
               />
             }
             label="Enforce 2FA for all users"
@@ -51,7 +56,7 @@ export default function SecuritySettings() {
             label="Session Timeout (minutes)"
             type="number"
             value={sessionTimeout}
-            onChange={(e) => setSessionTimeout(Number(e.target.value))}
+            onChange={(e) => dispatch(setSecuritySettings({ sessionTimeout: Number(e.target.value) }))}
             inputProps={{ min: 1, max: 1440 }}
             fullWidth
           />
@@ -59,7 +64,7 @@ export default function SecuritySettings() {
             label="Password Minimum Length"
             type="number"
             value={passwordMinLength}
-            onChange={(e) => setPasswordMinLength(Number(e.target.value))}
+            onChange={(e) => dispatch(setSecuritySettings({ passwordMinLength: Number(e.target.value) }))}
             inputProps={{ min: 6, max: 128 }}
             fullWidth
           />
@@ -67,7 +72,7 @@ export default function SecuritySettings() {
             label="Login Attempt Limit"
             type="number"
             value={loginAttemptLimit}
-            onChange={(e) => setLoginAttemptLimit(Number(e.target.value))}
+            onChange={(e) => dispatch(setSecuritySettings({ loginAttemptLimit: Number(e.target.value) }))}
             inputProps={{ min: 1, max: 20 }}
             fullWidth
           />
@@ -76,20 +81,20 @@ export default function SecuritySettings() {
             multiline
             minRows={2}
             value={ipList}
-            onChange={(e) => setIpList(e.target.value)}
+            onChange={(e) => dispatch(setSecuritySettings({ ipList: e.target.value }))}
             placeholder="e.g., 192.168.1.1, 10.0.0.1"
             fullWidth
           />
 
           <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? "Saving..." : "Save Settings"}
-            </Button>
+                      <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Save Settings"}
+          </Button>
           </Box>
         </Box>
       </CardContent>
