@@ -46,6 +46,7 @@ const UserManagement = () => {
   const dispatch = useAppDispatch();
   const { users: listofUsers, loading } = useAppSelector((state) => state.user);
   const [confirmActionLoader, setConfirmActionLoader] = useState(false);
+  const [userActivityLogs, setUserActivityLogs] = useState([]);
 
   useEffect(() => {
     dispatch(fetchUsers({ limit: 30, skip: 0 }));
@@ -144,7 +145,6 @@ const UserManagement = () => {
     }
 
     if (newValue === 2 && selectedUser) {
-      console.log("getting activity logs");
       getUserActivityLogs(selectedUser.id);
     }
   };
@@ -155,6 +155,7 @@ const UserManagement = () => {
     setTabValue(0);
     setUserWalletBalances(null);
     setUserTransactionHistory([]);
+    setUserActivityLogs([]);
   };
 
   const fetchUserWalletBalances = async (userId) => {
@@ -176,7 +177,6 @@ const UserManagement = () => {
       const response =
         await EkoServices_Admin.getUserWalletTransactionHistory(userId);
       if (response) {
-        console.log(response, "response");
         setUserTransactionHistory(response?.balances);
       }
     } catch (error) {
@@ -367,9 +367,10 @@ const UserManagement = () => {
       limit: 30,
     });
     if (logs) {
-      console.log(logs, "logs");
+      setUserActivityLogs(logs);
+    } else {
+      setUserActivityLogs([]);
     }
-    return [];
   };
 
   // Loading skeleton for user table
@@ -446,6 +447,7 @@ const UserManagement = () => {
           handleSecurityReset={handleSecurityReset}
           userWalletBalances={userWalletBalances}
           walletLoading={walletLoading}
+          userActivityLogs={userActivityLogs}
         />
 
         <ConfirmationDialog

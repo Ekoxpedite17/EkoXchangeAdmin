@@ -62,6 +62,7 @@ const UserDetailsDialog = ({
   walletLoading,
   userTransactions,
   transactionsLoading,
+  userActivityLogs,
 }) => {
   if (!user) return null;
 
@@ -84,7 +85,7 @@ const UserDetailsDialog = ({
           >
             <Tab label="Profile" />
             <Tab label="KYC Documents" />
-            <Tab label="Approval Logs" />
+            <Tab label="Activity Logs" />
             <Tab label="Wallet Balances" />
             <Tab label="Transaction History" /> {/* Add new tab */}
             <Tab label="Account Actions" />
@@ -221,50 +222,322 @@ const UserDetailsDialog = ({
           </>
         )}
 
-        {/* Approval Logs Tab */}
+        {/* Activity Logs Tab */}
         {tabValue === 2 && (
           <>
             <Typography variant="h6" gutterBottom>
-              Approval Logs
+              Activity Logs
             </Typography>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Action</TableCell>
-                    <TableCell>Admin</TableCell>
-                    <TableCell>Notes</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {approvalLogs.length > 0 ? (
-                    approvalLogs.map((log) => (
-                      <TableRow key={log.id}>
-                        <TableCell>{log.date}</TableCell>
-                        <TableCell>
-                          <Chip
-                            label={log.action}
-                            color={
-                              log.action === "Approved" ? "success" : "error"
-                            }
-                            size="small"
-                          />
-                        </TableCell>
-                        <TableCell>{log.adminUser}</TableCell>
-                        <TableCell>{log.notes}</TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
+            <Typography variant="body2" color="textSecondary" paragraph>
+              Track all user activities and system interactions for{" "}
+              {user?.firstname}
+            </Typography>
+
+            <Box sx={{ mb: 3 }}>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="subtitle2" color="primary">
+                    Total Activities: {userActivityLogs?.length || 0}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6} sx={{ textAlign: "right" }}>
+                  <Chip
+                    label="Real-time"
+                    color="success"
+                    size="small"
+                    icon={<CheckCircleIcon />}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Activity Summary Cards */}
+            <Box sx={{ mb: 3 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={4}>
+                  <Card
+                    sx={{
+                      bgcolor: "primary.light",
+                      color: "white",
+                      textAlign: "center",
+                      py: 2,
+                      cursor: "pointer",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                        boxShadow: 3,
+                        bgcolor: "primary.main",
+                      },
+                      transition: "all 0.3s ease-in-out",
+                    }}
+                  >
+                    <Typography variant="h4" fontWeight="bold">
+                      {userActivityLogs?.filter((log) =>
+                        log?.description?.includes("wallet")
+                      ).length || 0}
+                    </Typography>
+                    <Typography variant="body2">Wallet Activities</Typography>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Card
+                    sx={{
+                      bgcolor: "success.light",
+                      color: "white",
+                      textAlign: "center",
+                      py: 2,
+                      cursor: "pointer",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                        boxShadow: 3,
+                        bgcolor: "success.main",
+                      },
+                      transition: "all 0.3s ease-in-out",
+                    }}
+                  >
+                    <Typography variant="h4" fontWeight="bold">
+                      {userActivityLogs?.filter((log) =>
+                        log?.description?.includes("created")
+                      ).length || 0}
+                    </Typography>
+                    <Typography variant="body2">Created Records</Typography>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Card
+                    sx={{
+                      bgcolor: "warning.light",
+                      color: "white",
+                      textAlign: "center",
+                      py: 2,
+                      cursor: "pointer",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                        boxShadow: 3,
+                        bgcolor: "warning.main",
+                      },
+                      transition: "all 0.3s ease-in-out",
+                    }}
+                  >
+                    <Typography variant="h4" fontWeight="bold">
+                      {userActivityLogs?.length || 0}
+                    </Typography>
+                    <Typography variant="body2">Total Actions</Typography>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Box>
+
+            {userActivityLogs && userActivityLogs.length > 0 ? (
+              <TableContainer
+                sx={{
+                  maxHeight: 400,
+                  overflow: "auto",
+                  borderRadius: 2,
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <Table stickyHeader size="small">
+                  <TableHead>
                     <TableRow>
-                      <TableCell colSpan={4} align="center">
-                        No approval logs found for this user
+                      <TableCell
+                        sx={{
+                          fontWeight: 600,
+                          background:
+                            "linear-gradient(135deg, #1976d2 0%, #1565c0 100%)",
+                          color: "white",
+                          borderRight: "1px solid rgba(255,255,255,0.2)",
+                          "&:first-of-type": { borderTopLeftRadius: 8 },
+                          "&:last-of-type": { borderTopRightRadius: 8 },
+                        }}
+                      >
+                        Activity
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 600,
+                          background:
+                            "linear-gradient(135deg, #1976d2 0%, #1565c0 100%)",
+                          color: "white",
+                          borderRight: "1px solid rgba(255,255,255,0.2)",
+                        }}
+                      >
+                        Description
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 600,
+                          background:
+                            "linear-gradient(135deg, #1976d2 0%, #1565c0 100%)",
+                          color: "white",
+                          borderRight: "1px solid rgba(255,255,255,0.2)",
+                        }}
+                      >
+                        Timestamp
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 600,
+                          background:
+                            "linear-gradient(135deg, #1976d2 0%, #1565c0 100%)",
+                          color: "white",
+                        }}
+                      >
+                        Details
                       </TableCell>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {userActivityLogs.map((log, index) => (
+                      <TableRow
+                        key={log?._id || index}
+                        hover
+                        sx={{
+                          "&:nth-of-type(odd)": {
+                            backgroundColor: "rgba(25, 118, 210, 0.04)",
+                          },
+                          "&:hover": {
+                            backgroundColor: "rgba(25, 118, 210, 0.08)",
+                            transform: "scale(1.001)",
+                          },
+                          transition: "all 0.2s ease-in-out",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <TableCell
+                          sx={{ borderRight: "1px solid rgba(0,0,0,0.1)" }}
+                        >
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Box
+                              sx={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: "50%",
+                                backgroundColor: log?.description?.includes(
+                                  "wallet"
+                                )
+                                  ? "success.main"
+                                  : "info.main",
+                                boxShadow: `0 0 8px ${log?.description?.includes("wallet") ? "success.main" : "info.main"}`,
+                                "&:hover": {
+                                  transform: "scale(1.2)",
+                                  boxShadow: `0 0 12px ${log?.description?.includes("wallet") ? "success.main" : "info.main"}`,
+                                },
+                                transition: "all 0.2s ease-in-out",
+                              }}
+                            />
+                            <Typography variant="body2" fontWeight={500}>
+                              {log?.description
+                                ?.split(" ")
+                                .slice(0, 3)
+                                .join(" ") || "Activity"}
+                              ...
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell
+                          sx={{ borderRight: "1px solid rgba(0,0,0,0.1)" }}
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              maxWidth: 300,
+                              lineHeight: 1.4,
+                              color: "text.primary",
+                            }}
+                          >
+                            {log?.description || "No description available"}
+                          </Typography>
+                        </TableCell>
+                        <TableCell
+                          sx={{ borderRight: "1px solid rgba(0,0,0,0.1)" }}
+                        >
+                          <Box>
+                            <Typography
+                              variant="body2"
+                              fontWeight={500}
+                              color="primary"
+                            >
+                              {log?.createdAt
+                                ? dayjs(log.createdAt).format("MMM DD, YYYY")
+                                : "N/A"}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="textSecondary"
+                              sx={{ fontStyle: "italic" }}
+                            >
+                              {log?.createdAt
+                                ? dayjs(log.createdAt).format("hh:mm A")
+                                : "N/A"}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={1}>
+                            <Chip
+                              label={log?.fullName || "System"}
+                              size="small"
+                              color="primary"
+                              variant="outlined"
+                              sx={{
+                                borderColor: "primary.main",
+                                "&:hover": {
+                                  backgroundColor: "primary.light",
+                                  transform: "scale(1.05)",
+                                },
+                                transition: "all 0.2s ease-in-out",
+                                fontWeight: 500,
+                              }}
+                            />
+                            <Tooltip title="View Full Details">
+                              <IconButton
+                                size="small"
+                                color="primary"
+                                sx={{
+                                  "&:hover": {
+                                    backgroundColor: "primary.light",
+                                    transform: "scale(1.1)",
+                                  },
+                                  transition: "all 0.2s ease-in-out",
+                                }}
+                              >
+                                <DownloadIcon />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Box
+                sx={{
+                  textAlign: "center",
+                  py: 4,
+                  backgroundColor: "grey.50",
+                  borderRadius: 2,
+                  border: "2px dashed",
+                  borderColor: "grey.300",
+                }}
+              >
+                <Typography variant="h6" color="textSecondary" gutterBottom>
+                  No Activity Logs Found
+                </Typography>
+                <Typography variant="body2" color="textSecondary" paragraph>
+                  This user hasn't performed any activities yet, or logs are not
+                  available.
+                </Typography>
+                <Chip
+                  label="Activity monitoring is active"
+                  color="info"
+                  variant="outlined"
+                  size="small"
+                />
+              </Box>
+            )}
           </>
         )}
 
