@@ -380,6 +380,20 @@ const EkoServices_Transactions = {
       console.log("failed to update buy order queue", error);
     }
   },
+
+  executeManualTransaction: async (payload) => {
+    try {
+      const response = await axiosInstance.post(
+        "admin/crypto-management/buy-order/transfer",
+        payload
+      );
+      if (response) {
+        return response.data;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };
 
 const EkoServices_Disputes = {

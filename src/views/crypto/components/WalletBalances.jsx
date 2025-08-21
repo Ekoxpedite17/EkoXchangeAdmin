@@ -41,7 +41,6 @@ const WalletBalances = () => {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  // Onboarding form state
   const [onboardingForm, setOnboardingForm] = useState({
     tokenName: "",
     tokenSymbol: "",
@@ -144,20 +143,12 @@ const WalletBalances = () => {
         return;
       }
 
-      // TODO: API call to onboard new crypto
-      // await EkoServices_Crypty.onboardCrypto({
-      //   ...onboardingForm,
-      //   minTransactionAmount: parseFloat(onboardingForm.minTransactionAmount) || 0,
-      //   maxTransactionAmount: parseFloat(onboardingForm.maxTransactionAmount) || 0,
-      // });
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       setSuccess("Crypto asset onboarded successfully!");
       handleCloseOnboarding();
       fetchDatas(); // Refresh balances to show new asset
-      
+
       setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
       console.error("Error onboarding crypto:", error);
@@ -192,10 +183,13 @@ const WalletBalances = () => {
 
       <Card>
         <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h5">
-              Wallet Balances
-            </Typography>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant="h5">Wallet Balances</Typography>
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -205,7 +199,7 @@ const WalletBalances = () => {
               Add New Crypto
             </Button>
           </Box>
-          
+
           <Grid container spacing={2}>
             {balances?.map((balance) => (
               <Grid item xs={12} sm={6} md={4} key={balance.currency}>
@@ -219,7 +213,9 @@ const WalletBalances = () => {
                       <Typography variant="h6">{balance.currency}</Typography>
                       <Chip
                         label={balance.status}
-                        color={balance.status === "healthy" ? "success" : "error"}
+                        color={
+                          balance.status === "healthy" ? "success" : "error"
+                        }
                         size="small"
                       />
                     </Box>
@@ -243,7 +239,11 @@ const WalletBalances = () => {
         fullWidth
       >
         <DialogTitle>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Typography variant="h6">Onboard New Crypto Asset</Typography>
             <IconButton onClick={handleCloseOnboarding}>
               <CloseIcon />
@@ -263,7 +263,12 @@ const WalletBalances = () => {
                   <TextField
                     label="Token Name"
                     value={onboardingForm.tokenName}
-                    onChange={(e) => setOnboardingForm({ ...onboardingForm, tokenName: e.target.value })}
+                    onChange={(e) =>
+                      setOnboardingForm({
+                        ...onboardingForm,
+                        tokenName: e.target.value,
+                      })
+                    }
                     fullWidth
                     required
                     placeholder="e.g., Bitcoin, Ethereum"
@@ -273,7 +278,12 @@ const WalletBalances = () => {
                   <TextField
                     label="Token Symbol"
                     value={onboardingForm.tokenSymbol}
-                    onChange={(e) => setOnboardingForm({ ...onboardingForm, tokenSymbol: e.target.value.toUpperCase() })}
+                    onChange={(e) =>
+                      setOnboardingForm({
+                        ...onboardingForm,
+                        tokenSymbol: e.target.value.toUpperCase(),
+                      })
+                    }
                     fullWidth
                     required
                     placeholder="e.g., BTC, ETH"
@@ -294,7 +304,12 @@ const WalletBalances = () => {
                     <InputLabel>Network</InputLabel>
                     <Select
                       value={onboardingForm.network}
-                      onChange={(e) => setOnboardingForm({ ...onboardingForm, network: e.target.value })}
+                      onChange={(e) =>
+                        setOnboardingForm({
+                          ...onboardingForm,
+                          network: e.target.value,
+                        })
+                      }
                       label="Network"
                     >
                       {networks.map((network) => (
@@ -309,7 +324,12 @@ const WalletBalances = () => {
                   <TextField
                     label="Contract Address (Optional)"
                     value={onboardingForm.contractAddress}
-                    onChange={(e) => setOnboardingForm({ ...onboardingForm, contractAddress: e.target.value })}
+                    onChange={(e) =>
+                      setOnboardingForm({
+                        ...onboardingForm,
+                        contractAddress: e.target.value,
+                      })
+                    }
                     fullWidth
                     placeholder="0x..."
                     helperText="Required for ERC-20 tokens"
@@ -320,7 +340,12 @@ const WalletBalances = () => {
                     label="Decimals"
                     type="number"
                     value={onboardingForm.decimals}
-                    onChange={(e) => setOnboardingForm({ ...onboardingForm, decimals: parseInt(e.target.value) || 18 })}
+                    onChange={(e) =>
+                      setOnboardingForm({
+                        ...onboardingForm,
+                        decimals: parseInt(e.target.value) || 18,
+                      })
+                    }
                     fullWidth
                     inputProps={{ min: 0, max: 18 }}
                     helperText="Number of decimal places (default: 18)"
@@ -341,7 +366,12 @@ const WalletBalances = () => {
                     label="Minimum Transaction Amount"
                     type="number"
                     value={onboardingForm.minTransactionAmount}
-                    onChange={(e) => setOnboardingForm({ ...onboardingForm, minTransactionAmount: e.target.value })}
+                    onChange={(e) =>
+                      setOnboardingForm({
+                        ...onboardingForm,
+                        minTransactionAmount: e.target.value,
+                      })
+                    }
                     fullWidth
                     inputProps={{ min: 0, step: 0.000001 }}
                     placeholder="0.001"
@@ -352,7 +382,12 @@ const WalletBalances = () => {
                     label="Maximum Transaction Amount"
                     type="number"
                     value={onboardingForm.maxTransactionAmount}
-                    onChange={(e) => setOnboardingForm({ ...onboardingForm, maxTransactionAmount: e.target.value })}
+                    onChange={(e) =>
+                      setOnboardingForm({
+                        ...onboardingForm,
+                        maxTransactionAmount: e.target.value,
+                      })
+                    }
                     fullWidth
                     inputProps={{ min: 0, step: 0.000001 }}
                     placeholder="1000"
@@ -372,7 +407,12 @@ const WalletBalances = () => {
                   control={
                     <Switch
                       checked={onboardingForm.buyEnabled}
-                      onChange={(e) => setOnboardingForm({ ...onboardingForm, buyEnabled: e.target.checked })}
+                      onChange={(e) =>
+                        setOnboardingForm({
+                          ...onboardingForm,
+                          buyEnabled: e.target.checked,
+                        })
+                      }
                     />
                   }
                   label="Enable Buy"
@@ -381,7 +421,12 @@ const WalletBalances = () => {
                   control={
                     <Switch
                       checked={onboardingForm.sellEnabled}
-                      onChange={(e) => setOnboardingForm({ ...onboardingForm, sellEnabled: e.target.checked })}
+                      onChange={(e) =>
+                        setOnboardingForm({
+                          ...onboardingForm,
+                          sellEnabled: e.target.checked,
+                        })
+                      }
                     />
                   }
                   label="Enable Sell"
@@ -400,7 +445,12 @@ const WalletBalances = () => {
                   <TextField
                     label="Description"
                     value={onboardingForm.description}
-                    onChange={(e) => setOnboardingForm({ ...onboardingForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setOnboardingForm({
+                        ...onboardingForm,
+                        description: e.target.value,
+                      })
+                    }
                     fullWidth
                     multiline
                     rows={2}
@@ -411,7 +461,12 @@ const WalletBalances = () => {
                   <TextField
                     label="Logo URL"
                     value={onboardingForm.logoUrl}
-                    onChange={(e) => setOnboardingForm({ ...onboardingForm, logoUrl: e.target.value })}
+                    onChange={(e) =>
+                      setOnboardingForm({
+                        ...onboardingForm,
+                        logoUrl: e.target.value,
+                      })
+                    }
                     fullWidth
                     placeholder="https://example.com/logo.png"
                   />
@@ -420,7 +475,12 @@ const WalletBalances = () => {
                   <TextField
                     label="Website URL"
                     value={onboardingForm.websiteUrl}
-                    onChange={(e) => setOnboardingForm({ ...onboardingForm, websiteUrl: e.target.value })}
+                    onChange={(e) =>
+                      setOnboardingForm({
+                        ...onboardingForm,
+                        websiteUrl: e.target.value,
+                      })
+                    }
                     fullWidth
                     placeholder="https://example.com"
                   />
@@ -429,7 +489,12 @@ const WalletBalances = () => {
                   <TextField
                     label="Explorer URL"
                     value={onboardingForm.explorerUrl}
-                    onChange={(e) => setOnboardingForm({ ...onboardingForm, explorerUrl: e.target.value })}
+                    onChange={(e) =>
+                      setOnboardingForm({
+                        ...onboardingForm,
+                        explorerUrl: e.target.value,
+                      })
+                    }
                     fullWidth
                     placeholder="https://etherscan.io/token/..."
                   />
@@ -446,7 +511,9 @@ const WalletBalances = () => {
             variant="contained"
             onClick={handleOnboardCrypto}
             disabled={onboardingLoading}
-            startIcon={onboardingLoading ? <CircularProgress size={16} /> : null}
+            startIcon={
+              onboardingLoading ? <CircularProgress size={16} /> : null
+            }
           >
             {onboardingLoading ? "Onboarding..." : "Onboard Crypto"}
           </Button>

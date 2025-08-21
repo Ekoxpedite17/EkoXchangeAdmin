@@ -11,9 +11,6 @@ import {
   DialogContent,
   DialogActions,
   Alert,
-  Stepper,
-  Step,
-  StepLabel,
   Box,
   Select,
   MenuItem,
@@ -21,20 +18,25 @@ import {
   InputLabel,
 } from "@mui/material";
 import { mockWithdrawals, mockWithdrawalLimits } from "../data/mockData";
-import { EkoServices_Crypty } from "../../../services";
+import {
+  EkoServices_Crypty,
+  EkoServices_Transactions,
+} from "../../../services";
 
 const ManualWithdrawal = () => {
   const [withdrawals, setWithdrawals] = useState(mockWithdrawals);
   const [limits] = useState(mockWithdrawalLimits);
   const [withdrawal, setWithdrawal] = useState({
-    currency: "NGN",
+    currency: "",
     amount: "",
     address: "",
     reason: "",
+    tokenAddress: "",
+    chain: "",
   });
   const [confirmDialog, setConfirmDialog] = useState(false);
-  const [activeStep, setActiveStep] = useState(0);
-  const [approvals, setApprovals] = useState([]);
+  // const [activeStep, setActiveStep] = useState(0);
+  // const [approvals, setApprovals] = useState([]);
   const [balances, setBalances] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processedBalances, setProcessedBalances] = useState([]);
@@ -50,7 +52,9 @@ const ManualWithdrawal = () => {
         const mappedBalances = response.balances.map((item) => ({
           currency: item.symbol,
           amount: item.balance,
+          chain: item?.chain,
           usdValue: item.usdValue,
+          tokenAddress: item?.tokenAddress,
           status: parseFloat(item.balance) > 0 ? "healthy" : "empty",
         }));
         setBalances(mappedBalances);
@@ -58,7 +62,6 @@ const ManualWithdrawal = () => {
     } catch (error) {
       console.error("Error fetching balances:", error);
     } finally {
-      setLoading(false);
     }
   };
 
@@ -66,31 +69,52 @@ const ManualWithdrawal = () => {
     fetchDatas();
   }, []);
 
-  const steps = [
-    "Initial Request",
-    "First Admin Approval",
-    "Second Admin Approval",
-  ];
+  // const steps = [
+  //   "Initial Request",
+  //   "First Admin Approval",
+  //   "Second Admin Approval",
+  // ];
 
   const handleWithdrawal = () => {
     setConfirmDialog(true);
   };
 
-  const handleApproval = async () => {
-    try {
-      await fetch("/api/crypto/withdrawals/approve", {
-        method: "POST",
-        body: JSON.stringify({ ...withdrawal, adminId: "current_admin" }),
-      });
+  // const handleApproval = async () => {
+  //   try {
+  //     await fetch("/api/crypto/withdrawals/approve", {
+  //       method: "POST",
+  //       body: JSON.stringify({ ...withdrawal, adminId: "current_admin" }),
+  //     });
+  //
+  //     setApprovals([...approvals, "current_admin"]);
+  //     setActiveStep(activeStep + 1);
+  //
+  //     if (activeStep === 1) {
+  //       setConfirmDialog(false);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error approving withdrawal:", error);
+  //   }
+  // };
 
-      setApprovals([...approvals, "current_admin"]);
-      setActiveStep(activeStep + 1);
-
-      if (activeStep === 1) {
-        setConfirmDialog(false);
-      }
-    } catch (error) {
-      console.error("Error approving withdrawal:", error);
+  const handleExecute = async () => {
+    // Execute a command (e.g., log the current input values)
+    const payload = {
+      chain: withdrawal.chain,
+      tokenAddress: withdrawal.tokenAddress,
+      recipient: withdrawal.address,
+      amount: withdrawal.amount,
+      decimals: 6,
+    };
+    setLoading(true);
+    const response =
+      await EkoServices_Transactions.executeManualTransaction(payload);
+    if (response) {
+      setLoading(false);
+      setSuccess("Withdrawal executed successfully!");
+    } else {
+      setLoading(false);
+      setError("Failed to execute withdrawal. Please try again.");
     }
   };
 
@@ -126,29 +150,43 @@ const ManualWithdrawal = () => {
 
         <Grid container spacing={2}>
           <Grid item size={3}>
-            <FormControl fullWidth>
-              <InputLabel>Available Tokens</InputLabel>
+            <FormControl fullWidth required>
+              <InputLabel id="token-label">Select a token</InputLabel>
               <Select
-                value={withdrawal.currency}
-                label="Available Tokens"
-                onChange={(e) =>
-                  setWithdrawal({ ...withdrawal, currency: e.target.value })
-                }
+                value={withdrawal.tokenAddress}
+                labelId="token-label"
+                label="Select a token"
+                onChange={(e) => {
+                  const selectedTokenAddress = e.target.value;
+                  const matched = processedBalances?.find(
+                    (b) => b.tokenAddress === selectedTokenAddress
+                  );
+                  setWithdrawal({
+                    ...withdrawal,
+                    currency: matched?.currency || "",
+                    tokenAddress: selectedTokenAddress || "",
+                    chain: matched?.chain || "",
+                  });
+                }}
                 displayEmpty
-                placeholder="Select a token"
+                renderValue={(selected) => {
+                  if (!selected) return "Select a token";
+                  const balance = processedBalances?.find(
+                    (b) => b.tokenAddress === selected
+                  );
+                  return balance
+                    ? `${balance.currency} (${balance.amount} - $${balance.usdValue})`
+                    : selected;
+                }}
               >
-                <MenuItem disabled value="">
-                  Select a token
-                </MenuItem>
                 {processedBalances?.map((balance) => (
-                  // <MenuItem
-                  //   key={balance.displayName}
-                  //   value={balance.displayName}
-                  // >
-                  //   {balance.displayName} ({balance.amount} - $
-                  //   {balance.usdValue})
-                  // </MenuItem>
-                  <></>
+                  <MenuItem
+                    key={balance.displayName}
+                    value={balance.tokenAddress}
+                  >
+                    {balance.displayName} ({balance.amount} - $
+                    {balance.usdValue})
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -158,16 +196,19 @@ const ManualWithdrawal = () => {
               label="Amount"
               type="number"
               fullWidth
+              required
               value={withdrawal.amount}
               onChange={(e) =>
                 setWithdrawal({ ...withdrawal, amount: e.target.value })
               }
+              inputProps={{ min: 0 }}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
               label="Wallet Address"
               fullWidth
+              required
               value={withdrawal.address}
               onChange={(e) =>
                 setWithdrawal({ ...withdrawal, address: e.target.value })
@@ -180,6 +221,7 @@ const ManualWithdrawal = () => {
               multiline
               rows={4}
               fullWidth
+              required
               value={withdrawal.reason}
               onChange={(e) =>
                 setWithdrawal({ ...withdrawal, reason: e.target.value })
@@ -188,49 +230,54 @@ const ManualWithdrawal = () => {
           </Grid>
         </Grid>
 
-        <Box mt={3}>
-          <Stepper activeStep={activeStep}>
-            {steps.map((label) => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        </Box>
+        {/**
+         * Approval stages commented out
+         * <Box mt={3}>
+         *   <Stepper activeStep={activeStep}>
+         *     {steps.map((label) => (
+         *       <Step key={label}>
+         *         <StepLabel>{label}</StepLabel>
+         *       </Step>
+         *     ))}
+         *   </Stepper>
+         * </Box>
+         */}
 
         <Box mt={3}>
           <Button
             variant="contained"
+            // loading={loading}
             color="primary"
-            onClick={handleWithdrawal}
-            disabled={activeStep === 2}
+            onClick={handleExecute}
           >
-            {activeStep === 0 ? "Request Withdrawal" : "Approve Withdrawal"}
+            Execute Transfer
           </Button>
         </Box>
 
-        <Dialog open={confirmDialog} onClose={() => setConfirmDialog(false)}>
-          <DialogTitle>Confirm Withdrawal</DialogTitle>
-          <DialogContent>
-            <Alert severity="warning" sx={{ mb: 2 }}>
-              This action requires approval from two administrators
-            </Alert>
-            <Typography>
-              Please confirm the withdrawal details:
-              {/* Display withdrawal details */}
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setConfirmDialog(false)}>Cancel</Button>
-            <Button
-              onClick={handleApproval}
-              variant="contained"
-              color="primary"
-            >
-              Approve
-            </Button>
-          </DialogActions>
-        </Dialog>
+        {/**
+         * Approval dialog commented out
+         * <Dialog open={confirmDialog} onClose={() => setConfirmDialog(false)}>
+         *   <DialogTitle>Confirm Withdrawal</DialogTitle>
+         *   <DialogContent>
+         *     <Alert severity="warning" sx={{ mb: 2 }}>
+         *       This action requires approval from two administrators
+         *     </Alert>
+         *     <Typography>
+         *       Please confirm the withdrawal details:
+         *     </Typography>
+         *   </DialogContent>
+         *   <DialogActions>
+         *     <Button onClick={() => setConfirmDialog(false)}>Cancel</Button>
+         *     <Button
+         *       onClick={handleApproval}
+         *       variant="contained"
+         *       color="primary"
+         *     >
+         *       Approve
+         *     </Button>
+         *   </DialogActions>
+         * </Dialog>
+         */}
       </CardContent>
     </Card>
   );
