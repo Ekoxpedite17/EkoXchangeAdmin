@@ -269,11 +269,13 @@ const UserDetailsDialog = ({
                       transition: "all 0.3s ease-in-out",
                     }}
                   >
-                                         <Typography variant="h4" fontWeight="bold">
-                       {Array.isArray(userActivityLogs) ? userActivityLogs.filter((log) =>
-                         log?.description?.includes("wallet")
-                       ).length : 0}
-                     </Typography>
+                    <Typography variant="h4" fontWeight="bold">
+                      {Array.isArray(userActivityLogs)
+                        ? userActivityLogs.filter((log) =>
+                            log?.description?.includes("wallet")
+                          ).length
+                        : 0}
+                    </Typography>
                     <Typography variant="body2">Wallet Activities</Typography>
                   </Card>
                 </Grid>
@@ -293,11 +295,13 @@ const UserDetailsDialog = ({
                       transition: "all 0.3s ease-in-out",
                     }}
                   >
-                                         <Typography variant="h4" fontWeight="bold">
-                       {Array.isArray(userActivityLogs) ? userActivityLogs.filter((log) =>
-                         log?.description?.includes("created")
-                       ).length : 0}
-                     </Typography>
+                    <Typography variant="h4" fontWeight="bold">
+                      {Array.isArray(userActivityLogs)
+                        ? userActivityLogs.filter((log) =>
+                            log?.description?.includes("created")
+                          ).length
+                        : 0}
+                    </Typography>
                     <Typography variant="body2">Created Records</Typography>
                   </Card>
                 </Grid>
@@ -317,9 +321,11 @@ const UserDetailsDialog = ({
                       transition: "all 0.3s ease-in-out",
                     }}
                   >
-                                         <Typography variant="h4" fontWeight="bold">
-                       {Array.isArray(userActivityLogs) ? userActivityLogs.length : 0}
-                     </Typography>
+                    <Typography variant="h4" fontWeight="bold">
+                      {Array.isArray(userActivityLogs)
+                        ? userActivityLogs.length
+                        : 0}
+                    </Typography>
                     <Typography variant="body2">Total Actions</Typography>
                   </Card>
                 </Grid>
@@ -387,127 +393,131 @@ const UserDetailsDialog = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                                         {Array.isArray(userActivityLogs) ? userActivityLogs.map((log, index) => (
-                      <TableRow
-                        key={log?._id || index}
-                        hover
-                        sx={{
-                          "&:nth-of-type(odd)": {
-                            backgroundColor: "rgba(25, 118, 210, 0.04)",
-                          },
-                          "&:hover": {
-                            backgroundColor: "rgba(25, 118, 210, 0.08)",
-                            transform: "scale(1.001)",
-                          },
-                          transition: "all 0.2s ease-in-out",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <TableCell
-                          sx={{ borderRight: "1px solid rgba(0,0,0,0.1)" }}
-                        >
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <Box
-                              sx={{
-                                width: 8,
-                                height: 8,
-                                borderRadius: "50%",
-                                backgroundColor: log?.description?.includes(
-                                  "wallet"
-                                )
-                                  ? "success.main"
-                                  : "info.main",
-                                boxShadow: `0 0 8px ${log?.description?.includes("wallet") ? "success.main" : "info.main"}`,
-                                "&:hover": {
-                                  transform: "scale(1.2)",
-                                  boxShadow: `0 0 12px ${log?.description?.includes("wallet") ? "success.main" : "info.main"}`,
-                                },
-                                transition: "all 0.2s ease-in-out",
-                              }}
-                            />
-                            <Typography variant="body2" fontWeight={500}>
-                              {log?.description
-                                ?.split(" ")
-                                .slice(0, 3)
-                                .join(" ") || "Activity"}
-                              ...
-                            </Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell
-                          sx={{ borderRight: "1px solid rgba(0,0,0,0.1)" }}
-                        >
-                          <Typography
-                            variant="body2"
+                    {Array.isArray(userActivityLogs)
+                      ? userActivityLogs.map((log, index) => (
+                          <TableRow
+                            key={log?._id || index}
+                            hover
                             sx={{
-                              maxWidth: 300,
-                              lineHeight: 1.4,
-                              color: "text.primary",
+                              "&:nth-of-type(odd)": {
+                                backgroundColor: "rgba(25, 118, 210, 0.04)",
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(25, 118, 210, 0.08)",
+                                transform: "scale(1.001)",
+                              },
+                              transition: "all 0.2s ease-in-out",
+                              cursor: "pointer",
                             }}
                           >
-                            {log?.description || "No description available"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell
-                          sx={{ borderRight: "1px solid rgba(0,0,0,0.1)" }}
-                        >
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              fontWeight={500}
-                              color="primary"
+                            <TableCell
+                              sx={{ borderRight: "1px solid rgba(0,0,0,0.1)" }}
                             >
-                              {log?.createdAt
-                                ? dayjs(log.createdAt).format("MMM DD, YYYY")
-                                : "N/A"}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              color="textSecondary"
-                              sx={{ fontStyle: "italic" }}
+                              <Box display="flex" alignItems="center" gap={1}>
+                                <Box
+                                  sx={{
+                                    width: 8,
+                                    height: 8,
+                                    borderRadius: "50%",
+                                    backgroundColor: log?.description?.includes(
+                                      "wallet"
+                                    )
+                                      ? "success.main"
+                                      : "info.main",
+                                    boxShadow: `0 0 8px ${log?.description?.includes("wallet") ? "success.main" : "info.main"}`,
+                                    "&:hover": {
+                                      transform: "scale(1.2)",
+                                      boxShadow: `0 0 12px ${log?.description?.includes("wallet") ? "success.main" : "info.main"}`,
+                                    },
+                                    transition: "all 0.2s ease-in-out",
+                                  }}
+                                />
+                                <Typography variant="body2" fontWeight={500}>
+                                  {log?.description
+                                    ?.split(" ")
+                                    .slice(0, 3)
+                                    .join(" ") || "Activity"}
+                                  ...
+                                </Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell
+                              sx={{ borderRight: "1px solid rgba(0,0,0,0.1)" }}
                             >
-                              {log?.createdAt
-                                ? dayjs(log.createdAt).format("hh:mm A")
-                                : "N/A"}
-                            </Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Stack direction="row" spacing={1}>
-                            <Chip
-                              label={log?.fullName || "System"}
-                              size="small"
-                              color="primary"
-                              variant="outlined"
-                              sx={{
-                                borderColor: "primary.main",
-                                "&:hover": {
-                                  backgroundColor: "primary.light",
-                                  transform: "scale(1.05)",
-                                },
-                                transition: "all 0.2s ease-in-out",
-                                fontWeight: 500,
-                              }}
-                            />
-                            <Tooltip title="View Full Details">
-                              <IconButton
-                                size="small"
-                                color="primary"
+                              <Typography
+                                variant="body2"
                                 sx={{
-                                  "&:hover": {
-                                    backgroundColor: "primary.light",
-                                    transform: "scale(1.1)",
-                                  },
-                                  transition: "all 0.2s ease-in-out",
+                                  maxWidth: 300,
+                                  lineHeight: 1.4,
+                                  color: "text.primary",
                                 }}
                               >
-                                <DownloadIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    )) : null}
+                                {log?.description || "No description available"}
+                              </Typography>
+                            </TableCell>
+                            <TableCell
+                              sx={{ borderRight: "1px solid rgba(0,0,0,0.1)" }}
+                            >
+                              <Box>
+                                <Typography
+                                  variant="body2"
+                                  fontWeight={500}
+                                  color="primary"
+                                >
+                                  {log?.createdAt
+                                    ? dayjs(log.createdAt).format(
+                                        "MMM DD, YYYY"
+                                      )
+                                    : "N/A"}
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  color="textSecondary"
+                                  sx={{ fontStyle: "italic" }}
+                                >
+                                  {log?.createdAt
+                                    ? dayjs(log.createdAt).format("hh:mm A")
+                                    : "N/A"}
+                                </Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell>
+                              <Stack direction="row" spacing={1}>
+                                <Chip
+                                  label={log?.fullName || "System"}
+                                  size="small"
+                                  color="primary"
+                                  variant="outlined"
+                                  sx={{
+                                    borderColor: "primary.main",
+                                    "&:hover": {
+                                      backgroundColor: "primary.light",
+                                      transform: "scale(1.05)",
+                                    },
+                                    transition: "all 0.2s ease-in-out",
+                                    fontWeight: 500,
+                                  }}
+                                />
+                                <Tooltip title="View Full Details">
+                                  <IconButton
+                                    size="small"
+                                    color="primary"
+                                    sx={{
+                                      "&:hover": {
+                                        backgroundColor: "primary.light",
+                                        transform: "scale(1.1)",
+                                      },
+                                      transition: "all 0.2s ease-in-out",
+                                    }}
+                                  >
+                                    <DownloadIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              </Stack>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      : null}
                   </TableBody>
                 </Table>
               </TableContainer>

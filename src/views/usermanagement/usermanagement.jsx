@@ -145,7 +145,6 @@ const UserManagement = () => {
     }
 
     if (newValue === 2 && selectedUser) {
-      // Ensure userActivityLogs is always an array before proceeding
       if (!Array.isArray(userActivityLogs)) {
         setUserActivityLogs([]);
       }
@@ -364,15 +363,14 @@ const UserManagement = () => {
     return [];
   };
 
-  const getUserActivityLogs = (userId) => {
+  const getUserActivityLogs = async (userId) => {
     try {
-      const logs = EkoServices_Admin.getUserActivityLogs({
+      const logs = await EkoServices_Admin.getUserActivityLogs({
         userId,
         skip: 0,
         limit: 30,
       });
-      
-      // Ensure logs is always an array
+
       if (Array.isArray(logs)) {
         setUserActivityLogs(logs);
       } else {
