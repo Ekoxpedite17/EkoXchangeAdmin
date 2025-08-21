@@ -54,7 +54,6 @@ const UserDetailsDialog = ({
   tabValue,
   handleTabChange,
   kycDocuments,
-  approvalLogs,
   openConfirmDialog,
   handleSecurityReset,
   handleAccountStatusChange,
@@ -62,7 +61,7 @@ const UserDetailsDialog = ({
   walletLoading,
   userTransactions,
   transactionsLoading,
-  userActivityLogs,
+  userActivityLogs = [],
 }) => {
   if (!user) return null;
 
@@ -270,11 +269,11 @@ const UserDetailsDialog = ({
                       transition: "all 0.3s ease-in-out",
                     }}
                   >
-                    <Typography variant="h4" fontWeight="bold">
-                      {userActivityLogs?.filter((log) =>
-                        log?.description?.includes("wallet")
-                      ).length || 0}
-                    </Typography>
+                                         <Typography variant="h4" fontWeight="bold">
+                       {Array.isArray(userActivityLogs) ? userActivityLogs.filter((log) =>
+                         log?.description?.includes("wallet")
+                       ).length : 0}
+                     </Typography>
                     <Typography variant="body2">Wallet Activities</Typography>
                   </Card>
                 </Grid>
@@ -294,11 +293,11 @@ const UserDetailsDialog = ({
                       transition: "all 0.3s ease-in-out",
                     }}
                   >
-                    <Typography variant="h4" fontWeight="bold">
-                      {userActivityLogs?.filter((log) =>
-                        log?.description?.includes("created")
-                      ).length || 0}
-                    </Typography>
+                                         <Typography variant="h4" fontWeight="bold">
+                       {Array.isArray(userActivityLogs) ? userActivityLogs.filter((log) =>
+                         log?.description?.includes("created")
+                       ).length : 0}
+                     </Typography>
                     <Typography variant="body2">Created Records</Typography>
                   </Card>
                 </Grid>
@@ -318,16 +317,16 @@ const UserDetailsDialog = ({
                       transition: "all 0.3s ease-in-out",
                     }}
                   >
-                    <Typography variant="h4" fontWeight="bold">
-                      {userActivityLogs?.length || 0}
-                    </Typography>
+                                         <Typography variant="h4" fontWeight="bold">
+                       {Array.isArray(userActivityLogs) ? userActivityLogs.length : 0}
+                     </Typography>
                     <Typography variant="body2">Total Actions</Typography>
                   </Card>
                 </Grid>
               </Grid>
             </Box>
 
-            {userActivityLogs && userActivityLogs.length > 0 ? (
+            {Array.isArray(userActivityLogs) && userActivityLogs.length > 0 ? (
               <TableContainer
                 sx={{
                   maxHeight: 400,
@@ -388,7 +387,7 @@ const UserDetailsDialog = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {userActivityLogs.map((log, index) => (
+                                         {Array.isArray(userActivityLogs) ? userActivityLogs.map((log, index) => (
                       <TableRow
                         key={log?._id || index}
                         hover
@@ -508,7 +507,7 @@ const UserDetailsDialog = ({
                           </Stack>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )) : null}
                   </TableBody>
                 </Table>
               </TableContainer>

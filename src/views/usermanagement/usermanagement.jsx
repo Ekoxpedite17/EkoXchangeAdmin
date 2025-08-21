@@ -145,6 +145,10 @@ const UserManagement = () => {
     }
 
     if (newValue === 2 && selectedUser) {
+      // Ensure userActivityLogs is always an array before proceeding
+      if (!Array.isArray(userActivityLogs)) {
+        setUserActivityLogs([]);
+      }
       getUserActivityLogs(selectedUser.id);
     }
   };
@@ -361,14 +365,22 @@ const UserManagement = () => {
   };
 
   const getUserActivityLogs = (userId) => {
-    const logs = EkoServices_Admin.getUserActivityLogs({
-      userId,
-      skip: 0,
-      limit: 30,
-    });
-    if (logs) {
-      setUserActivityLogs(logs);
-    } else {
+    try {
+      const logs = EkoServices_Admin.getUserActivityLogs({
+        userId,
+        skip: 0,
+        limit: 30,
+      });
+      
+      // Ensure logs is always an array
+      if (Array.isArray(logs)) {
+        setUserActivityLogs(logs);
+      } else {
+        console.warn("Activity logs is not an array:", logs);
+        setUserActivityLogs([]);
+      }
+    } catch (error) {
+      console.error("Error fetching activity logs:", error);
       setUserActivityLogs([]);
     }
   };
@@ -447,7 +459,7 @@ const UserManagement = () => {
           handleSecurityReset={handleSecurityReset}
           userWalletBalances={userWalletBalances}
           walletLoading={walletLoading}
-          userActivityLogs={userActivityLogs}
+          userActivityLogs={userActivityLogs ?? []}
         />
 
         <ConfirmationDialog
