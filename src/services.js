@@ -167,6 +167,20 @@ const EkoServices_Admin = {
       console.log(error);
     }
   },
+
+  getUserActivityLogs: async ({ userId, skip = 0, limit = 30 }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/audit/logs/${userId}/list?skip=${skip}&limit=${limit}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response?.data;
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };
 
 const EkoServices_Roles = {

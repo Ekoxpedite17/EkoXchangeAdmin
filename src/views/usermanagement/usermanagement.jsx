@@ -142,6 +142,11 @@ const UserManagement = () => {
     if (newValue === 4 && selectedUser) {
       fetchUserWalletTransactionHistory(selectedUser.id);
     }
+
+    if (newValue === 2 && selectedUser) {
+      console.log("getting activity logs");
+      getUserActivityLogs(selectedUser.id);
+    }
   };
 
   const handleCloseUserDialog = () => {
@@ -171,7 +176,7 @@ const UserManagement = () => {
       const response =
         await EkoServices_Admin.getUserWalletTransactionHistory(userId);
       if (response) {
-        console.log(response, "response")
+        console.log(response, "response");
         setUserTransactionHistory(response?.balances);
       }
     } catch (error) {
@@ -355,7 +360,15 @@ const UserManagement = () => {
     return [];
   };
 
-  const getUserApprovalLogs = (userId) => {
+  const getUserActivityLogs = (userId) => {
+    const logs = EkoServices_Admin.getUserActivityLogs({
+      userId,
+      skip: 0,
+      limit: 30,
+    });
+    if (logs) {
+      console.log(logs, "logs");
+    }
     return [];
   };
 
