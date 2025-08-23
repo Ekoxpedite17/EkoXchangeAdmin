@@ -77,11 +77,10 @@ const EkoServices_Admin = {
     }
   },
 
-  reset2fa: async (param) => {
+  reset2fa: async (userId) => {
     try {
-      const response = await axiosInstance.post(
-        `/dashboard/admin/admin-user/reset-2fa`,
-        param,
+      const response = await axiosInstance.patch(
+        `/admin/settings/wallet-user/${userId}/reset2fa`,
         {
           withCredentials: true,
         }

@@ -327,9 +327,7 @@ const UserManagement = () => {
         break;
       case "2fa":
         setConfirmActionLoader(true);
-        const twofa = await EkoServices_Admin.reset2fa({
-          id: selectedUser.id,
-        });
+        const twofa = await EkoServices_Admin.reset2fa(selectedUser.id);
         if (twofa?.message.includes("2FA reset successfully")) {
           setConfirmActionLoader(false);
           dispatch(fetchUsers({ limit: 30, skip: 0 }));
