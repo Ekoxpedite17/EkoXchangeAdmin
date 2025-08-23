@@ -21,6 +21,10 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
 } from "@mui/material";
 import dayjs from "dayjs";
 import CloseIcon from "@mui/icons-material/Close";
@@ -62,6 +66,8 @@ const UserDetailsDialog = ({
   userTransactions,
   transactionsLoading,
   userActivityLogs = [],
+  activityFilter,
+  setActivityFilter,
 }) => {
   if (!user) return null;
 
@@ -250,86 +256,26 @@ const UserDetailsDialog = ({
               </Grid>
             </Box>
 
-            {/* Activity Summary Cards */}
-            <Box sx={{ mb: 3 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
-                  <Card
-                    sx={{
-                      bgcolor: "primary.light",
-                      color: "white",
-                      textAlign: "center",
-                      py: 2,
-                      cursor: "pointer",
-                      "&:hover": {
-                        transform: "translateY(-2px)",
-                        boxShadow: 3,
-                        bgcolor: "primary.main",
-                      },
-                      transition: "all 0.3s ease-in-out",
-                    }}
-                  >
-                    <Typography variant="h4" fontWeight="bold">
-                      {Array.isArray(userActivityLogs)
-                        ? userActivityLogs.filter((log) =>
-                            log?.description?.includes("wallet")
-                          ).length
-                        : 0}
-                    </Typography>
-                    <Typography variant="body2">Wallet Activities</Typography>
-                  </Card>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Card
-                    sx={{
-                      bgcolor: "success.light",
-                      color: "white",
-                      textAlign: "center",
-                      py: 2,
-                      cursor: "pointer",
-                      "&:hover": {
-                        transform: "translateY(-2px)",
-                        boxShadow: 3,
-                        bgcolor: "success.main",
-                      },
-                      transition: "all 0.3s ease-in-out",
-                    }}
-                  >
-                    <Typography variant="h4" fontWeight="bold">
-                      {Array.isArray(userActivityLogs)
-                        ? userActivityLogs.filter((log) =>
-                            log?.description?.includes("created")
-                          ).length
-                        : 0}
-                    </Typography>
-                    <Typography variant="body2">Created Records</Typography>
-                  </Card>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Card
-                    sx={{
-                      bgcolor: "warning.light",
-                      color: "white",
-                      textAlign: "center",
-                      py: 2,
-                      cursor: "pointer",
-                      "&:hover": {
-                        transform: "translateY(-2px)",
-                        boxShadow: 3,
-                        bgcolor: "warning.main",
-                      },
-                      transition: "all 0.3s ease-in-out",
-                    }}
-                  >
-                    <Typography variant="h4" fontWeight="bold">
-                      {Array.isArray(userActivityLogs)
-                        ? userActivityLogs.length
-                        : 0}
-                    </Typography>
-                    <Typography variant="body2">Total Actions</Typography>
-                  </Card>
-                </Grid>
-              </Grid>
+            <Box
+              sx={{
+                mb: 3,
+              }}
+            >
+              <FormControl fullWidth size="small">
+                <InputLabel id="activity-filter-label">
+                  Filter Activities
+                </InputLabel>
+                <Select
+                  labelId="activity-filter-label"
+                  value={activityFilter}
+                  onChange={(e) => setActivityFilter(e.target.value)}
+                  label="Filter Activities"
+                >
+                  <MenuItem value="all">All</MenuItem>
+                  <MenuItem value="wallet">Wallet Activities</MenuItem>
+                  <MenuItem value="created">Created Records</MenuItem>
+                </Select>
+              </FormControl>
             </Box>
 
             {Array.isArray(userActivityLogs) && userActivityLogs.length > 0 ? (
@@ -348,47 +294,43 @@ const UserDetailsDialog = ({
                       <TableCell
                         sx={{
                           fontWeight: 600,
-                          background:
-                            "linear-gradient(135deg, #1976d2 0%, #1565c0 100%)",
+                          background: "#740CC3",
                           color: "white",
                           borderRight: "1px solid rgba(255,255,255,0.2)",
                           "&:first-of-type": { borderTopLeftRadius: 8 },
                           "&:last-of-type": { borderTopRightRadius: 8 },
                         }}
                       >
-                        Activity
+                        <Typography color="white">Activity</Typography>
                       </TableCell>
                       <TableCell
                         sx={{
                           fontWeight: 600,
-                          background:
-                            "linear-gradient(135deg, #1976d2 0%, #1565c0 100%)",
+                          background: "#740CC3",
                           color: "white",
                           borderRight: "1px solid rgba(255,255,255,0.2)",
                         }}
                       >
-                        Description
+                        <Typography color="white">Description</Typography>
                       </TableCell>
                       <TableCell
                         sx={{
                           fontWeight: 600,
-                          background:
-                            "linear-gradient(135deg, #1976d2 0%, #1565c0 100%)",
+                          background: "#740CC3",
                           color: "white",
                           borderRight: "1px solid rgba(255,255,255,0.2)",
                         }}
                       >
-                        Timestamp
+                        <Typography color="white">Timestamp</Typography>
                       </TableCell>
                       <TableCell
                         sx={{
                           fontWeight: 600,
-                          background:
-                            "linear-gradient(135deg, #1976d2 0%, #1565c0 100%)",
+                          background: "#740CC3",
                           color: "white",
                         }}
                       >
-                        Details
+                        <Typography color="white">Details</Typography>
                       </TableCell>
                     </TableRow>
                   </TableHead>
