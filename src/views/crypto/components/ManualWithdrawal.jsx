@@ -38,8 +38,10 @@ const ManualWithdrawal = () => {
   // const [activeStep, setActiveStep] = useState(0);
   // const [approvals, setApprovals] = useState([]);
   const [balances, setBalances] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [processedBalances, setProcessedBalances] = useState([]);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
   const fetchDatas = async () => {
     try {
@@ -98,7 +100,6 @@ const ManualWithdrawal = () => {
   // };
 
   const handleExecute = async () => {
-    // Execute a command (e.g., log the current input values)
     const payload = {
       chain: withdrawal.chain,
       tokenAddress: withdrawal.tokenAddress,
@@ -106,11 +107,21 @@ const ManualWithdrawal = () => {
       amount: withdrawal.amount,
       decimals: 6,
     };
+
     setLoading(true);
     const response =
       await EkoServices_Transactions.executeManualTransaction(payload);
     if (response) {
       setLoading(false);
+      fetchDatas();
+      setWithdrawal({
+        address: "",
+        amount: "",
+        chain: "",
+        currency: "",
+        reason: "",
+        tokenAddress: "",
+      });
       setSuccess("Withdrawal executed successfully!");
     } else {
       setLoading(false);
@@ -246,9 +257,9 @@ const ManualWithdrawal = () => {
         <Box mt={3}>
           <Button
             variant="contained"
-            // loading={loading}
+            loading={loading}
             color="primary"
-            onClick={handleExecute}
+            onClick={() => handleExecute()}
           >
             Execute Transfer
           </Button>

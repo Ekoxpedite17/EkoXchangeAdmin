@@ -387,7 +387,10 @@ const EkoServices_Transactions = {
     try {
       const response = await axiosInstance.post(
         "admin/crypto-management/buy-order/transfer",
-        payload
+        payload,
+        {
+          withCredentials: true,
+        }
       );
       if (response) {
         return response.data;
