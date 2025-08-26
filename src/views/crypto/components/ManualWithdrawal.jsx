@@ -204,7 +204,7 @@ const ManualWithdrawal = () => {
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
-              label="Amount"
+              label="Amount in USD"
               type="number"
               fullWidth
               required

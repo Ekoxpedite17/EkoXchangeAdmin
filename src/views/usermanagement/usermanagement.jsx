@@ -224,7 +224,7 @@ const UserManagement = () => {
           newStatus = "Locked";
           setConfirmActionLoader(true);
           const lock = await EkoServices_Admin.deActivateUser(selectedUser.id);
-          if (lock?.message === "success") {
+          if (lock) {
             setConfirmActionLoader(false);
             dispatch(fetchUsers({ limit: 30, skip: 0 }));
             setConfirmDialog({
@@ -244,7 +244,7 @@ const UserManagement = () => {
           const suspend = await EkoServices_Admin.deActivateUser(
             selectedUser.id
           );
-          if (suspend?.message === "success") {
+          if (suspend) {
             setConfirmActionLoader(false);
             dispatch(fetchUsers({ limit: 30, skip: 0 }));
             setConfirmDialog({
@@ -264,7 +264,7 @@ const UserManagement = () => {
           const activate = await EkoServices_Admin.activateUser(
             selectedUser.id
           );
-          if (activate?.message === "success") {
+          if (activate) {
             setConfirmActionLoader(false);
             dispatch(fetchUsers({ limit: 30, skip: 0 }));
             setConfirmDialog({

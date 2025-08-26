@@ -48,8 +48,10 @@ const EkoServices_Admin = {
   activateUser: async (id) => {
     try {
       const response = await axiosInstance.put(
-        `/dashboard/admin/admin-user/activate/${id}`,
-        {},
+        `/dashboard/admin/user/status/${id}`,
+        {
+          isActive: true,
+        },
         {
           withCredentials: true,
         }
@@ -95,8 +97,10 @@ const EkoServices_Admin = {
   deActivateUser: async (id) => {
     try {
       const response = await axiosInstance.put(
-        `/dashboard/admin/admin-user/deactivate/${id}`,
-        {},
+        `/dashboard/admin/user/status/${id}`,
+        {
+          isActive: false,
+        },
         {
           withCredentials: true,
         }
