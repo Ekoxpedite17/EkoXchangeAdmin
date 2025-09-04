@@ -14,3 +14,9 @@
 button {
   outline: none !important;
 }
+
+.placeManualWithdrawal {
+  position: relative;
+  left: 240;
+  width: 100%;
+}
