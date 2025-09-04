@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Tooltip } from "@mui/material";
 import {
   Dialog,
   DialogTitle,
@@ -25,7 +25,8 @@ import TransactionDetails from "./components/TransactionDetails";
 import ExportTransactions from "./components/ExportTransactions";
 import OrderQueue from "./components/OrderQueue";
 import ManualWithdrawal from "../crypto/components/ManualWithdrawal";
-import { mockTransactions } from "./data/mockData";
+import ContentCopy from "@mui/icons-material/ContentCopy";
+
 import { EkoServices_Transactions } from "../../services";
 
 const TransactionManagement = () => {
@@ -131,8 +132,29 @@ const TransactionManagement = () => {
     setTransactions(filtered);
   };
 
+  const getWalletAddress = (order) => {
+    if (!order.createdBy) return null;
+
+    const { tokenSymbol } = order;
+    const user = order.createdBy;
+
+    switch (tokenSymbol?.toUpperCase()) {
+      case "BTC":
+        return user.bitcoinAddress;
+      case "ETH":
+        return user.ethereumAddress;
+      case "SOL":
+        return user.solanaAddress;
+      case "TRX":
+        return user.tronAddress;
+      default:
+        return null;
+    }
+  };
+
   const handleOrderClick = (order) => {
-    setSelectedOrder(order);
+    const walletAddress = getWalletAddress(order);
+    setSelectedOrder({ ...order, walletAddress });
     setOrderModalOpen(true);
   };
 
@@ -183,14 +205,6 @@ const TransactionManagement = () => {
           />
         </Grid>
       </Grid>
-
-      {tab === 0 && (
-        <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid item size={8}>
-            <ManualWithdrawal />
-          </Grid>
-        </Grid>
-      )}
 
       <Box
         display={"flex"}
@@ -268,181 +282,232 @@ const TransactionManagement = () => {
         />
       </Box>
 
-      <Box
-        sx={{
-          position: "fixed",
-          top: 0,
-          right: 0,
-          width: "400px",
-          height: "100vh",
-          backgroundColor: "background.paper",
-          boxShadow: "-4px 0 8px rgba(0, 0, 0, 0.1)",
-          transform: orderModalOpen ? "translateX(0)" : "translateX(100%)",
-          transition: "transform 0.3s ease-in-out",
-          overflowY: "auto",
-          zIndex: 1300,
-          p: 2,
-        }}
-      >
-        {selectedOrder && (
-          <Box>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              mb={2}
-            >
-              <Typography variant="h3">Order Details</Typography>
-              <IconButton onClick={handleOrderModalClose} size="small">
-                <CloseIcon />
-              </IconButton>
-            </Box>
-
-            <Card>
-              <CardContent>
-                <Stack direction="row" spacing={2} alignItems="center" mb={2}>
-                  <Avatar
-                    sx={{ width: 40, height: 40, bgcolor: "primary.main" }}
-                  >
-                    {selectedOrder.tokenSymbol?.charAt(0) || "O"}
-                  </Avatar>
-                  <Typography variant="h5">
-                    {selectedOrder.tokenName} ({selectedOrder.tokenSymbol})
-                  </Typography>
-                </Stack>
-
-                <Typography variant="subtitle1" gutterBottom>
-                  Order Information
-                </Typography>
-                <List dense>
-                  <ListItem>
-                    <ListItemText
-                      primary="Order ID"
-                      secondary={selectedOrder.id}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="Unit Price (NGN)"
-                      secondary={formatNaira(selectedOrder.unitPrice)}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="USD Price"
-                      secondary={`$${selectedOrder.usdPrice}`}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="Amount to Pay (NGN)"
-                      secondary={formatNaira(selectedOrder.amountToPay)}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="Status"
-                      secondary={selectedOrder.status}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="Created At"
-                      secondary={new Date(
-                        selectedOrder.createdAt
-                      ).toLocaleString()}
-                    />
-                  </ListItem>
-                </List>
-
-                <Divider sx={{ my: 2 }} />
-
-                <Typography variant="subtitle1" gutterBottom>
-                  Bank Details
-                </Typography>
-                <List dense>
-                  <ListItem>
-                    <ListItemText
-                      primary="Bank Name"
-                      secondary={selectedOrder.bankName}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="Account Name"
-                      secondary={selectedOrder.accountName}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="Account Number"
-                      secondary={selectedOrder.accountNumber}
-                    />
-                  </ListItem>
-                </List>
-
-                {tab === 0 && (
-                  <>
-                    <Divider sx={{ my: 2 }} />
-                    <Typography variant="subtitle1" gutterBottom>
-                      Transaction Receipt
-                    </Typography>
-                    <List
-                      dense
-                      sx={{ display: "flex", flexDirection: "row", gap: 1 }}
-                    >
-                      <ListItem>
-                        <ListItemText
-                          primary="Status"
-                          secondary={
-                            selectedOrder.transactionReceipt
-                              ? "Uploaded"
-                              : "Not uploaded"
-                          }
-                        />
-                      </ListItem>
-                      {selectedOrder.transactionReceipt && (
-                        <ListItem>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={() =>
-                              handleImagePreview(
-                                selectedOrder.transactionReceipt
-                              )
-                            }
-                            sx={{ mt: 1 }}
-                          >
-                            Preview Image
-                          </Button>
-                        </ListItem>
-                      )}
-                    </List>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-              <Button
-                color="success"
-                variant="contained"
-                fullWidth
-                onClick={() => handleAcceptOrder(selectedOrder.id)}
-              >
-                Complete
-              </Button>
-              <Button
-                color="error"
-                variant="contained"
-                fullWidth
-                onClick={handleOrderModalClose}
-              >
-                Cancel
-              </Button>
-            </Box>
-          </Box>
+      <Box>
+        {tab === 0 && selectedOrder && (
+          <Grid
+            sx={{
+              position: "fixed",
+              alignSelf: "flex-end",
+              bottom: 30,
+              width: "950px",
+              transform: orderModalOpen ? "translateX(0)" : "translateX(100%)",
+              zIndex: 1400,
+              right: 250,
+              height: "100vh",
+            }}
+            container
+            justifyContent="center"
+          >
+            <Grid item size={8} alignContent={"flex-end"}>
+              <ManualWithdrawal />
+            </Grid>
+          </Grid>
         )}
+
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            right: 0,
+            width: "400px",
+            height: "100vh",
+            backgroundColor: "background.paper",
+            boxShadow: "-4px 0 8px rgba(0, 0, 0, 0.1)",
+            transform: orderModalOpen ? "translateX(0)" : "translateX(100%)",
+            transition: "transform 0.3s ease-in-out",
+            overflowY: "auto",
+            zIndex: 1400,
+            p: 2,
+          }}
+        >
+          {selectedOrder && (
+            <Box>
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={2}
+                zIndex={1500}
+              >
+                <Typography variant="h3">Order Details</Typography>
+                <IconButton onClick={handleOrderModalClose} size="small">
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+
+              <Card>
+                <CardContent>
+                  <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+                    <Avatar
+                      sx={{ width: 40, height: 40, bgcolor: "primary.main" }}
+                    >
+                      {selectedOrder.tokenSymbol?.charAt(0) || "O"}
+                    </Avatar>
+                    <Typography variant="h5">
+                      {selectedOrder.tokenName} ({selectedOrder.tokenSymbol})
+                    </Typography>
+                  </Stack>
+
+                  <Typography variant="subtitle1" gutterBottom>
+                    Order Information
+                  </Typography>
+                  <List dense>
+                    <ListItem>
+                      <ListItemText
+                        primary="Order ID"
+                        secondary={selectedOrder.id}
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText
+                        primary="Unit Price (NGN)"
+                        secondary={formatNaira(selectedOrder.unitPrice)}
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText
+                        primary="USD Price"
+                        secondary={`$${selectedOrder.usdPrice}`}
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText
+                        primary="Amount to Pay (NGN)"
+                        secondary={formatNaira(selectedOrder.amountToPay)}
+                      />
+                    </ListItem>
+
+                    <ListItem sx={{}}>
+                      <ListItemText
+                        primary="Wallet Address"
+                        secondary={selectedOrder.walletAddress || "N/A"}
+                      />
+                      <Tooltip style={{}} title="Copy address">
+                        <ContentCopy
+                          fontSize="small"
+                          sx={{
+                            cursor: "pointer",
+                            color: "text.secondary",
+                            mt: 0.5,
+                            "&:hover": {
+                              color: "primary.main",
+                            },
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(
+                              selectedOrder.walletAddress
+                            );
+                          }}
+                        />
+                      </Tooltip>
+                    </ListItem>
+
+                    <ListItem>
+                      <ListItemText
+                        primary="Status"
+                        secondary={selectedOrder.status}
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText
+                        primary="Created At"
+                        secondary={new Date(
+                          selectedOrder.createdAt
+                        ).toLocaleString()}
+                      />
+                    </ListItem>
+                  </List>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  <Typography variant="subtitle1" gutterBottom>
+                    Bank Details
+                  </Typography>
+                  <List dense>
+                    <ListItem>
+                      <ListItemText
+                        primary="Bank Name"
+                        secondary={selectedOrder.bankName}
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText
+                        primary="Account Name"
+                        secondary={selectedOrder.accountName}
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText
+                        primary="Account Number"
+                        secondary={selectedOrder.accountNumber}
+                      />
+                    </ListItem>
+                  </List>
+
+                  {tab === 0 && (
+                    <>
+                      <Divider sx={{ my: 2 }} />
+                      <Typography variant="subtitle1" gutterBottom>
+                        Transaction Receipt
+                      </Typography>
+                      <List
+                        dense
+                        sx={{ display: "flex", flexDirection: "row", gap: 1 }}
+                      >
+                        <ListItem>
+                          <ListItemText
+                            primary="Status"
+                            secondary={
+                              selectedOrder.transactionReceipt
+                                ? "Uploaded"
+                                : "Not uploaded"
+                            }
+                          />
+                        </ListItem>
+                        {selectedOrder.transactionReceipt && (
+                          <ListItem>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              onClick={() =>
+                                handleImagePreview(
+                                  selectedOrder.transactionReceipt
+                                )
+                              }
+                              sx={{ mt: 1 }}
+                            >
+                              Preview Image
+                            </Button>
+                          </ListItem>
+                        )}
+                      </List>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+                <Button
+                  color="success"
+                  variant="contained"
+                  fullWidth
+                  onClick={() => handleAcceptOrder(selectedOrder.id)}
+                >
+                  Complete
+                </Button>
+                <Button
+                  color="error"
+                  variant="contained"
+                  fullWidth
+                  onClick={handleOrderModalClose}
+                >
+                  Cancel
+                </Button>
+              </Box>
+            </Box>
+          )}
+        </Box>
       </Box>
 
       <Dialog

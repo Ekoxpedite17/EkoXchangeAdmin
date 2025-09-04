@@ -153,20 +153,18 @@ const ManualWithdrawal = () => {
   }, [balances]);
 
   return (
-    <Card>
+    <Card style={{ zIndex: 1400, position: "relative" }}>
       <CardContent>
         <Typography variant="h5" gutterBottom>
           Manual Withdrawal
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item size={3}>
+          <Grid item size={4}>
             <FormControl fullWidth required>
-              <InputLabel id="token-label">Select a token</InputLabel>
-              <Select
+              <select
+                id="default-token-select"
                 value={withdrawal.tokenAddress}
-                labelId="token-label"
-                label="Select a token"
                 onChange={(e) => {
                   const selectedTokenAddress = e.target.value;
                   const matched = processedBalances?.find(
@@ -179,27 +177,25 @@ const ManualWithdrawal = () => {
                     chain: matched?.chain || "",
                   });
                 }}
-                displayEmpty
-                renderValue={(selected) => {
-                  if (!selected) return "Select a token";
-                  const balance = processedBalances?.find(
-                    (b) => b.tokenAddress === selected
-                  );
-                  return balance
-                    ? `${balance.currency} (${balance.amount} - $${balance.usdValue})`
-                    : selected;
+                style={{
+                  width: "100%",
+                  padding: "16px",
+                  fontSize: "14px",
+                  borderRadius: 10,
+                  borderColor: "",
                 }}
               >
+                <option value="">Select a token</option>
                 {processedBalances?.map((balance) => (
-                  <MenuItem
+                  <option
                     key={balance.displayName}
                     value={balance.tokenAddress}
                   >
                     {balance.displayName} ({balance.amount} - $
                     {balance.usdValue})
-                  </MenuItem>
+                  </option>
                 ))}
-              </Select>
+              </select>
             </FormControl>
           </Grid>
           <Grid item xs={12} md={6}>
