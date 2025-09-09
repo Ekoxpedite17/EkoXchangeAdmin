@@ -296,10 +296,10 @@ const EkoServices_Crypty = {
     }
   },
 
-  getRates: async () => {
+  getRates: async (skip, limit) => {
     try {
       const response = await axiosInstance.get(
-        `/admin/crypto-management/naira/rates`,
+        `/rate-manager/list?skip=${skip}&limit=${limit}`,
         {
           withCredentials: true,
         }
@@ -311,10 +311,10 @@ const EkoServices_Crypty = {
     }
   },
 
-  updateRates: async (payload) => {
+  updateRates: async (payload, id) => {
     try {
       const response = await axiosInstance.put(
-        `/admin/crypto-management/naira/update-rates`,
+        `/rate-manager/update/${id}`,
         payload,
         {
           withCredentials: true,
@@ -323,6 +323,151 @@ const EkoServices_Crypty = {
       return response.data;
     } catch (error) {
       console.error("Update rates failed:", error);
+      throw error;
+    }
+  },
+
+  createFee: async (payload) => {
+    try {
+      const response = await axiosInstance.post(
+        `/fee-manager/create`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Create fee failed:", error);
+      throw error;
+    }
+  },
+
+  updateFee: async (id, payload) => {
+    try {
+      const response = await axiosInstance.put(
+        `/fee-manager/update/${id}`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Update fee failed:", error);
+      throw error;
+    }
+  },
+
+  feeList: async (limit, skip) => {
+    try {
+      const response = await axiosInstance.get(
+        `/fee-manager/list?skip${skip}&limit=${limit}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Get fee list failed:", error);
+      throw error;
+    }
+  },
+
+  deleteFee: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`/fee-manager/delete/${id}`, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Delete fee failed:", error);
+      throw error;
+    }
+  },
+
+  getNetworkList: async (skip, limit) => {
+    try {
+      const response = await axiosInstance.get(`/chain/list/${skip}/${limit}`, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Get network list failed:", error);
+      throw error;
+    }
+  },
+
+  getTokenList: async (skip, limit) => {
+    try {
+      const response = await axiosInstance.get(
+        `/chain/tokens/list/${skip}/${limit}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Get token list failed:", error);
+      throw error;
+    }
+  },
+
+  createNetwork: async (payload) => {
+    try {
+      const response = await axiosInstance.post(`/chain/create`, payload, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Create network failed:", error);
+      throw error;
+    }
+  },
+
+  createToken: async (payload) => {
+    try {
+      const response = await axiosInstance.post(
+        `/chain/token/create`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Create token failed:", error);
+      throw error;
+    }
+  },
+
+  createRate: async (payload) => {
+    try {
+      const response = await axiosInstance.post(
+        `/rate-manager/create`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Create rate failed:", error);
+      throw error;
+    }
+  },
+
+  deleteRate: async (id) => {
+    try {
+      const response = await axiosInstance.delete(
+        `/rate-manager/delete/${id}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Delete rate failed:", error);
       throw error;
     }
   },
