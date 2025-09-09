@@ -43,7 +43,7 @@ const WalletBalances = () => {
   const fetchDatas = async () => {
     try {
       const [ratesResult, balancesResult] = await Promise.allSettled([
-        EkoServices_Crypty.getRates(),
+        EkoServices_Crypty.getRates(0, 30),
         EkoServices_Crypty.refreshWalletBalances(),
       ]);
 
