@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -15,11 +15,8 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Radio,
-  RadioGroup,
   FormControlLabel,
   FormControl,
-  FormLabel,
   Switch,
   IconButton,
   Select,
@@ -38,22 +35,22 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { EkoServices_Crypty } from "../../../services";
 import dayjs from "dayjs";
 
-const RateManagement = () => {
+const RateManagement = ({ tokens = [] }) => {
   const [rates, setRates] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [viewDialog, setViewDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
-  const [rateMethod, setRateMethod] = useState("manual");
   const [loading, setLoading] = useState(false);
   const [selectedRate, setSelectedRate] = useState(null);
   const [editEnabled, setEditEnabled] = useState({});
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [skip, setSkip] = useState(0);
+  const [limit, setLimit] = useState(30);
 
   const [rateForm, setRateForm] = useState({
-    tokenName: "",
-    tokenSymbol: "",
-    networkType: "mainnet",
+    cryptoAsset: "",
+    network: "",
     transactionType: "buy_sell",
     buyRate: "",
     sellRate: "",
@@ -63,39 +60,15 @@ const RateManagement = () => {
     description: "",
   });
 
-  // Available cryptocurrencies
-  const availableCryptos = [
-    { name: "Bitcoin", symbol: "BTC" },
-    { name: "Ethereum", symbol: "ETH" },
-    { name: "Solana", symbol: "SOL" },
-    { name: "Cardano", symbol: "ADA" },
-    { name: "Polkadot", symbol: "DOT" },
-    { name: "Chainlink", symbol: "LINK" },
-    { name: "Polygon", symbol: "MATIC" },
-    { name: "Avalanche", symbol: "AVAX" },
-  ];
-
   const transactionTypes = [
-    { value: "buy_sell", label: "Buy & Sell" },
     { value: "buy_only", label: "Buy Only" },
     { value: "sell_only", label: "Sell Only" },
   ];
 
-  const networkTypes = [
-    { value: "mainnet", label: "Mainnet" },
-    { value: "testnet", label: "Testnet" },
-    { value: "bsc", label: "Binance Smart Chain (BSC)" },
-    { value: "polygon", label: "Polygon" },
-    { value: "arbitrum", label: "Arbitrum" },
-    { value: "optimism", label: "Optimism" },
-    { value: "avalanche", label: "Avalanche" },
-    { value: "fantom", label: "Fantom" },
-  ];
-
   const fetchRates = async () => {
-    const data = await EkoServices_Crypty.getRates();
+    const data = await EkoServices_Crypty.getRates(skip, limit);
     if (data) {
-      setRates(data);
+      setRates(data?.data || []);
     }
   };
 
@@ -106,9 +79,8 @@ const RateManagement = () => {
   const handleEdit = (rate) => {
     setSelectedRate(rate);
     setRateForm({
-      tokenName: rate.tokenName || "",
-      tokenSymbol: rate.tokenSymbol || "",
-      networkType: rate.networkType || "mainnet",
+      cryptoAsset: rate.cryptoAsset?._id || "",
+      network: rate.cryptoAsset?.chain?._id || "",
       transactionType: rate.transactionType || "buy_sell",
       buyRate: rate.buyRate?.toString() || "",
       sellRate: rate.sellRate?.toString() || "",
@@ -135,9 +107,8 @@ const RateManagement = () => {
   const handleAddRate = () => {
     setSelectedRate(null);
     setRateForm({
-      tokenName: "",
-      tokenSymbol: "",
-      networkType: "mainnet",
+      cryptoAsset: "",
+      network: "",
       transactionType: "buy_sell",
       buyRate: "",
       sellRate: "",
@@ -155,9 +126,8 @@ const RateManagement = () => {
     setDeleteDialog(false);
     setSelectedRate(null);
     setRateForm({
-      tokenName: "",
-      tokenSymbol: "",
-      networkType: "mainnet",
+      cryptoAsset: "",
+      network: "",
       transactionType: "buy_sell",
       buyRate: "",
       sellRate: "",
@@ -169,21 +139,12 @@ const RateManagement = () => {
     setError("");
   };
 
-  const handleCryptoChange = (crypto) => {
-    setRateForm((prev) => ({
-      ...prev,
-      tokenName: crypto.name,
-      tokenSymbol: crypto.symbol,
-    }));
-  };
-
   const handleSaveRate = async () => {
     try {
       setLoading(true);
       setError("");
 
-      // Validation
-      if (!rateForm.tokenName || !rateForm.tokenSymbol) {
+      if (!rateForm.cryptoAsset) {
         setError("Please select a cryptocurrency");
         return;
       }
@@ -208,37 +169,29 @@ const RateManagement = () => {
       }
 
       const rateData = {
-        tokenName: rateForm.tokenName,
-        tokenSymbol: rateForm.tokenSymbol,
-        networkType: rateForm.networkType,
-        transactionType: rateForm.transactionType,
+        cryptoAsset: rateForm.cryptoAsset,
         buyRate:
           rateForm.transactionType !== "sell_only"
             ? parseFloat(rateForm.buyRate)
-            : null,
+            : 0,
         sellRate:
           rateForm.transactionType !== "buy_only"
             ? parseFloat(rateForm.sellRate)
-            : null,
-        startDate: rateForm.startDate
-          ? new Date(rateForm.startDate).toISOString()
-          : null,
-        endDate: rateForm.endDate
-          ? new Date(rateForm.endDate).toISOString()
-          : null,
-        isActive: rateForm.isActive,
+            : 0,
+        startDate: dayjs(rateForm.startDate).format("YYYY-MM-DD"),
+        endDate: dayjs(rateForm.endDate).format("YYYY-MM-DD"),
         description: rateForm.description,
       };
 
       if (selectedRate) {
-        // Update existing rate
-        await EkoServices_Crypty.updateRates({
-          id: selectedRate._id,
-          ...rateData,
-        });
+        await EkoServices_Crypty.updateRates(
+          {
+            ...rateData,
+          },
+          selectedRate._id
+        );
         setSuccess("Rate updated successfully!");
       } else {
-        // Create new rate
         await EkoServices_Crypty.createRate(rateData);
         setSuccess("Rate created successfully!");
       }
@@ -345,21 +298,24 @@ const RateManagement = () => {
                   ? dayjs(rate.endDate).format("DD/MM/YYYY")
                   : "No end";
 
+                const token = rate.cryptoAsset;
+                const chainName = token?.chain?.name || "Unknown";
+
                 return (
                   <TableRow key={rate?._id} hover sx={{ cursor: "default" }}>
                     <TableCell>
                       <Box>
                         <Typography variant="body1" fontWeight="medium">
-                          {rate.tokenName}
+                          {token?.name || "Unknown"}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {rate.tokenSymbol}
+                          {token?.symbol || ""}
                         </Typography>
                       </Box>
                     </TableCell>
                     <TableCell>
                       <Chip
-                        label={rate.networkType || "Mainnet"}
+                        label={chainName}
                         size="small"
                         color="primary"
                         variant="outlined"
@@ -449,7 +405,6 @@ const RateManagement = () => {
         </TableContainer>
       </Card>
 
-      {/* Add/Edit Rate Dialog */}
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -476,18 +431,28 @@ const RateManagement = () => {
             <FormControl fullWidth>
               <InputLabel>Select Cryptocurrency</InputLabel>
               <Select
-                value={rateForm.tokenSymbol}
+                value={rateForm.cryptoAsset}
                 onChange={(e) => {
-                  const crypto = availableCryptos.find(
-                    (c) => c.symbol === e.target.value
-                  );
-                  handleCryptoChange(crypto);
+                  const token = tokens.find((t) => t._id === e.target.value);
+                  setRateForm({
+                    ...rateForm,
+                    cryptoAsset: token._id,
+                    network: token.chain?._id || "",
+                  });
                 }}
-                label="Select Cryptocurrency"
               >
-                {availableCryptos.map((crypto) => (
-                  <MenuItem key={crypto.symbol} value={crypto.symbol}>
-                    {crypto.name} ({crypto.symbol})
+                {tokens.map((token) => (
+                  <MenuItem key={token._id} value={token._id}>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <img
+                        src={token.logo}
+                        alt={token.symbol}
+                        width={20}
+                        height={20}
+                        style={{ borderRadius: "50%" }}
+                      />
+                      {token.name} ({token.symbol})
+                    </Box>
                   </MenuItem>
                 ))}
               </Select>
@@ -495,19 +460,24 @@ const RateManagement = () => {
 
             {/* Network Type */}
             <FormControl fullWidth>
-              <InputLabel>Network Type</InputLabel>
+              <InputLabel>Select Network</InputLabel>
               <Select
-                value={rateForm.networkType}
+                value={rateForm.network}
                 onChange={(e) =>
-                  setRateForm({ ...rateForm, networkType: e.target.value })
+                  setRateForm({ ...rateForm, network: e.target.value })
                 }
-                label="Network Type"
               >
-                {networkTypes.map((network) => (
-                  <MenuItem key={network.value} value={network.value}>
-                    {network.label}
-                  </MenuItem>
-                ))}
+                {tokens
+                  .map((t) => t.chain) // extract chain from tokens
+                  .filter(
+                    (c, i, arr) =>
+                      c && arr.findIndex((x) => x._id === c._id) === i
+                  ) // unique
+                  .map((chain) => (
+                    <MenuItem key={chain._id} value={chain._id}>
+                      {chain.name}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
 
@@ -612,7 +582,7 @@ const RateManagement = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={handleSaveRate}
+            onClick={() => handleSaveRate()}
             disabled={loading}
           >
             {loading ? "Saving..." : selectedRate ? "Update" : "Create"}
@@ -637,115 +607,119 @@ const RateManagement = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          {selectedRate && (
-            <Stack spacing={2} sx={{ mt: 1 }}>
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Cryptocurrency
-                </Typography>
-                <Typography variant="body1">
-                  {selectedRate.tokenName} ({selectedRate.tokenSymbol})
-                </Typography>
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Network Type
-                </Typography>
-                <Typography variant="body1">
-                  {networkTypes.find(
-                    (n) => n.value === selectedRate.networkType
-                  )?.label || selectedRate.networkType || "Mainnet"}
-                </Typography>
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Transaction Type
-                </Typography>
-                <Typography variant="body1">
-                  {transactionTypes.find(
-                    (t) => t.value === selectedRate.transactionType
-                  )?.label || selectedRate.transactionType}
-                </Typography>
-              </Box>
-              {selectedRate.buyRate && (
-                <Box>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Buy Rate
-                  </Typography>
-                  <Typography variant="body1">
-                    ₦{selectedRate.buyRate.toLocaleString()}
-                  </Typography>
-                </Box>
-              )}
-              {selectedRate.sellRate && (
-                <Box>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Sell Rate
-                  </Typography>
-                  <Typography variant="body1">
-                    ₦{selectedRate.sellRate.toLocaleString()}
-                  </Typography>
-                </Box>
-              )}
-              {selectedRate.buyRate && selectedRate.sellRate && (
-                <Box>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Spread
-                  </Typography>
-                  <Typography variant="body1">
-                    {(
-                      ((selectedRate.sellRate - selectedRate.buyRate) /
-                        selectedRate.buyRate) *
-                      100
-                    ).toFixed(2)}
-                    %
-                  </Typography>
-                </Box>
-              )}
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Date Range
-                </Typography>
-                <Typography variant="body1">
-                  {selectedRate.startDate
-                    ? dayjs(selectedRate.startDate).format("DD/MM/YYYY")
-                    : "No start"}{" "}
-                  -
-                  {selectedRate.endDate
-                    ? dayjs(selectedRate.endDate).format("DD/MM/YYYY")
-                    : "No end"}
-                </Typography>
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Status
-                </Typography>
-                <Chip
-                  label={selectedRate.isActive ? "Active" : "Inactive"}
-                  color={selectedRate.isActive ? "success" : "default"}
-                  size="small"
-                />
-              </Box>
-              {selectedRate.description && (
-                <Box>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Description
-                  </Typography>
-                  <Typography variant="body1">
-                    {selectedRate.description}
-                  </Typography>
-                </Box>
-              )}
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Last Updated
-                </Typography>
-                <Typography variant="body1">
-                  {dayjs(selectedRate.updatedAt).format("DD/MM/YYYY HH:mm:ss")}
-                </Typography>
-              </Box>
-            </Stack>
-          )}
+          {selectedRate &&
+            (() => {
+              // Now token is the nested object, not a lookup by ID
+              const token = selectedRate.cryptoAsset;
+              const chainName = token?.chain?.name || "Unknown";
+              return (
+                <Stack spacing={2} sx={{ mt: 1 }}>
+                  <Box>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Cryptocurrency
+                    </Typography>
+                    <Typography variant="body1">
+                      {token?.name || "Unknown"} ({token?.symbol || ""})
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Network
+                    </Typography>
+                    <Typography variant="body1">{chainName}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Transaction Type
+                    </Typography>
+                    <Typography variant="body1">
+                      {transactionTypes.find(
+                        (t) => t.value === selectedRate.transactionType
+                      )?.label || selectedRate.transactionType}
+                    </Typography>
+                  </Box>
+                  {selectedRate.buyRate && (
+                    <Box>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        Buy Rate
+                      </Typography>
+                      <Typography variant="body1">
+                        ₦{selectedRate.buyRate.toLocaleString()}
+                      </Typography>
+                    </Box>
+                  )}
+                  {selectedRate.sellRate && (
+                    <Box>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        Sell Rate
+                      </Typography>
+                      <Typography variant="body1">
+                        ₦{selectedRate.sellRate.toLocaleString()}
+                      </Typography>
+                    </Box>
+                  )}
+                  {selectedRate.buyRate && selectedRate.sellRate && (
+                    <Box>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        Spread
+                      </Typography>
+                      <Typography variant="body1">
+                        {(
+                          ((selectedRate.sellRate - selectedRate.buyRate) /
+                            selectedRate.buyRate) *
+                          100
+                        ).toFixed(2)}
+                        %
+                      </Typography>
+                    </Box>
+                  )}
+                  <Box>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Date Range
+                    </Typography>
+                    <Typography variant="body1">
+                      {selectedRate.startDate
+                        ? dayjs(selectedRate.startDate).format("DD/MM/YYYY")
+                        : "No start"}{" "}
+                      -
+                      {selectedRate.endDate
+                        ? dayjs(selectedRate.endDate).format("DD/MM/YYYY")
+                        : "No end"}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Status
+                    </Typography>
+                    <Chip
+                      label={selectedRate.isActive ? "Active" : "Inactive"}
+                      color={selectedRate.isActive ? "success" : "default"}
+                      size="small"
+                    />
+                  </Box>
+                  {selectedRate.description && (
+                    <Box>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        Description
+                      </Typography>
+                      <Typography variant="body1">
+                        {selectedRate.description}
+                      </Typography>
+                    </Box>
+                  )}
+                  <Box>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Last Updated
+                    </Typography>
+                    <Typography variant="body1">
+                      {dayjs(selectedRate.updatedAt).format(
+                        "DD/MM/YYYY HH:mm:ss"
+                      )}
+                    </Typography>
+                  </Box>
+                </Stack>
+              );
+            })()}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Close</Button>
@@ -762,8 +736,17 @@ const RateManagement = () => {
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete the rate for{" "}
-            {selectedRate?.tokenName} ({selectedRate?.tokenSymbol})?
+            {(() => {
+              // Now token is the nested object, not a lookup by ID
+              const token = selectedRate?.cryptoAsset;
+              return (
+                <>
+                  Are you sure you want to delete the rate for{" "}
+                  {token?.name || "Unknown"}
+                  {token?.symbol ? ` (${token.symbol})` : ""}?
+                </>
+              );
+            })()}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             This action cannot be undone.
