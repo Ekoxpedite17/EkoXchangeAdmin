@@ -173,11 +173,11 @@ const RateManagement = ({ tokens = [] }) => {
         buyRate:
           rateForm.transactionType !== "sell_only"
             ? parseFloat(rateForm.buyRate)
-            : 0,
+            : selectedRate.buyRate,
         sellRate:
           rateForm.transactionType !== "buy_only"
             ? parseFloat(rateForm.sellRate)
-            : 0,
+            : selectedRate.sellRate,
         startDate: dayjs(rateForm.startDate).format("YYYY-MM-DD"),
         endDate: dayjs(rateForm.endDate).format("YYYY-MM-DD"),
         description: rateForm.description,
