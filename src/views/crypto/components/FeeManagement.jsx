@@ -24,7 +24,6 @@ import {
   Tooltip,
   Grid,
 } from "@mui/material";
-import HistoryIcon from "@mui/icons-material/History";
 import AddIcon from "@mui/icons-material/Add";
 import DownloadIcon from "@mui/icons-material/Download";
 import DeleteIcon from "@mui/icons-material/Delete"; // import delete icon
@@ -48,7 +47,6 @@ export default function FeeManagement({ networks = [] }) {
   const [selectedFee, setSelectedFee] = useState(null);
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [editFee, setEditFee] = useState(null);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -131,8 +129,9 @@ export default function FeeManagement({ networks = [] }) {
       transactionType: updatedFee.transactionType,
       cryptoAsset: updatedFee?.network._id,
       isPercentage: updatedFee.feeType === "Percentage",
-      percentageAmount:
-        updatedFee.feeType === "Percentage" ? updatedFee.feeValue : 0,
+      ...(updatedFee.feeType === "Percentage" && {
+        percentageAmount: updatedFee.feeValue,
+      }),
       fixedAmount: updatedFee.feeType === "Fixed" ? updatedFee.feeValue : 0,
       threshold: 1000,
       userLevel: updatedFee.appliedTo[0],
@@ -148,21 +147,18 @@ export default function FeeManagement({ networks = [] }) {
     }
     if (response) {
       getFees();
-      selectedFee(null);
       setOpenEdit(false);
       setOpenAdd(false);
+      selectedFee(null);
     } else {
+      setOpenEdit(false);
+      setOpenAdd(false);
       setSnackbar({
         open: true,
         message: "Failed to save fee settings",
         severity: "error",
       });
     }
-  };
-
-  const handleOpenHistory = (fee) => {
-    setHistoryFee(fee);
-    setOpenHistory(true);
   };
 
   const handleCloseHistory = () => {
@@ -246,7 +242,8 @@ export default function FeeManagement({ networks = [] }) {
       {/* Filter Bar */}
       <Card sx={{ mb: 2, p: 2, bgcolor: "white", borderRadius: 2 }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={2}>
+
+          <Grid item size={3} sm={2}>
             <FormControl fullWidth size="small">
               <InputLabel>Transaction Type</InputLabel>
               <Select
@@ -265,7 +262,8 @@ export default function FeeManagement({ networks = [] }) {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={2}>
+
+          <Grid item size={2} sm={2}>
             <FormControl fullWidth size="small">
               <InputLabel>Asset</InputLabel>
               <Select
@@ -284,7 +282,8 @@ export default function FeeManagement({ networks = [] }) {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={2}>
+
+          <Grid item size={2} sm={2}>
             <FormControl fullWidth size="small">
               <InputLabel>Network</InputLabel>
               <Select
@@ -303,7 +302,8 @@ export default function FeeManagement({ networks = [] }) {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={2}>
+
+          <Grid item size={2} sm={2}>
             <FormControl fullWidth size="small">
               <InputLabel>Fee Type</InputLabel>
               <Select
@@ -322,7 +322,8 @@ export default function FeeManagement({ networks = [] }) {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={2}>
+
+          <Grid item size={2} sm={2}>
             <FormControl fullWidth size="small">
               <InputLabel>Status</InputLabel>
               <Select
@@ -341,6 +342,7 @@ export default function FeeManagement({ networks = [] }) {
               </Select>
             </FormControl>
           </Grid>
+
         </Grid>
       </Card>
       {/* Fee Table */}
@@ -405,7 +407,10 @@ export default function FeeManagement({ networks = [] }) {
                             Edit
                           </Button>
 
-                          <DeleteIcon color="red" onClick={() => handleDeleteFee(fee)} />
+                          <DeleteIcon
+                            color="red"
+                            onClick={() => handleDeleteFee(fee)}
+                          />
                         </>
                       )}
                     </TableCell>

@@ -35,10 +35,6 @@ import { EkoServices_Crypty } from "../../../services";
 const WalletBalances = () => {
   const [balances, setBalances] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [openOnboarding, setOpenOnboarding] = useState(false);
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
-  const [openNetworkModal, setOpenNetworkModal] = useState(false);
 
   const fetchDatas = async () => {
     try {
@@ -68,16 +64,6 @@ const WalletBalances = () => {
     fetchDatas();
   }, []);
 
-  const handleOpenOnboarding = () => {
-    setOpenOnboarding(true);
-    setError("");
-    setSuccess("");
-  };
-
-  const handleCloseOnboarding = () => {
-    setOpenOnboarding(false);
-  };
-
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" p={3}>
@@ -88,18 +74,6 @@ const WalletBalances = () => {
 
   return (
     <Box>
-      {/* Success/Error Alerts */}
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {success}
-        </Alert>
-      )}
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-
       <Card>
         <CardContent>
           <Box
@@ -109,22 +83,6 @@ const WalletBalances = () => {
             mb={2}
           >
             <Typography variant="h5">Wallet Balances</Typography>
-            <Box display="flex" gap={2}>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleOpenOnboarding}
-                sx={{ color: "white" }}
-              >
-                Add New Crypto
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => setOpenNetworkModal(true)}
-              >
-                Add Network
-              </Button>
-            </Box>
           </Box>
 
           <Grid container spacing={2}>
@@ -157,24 +115,6 @@ const WalletBalances = () => {
           </Grid>
         </CardContent>
       </Card>
-
-      <CryptoOnboardingModal
-        open={openOnboarding}
-        onClose={handleCloseOnboarding}
-        onSuccess={() => {
-          setSuccess("Crypto asset onboarded successfully!");
-          fetchDatas();
-          setTimeout(() => setSuccess(""), 3000);
-        }}
-      />
-
-      <NetworkModal
-        open={openNetworkModal}
-        onClose={() => setOpenNetworkModal(false)}
-        onSave={(data) => {
-          console.log("Collected payload:", data);
-        }}
-      />
     </Box>
   );
 };
