@@ -58,7 +58,7 @@ const OrderQueue = ({ buyOrders, sellOrders, onOrderClick, tab, setTab }) => {
   const getWalletAddress = (order) => {
     if (!order.createdBy) return null;
 
-    const { tokenSymbol } = order;
+    const tokenSymbol = order?.selectedToken?.chain?.nativeToken;
     const user = order.createdBy;
 
     switch (tokenSymbol?.toUpperCase()) {
@@ -122,221 +122,226 @@ const OrderQueue = ({ buyOrders, sellOrders, onOrderClick, tab, setTab }) => {
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedOrders.map((order) => (
-                  <TableRow
-                    key={order.id || order._id}
-                    hover
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => onOrderClick(order)}
-                  >
-                    <TableCell>
-                      <Typography variant="body2" fontWeight="medium">
-                        {order.id || order._id}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      {tab === 0 ? (
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Avatar
+                paginatedOrders.map((order) => {
+                  return (
+                    <TableRow
+                      key={order.id || order._id}
+                      hover
+                      sx={{ cursor: "pointer" }}
+                      onClick={() => onOrderClick(order)}
+                    >
+                      <TableCell>
+                        <Typography variant="body2" fontWeight="medium">
+                          {order.id || order._id}
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell>
+                        {tab === 0 ? (
+                          <Box
                             sx={{
-                              width: 24,
-                              height: 24,
-                              fontSize: "12px",
-                              bgcolor: "primary.main",
-                              color: "white",
-                              border: 1,
-                              borderColor: "primary.main",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
                             }}
                           >
-                            {getTokenIcon(order.tokenSymbol)}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="body2" fontWeight="medium">
-                              {order.tokenName}
+                            <Box gap={10}>
+                              <Typography
+                                variant="button"
+                                fontSize={10}
+                                fontWeight="medium"
+                              >
+                                {order.selectedToken?.symbol}
+                              </Typography>
+                              <Typography fontWeight={"600"}>
+                                {order.selectedToken?.name}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <Avatar
+                              sx={{
+                                width: 24,
+                                height: 24,
+                                fontSize: "12px",
+                                bgcolor: "secondary.main",
+                                color: "white",
+                                border: 1,
+                                borderColor: "secondary.main",
+                              }}
+                            >
+                              {getTokenIcon(order.tokenSymbol)}
+                            </Avatar>
+                            <Box>
+                              <Typography variant="body2" fontWeight="medium">
+                                {order.tokenName}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                {order.tokenSymbol}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        )}
+                      </TableCell>
+
+                      <TableCell>
+                        {tab === 0 ? (
+                          <>
+                            <Typography variant="body2">
+                              {formatCurrency(order.unitPrice)}
                             </Typography>
                             <Typography
                               variant="caption"
                               color="text.secondary"
                             >
-                              {order.tokenSymbol}
+                              USD: ${order.usdPrice}
                             </Typography>
-                          </Box>
-                        </Box>
-                      ) : (
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Avatar
-                            sx={{
-                              width: 24,
-                              height: 24,
-                              fontSize: "12px",
-                              bgcolor: "secondary.main",
-                              color: "white",
-                              border: 1,
-                              borderColor: "secondary.main",
-                            }}
-                          >
-                            {getTokenIcon(order.tokenSymbol)}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="body2" fontWeight="medium">
-                              {order.tokenName}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              {order.tokenSymbol}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      )}
-                    </TableCell>
-
-                    <TableCell>
-                      {tab === 0 ? (
-                        <>
-                          <Typography variant="body2">
-                            {formatCurrency(order.unitPrice)}
+                          </>
+                        ) : (
+                          <Typography variant="body2" fontWeight="medium">
+                            {formatCurrency(order.amountToPay)}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            USD: ${order.usdPrice}
-                          </Typography>
-                        </>
-                      ) : (
-                        <Typography variant="body2" fontWeight="medium">
-                          {formatCurrency(order.amountToPay)}
-                        </Typography>
-                      )}
-                    </TableCell>
+                        )}
+                      </TableCell>
 
-                    <TableCell>
-                      <Typography variant="body2">
-                        {dayjs(order.createdAt).format("YYYY-MM-DD HH:mm:ss")}
-                      </Typography>
-                    </TableCell>
-
-                    <TableCell>
-                      <Box>
-                        <Typography variant="body2" fontWeight="medium">
-                          {order?.createdBy?.firstname &&
-                          order?.createdBy?.lastname
-                            ? `${order.createdBy.firstname} ${order.createdBy.lastname}`
-                            : order?.createdBy?.firstname ||
-                              order?.createdBy?.lastname ||
-                              "--"}
+                      <TableCell>
+                        <Typography variant="body2">
+                          {dayjs(order.createdAt).format("YYYY-MM-DD HH:mm:ss")}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {order?.createdBy?.email || "--"}
-                        </Typography>
-                      </Box>
-                    </TableCell>
+                      </TableCell>
 
-                    <TableCell>
-                      {tab === 0 ? (
-                        <Chip
-                          label={order.status}
-                          size="small"
-                          color={
-                            order.status === "pending"
-                              ? "warning"
-                              : order.status === "completed"
-                                ? "success"
-                                : "default"
-                          }
-                        />
-                      ) : (
+                      <TableCell>
                         <Box>
                           <Typography variant="body2" fontWeight="medium">
-                            {order.bankName}
+                            {order?.createdBy?.firstname &&
+                            order?.createdBy?.lastname
+                              ? `${order.createdBy.firstname} ${order.createdBy.lastname}`
+                              : order?.createdBy?.firstname ||
+                                order?.createdBy?.lastname ||
+                                "--"}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {order.accountName}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            display="block"
-                            color="text.secondary"
-                            sx={{ fontFamily: "monospace" }}
-                          >
-                            {order.accountNumber}
+                            {order?.createdBy?.email || "--"}
                           </Typography>
                         </Box>
-                      )}
-                    </TableCell>
+                      </TableCell>
 
-                    <TableCell>
-                      {tab === 0 ? (
-                        <Box>
-                          {(() => {
-                            const walletAddress = getWalletAddress(order);
-                            const addressLabel = getWalletAddressLabel(
-                              order.tokenSymbol
-                            );
-
-                            if (!walletAddress) {
-                              return (
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                >
-                                  No wallet address
-                                </Typography>
-                              );
+                      <TableCell>
+                        {tab === 0 ? (
+                          <Chip
+                            label={order.status}
+                            size="small"
+                            color={
+                              order.status === "pending"
+                                ? "warning"
+                                : order.status === "completed"
+                                  ? "success"
+                                  : "default"
                             }
+                          />
+                        ) : (
+                          <Box>
+                            <Typography variant="body2" fontWeight="medium">
+                              {order.bankName}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {order.accountName}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              display="block"
+                              color="text.secondary"
+                              sx={{ fontFamily: "monospace" }}
+                            >
+                              {order.accountNumber}
+                            </Typography>
+                          </Box>
+                        )}
+                      </TableCell>
 
-                            return (
-                              <>
-                                <Typography
-                                  variant="caption"
-                                  color="text.secondary"
-                                  display="block"
-                                >
-                                  {addressLabel}
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    fontFamily: "monospace",
-                                    fontSize: "0.75rem",
-                                    wordBreak: "break-all",
-                                    maxWidth: "200px",
-                                  }}
-                                >
-                                  {walletAddress}
-                                </Typography>
-                                <Tooltip title="Copy address">
-                                  <ContentCopy
-                                    fontSize="small"
+                      <TableCell>
+                        {tab === 0 ? (
+                          <Box>
+                            {(() => {
+                              const walletAddress = getWalletAddress(order);
+                              const addressLabel = getWalletAddressLabel(
+                                order?.selectedToken?.chain?.nativeToken
+                              );
+
+                              if (!walletAddress) {
+                                return (
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    No wallet address
+                                  </Typography>
+                                );
+                              }
+
+                              return (
+                                <>
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    display="block"
+                                  >
+                                    {addressLabel}
+                                  </Typography>
+                                  <Typography
+                                    variant="body2"
                                     sx={{
-                                      cursor: "pointer",
-                                      color: "text.secondary",
-                                      mt: 0.5,
-                                      "&:hover": {
-                                        color: "primary.main",
-                                      },
+                                      fontFamily: "monospace",
+                                      fontSize: "0.75rem",
+                                      wordBreak: "break-all",
+                                      maxWidth: "200px",
                                     }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      navigator.clipboard.writeText(
-                                        walletAddress
-                                      );
-                                    }}
-                                  />
-                                </Tooltip>
-                              </>
-                            );
-                          })()}
-                        </Box>
-                      ) : (
-                        <></>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))
+                                  >
+                                    {walletAddress}
+                                  </Typography>
+                                  <Tooltip title="Copy address">
+                                    <ContentCopy
+                                      fontSize="small"
+                                      sx={{
+                                        cursor: "pointer",
+                                        color: "text.secondary",
+                                        mt: 0.5,
+                                        "&:hover": {
+                                          color: "primary.main",
+                                        },
+                                      }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigator.clipboard.writeText(
+                                          walletAddress
+                                        );
+                                      }}
+                                    />
+                                  </Tooltip>
+                                </>
+                              );
+                            })()}
+                          </Box>
+                        ) : (
+                          <></>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
