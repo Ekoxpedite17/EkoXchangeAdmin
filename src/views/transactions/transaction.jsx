@@ -79,6 +79,7 @@ const TransactionManagement = () => {
 
   useEffect(() => {
     fetchTransactions();
+
     if (tab === 0) {
       fetchBuyOrderQueue();
     } else if (tab === 1) {

@@ -48,105 +48,6 @@ const RateManagement = ({ tokens = [] }) => {
   const [skip, setSkip] = useState(0);
   const [limit, setLimit] = useState(30);
 
-  const ratesResponse = {
-    data: [
-      {
-        _id: "68c7c34bf43f90a0386d631c",
-        cryptoAsset: {
-          _id: "68c55c83af691313b565c0e0",
-          chain: {
-            _id: "68c55a7baf691313b565c0db",
-            name: "Tron",
-            explorerUrl: "https://tronscan.org",
-            isActive: true,
-            nativeToken: "TRX",
-          },
-          symbol: "USDT",
-          contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-          decimals: 6,
-          isActive: true,
-          name: "Tether USD",
-          tokenType: "TRC20",
-        },
-        __v: 0,
-        buyRate: 1530,
-        createdAt: 1757922122792,
-        createdBy: "6839cfc05d3ccd8b35eb1e55",
-        description: "Money must be made",
-        endDate: 1759190400000,
-        id: "e24fde74-4374-4e8f-91be-a7c6831a0517",
-        sellRate: 0,
-        startDate: 1757894400000,
-        status: "Active",
-        updatedAt: 1757922122792,
-        updatedBy: "6839cfc05d3ccd8b35eb1e55",
-      },
-      {
-        _id: "68c7c379f43f90a0386d631d",
-        id: "68c7c34bf43f90a0386d631c",
-        __v: 0,
-        buyRate: 1530,
-        createdAt: 1757922168161,
-        createdBy: "6839cfc05d3ccd8b35eb1e55",
-        cryptoAsset: {
-          _id: "68c55c83af691313b565c0e0",
-          chain: {
-            _id: "68c55a7baf691313b565c0db",
-            name: "Tron",
-            explorerUrl: "https://tronscan.org",
-            isActive: true,
-            nativeToken: "TRX",
-          },
-          symbol: "USDT",
-          contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-          decimals: 6,
-          isActive: true,
-          name: "Tether USD",
-          tokenType: "TRC20",
-        },
-        description: "Money must be made",
-        endDate: 1759190400000,
-        sellRate: 1800,
-        startDate: 1757894400000,
-        status: "Active",
-        updatedAt: 1757922168161,
-        updatedBy: "6839cfc05d3ccd8b35eb1e55",
-      },
-      {
-        _id: "68c7c408f43f90a0386d631e",
-        id: "68c7c379f43f90a0386d631d",
-        __v: 0,
-        buyRate: 1520,
-        createdAt: 1757922311299,
-        createdBy: "6839cfc05d3ccd8b35eb1e55",
-        cryptoAsset: {
-          _id: "68c55c83af691313b565c0e0",
-          chain: {
-            _id: "68c55a7baf691313b565c0db",
-            name: "Tron",
-            explorerUrl: "https://tronscan.org",
-            isActive: true,
-            nativeToken: "TRX",
-          },
-          symbol: "USDT",
-          contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-          decimals: 6,
-          isActive: true,
-          name: "Tether USD",
-          tokenType: "TRC20",
-        },
-        description: "Money must be made",
-        endDate: 1759190400000,
-        sellRate: 1800,
-        startDate: 1757894400000,
-        status: "Active",
-        updatedAt: 1757922311299,
-        updatedBy: "6839cfc05d3ccd8b35eb1e55",
-      },
-    ],
-    total: 3,
-  };
-
   const [rateForm, setRateForm] = useState({
     cryptoAsset: "",
     network: "",
@@ -167,30 +68,28 @@ const RateManagement = ({ tokens = [] }) => {
   const fetchRates = async () => {
     const data = await EkoServices_Crypty.getRates(skip, limit);
     if (data) {
-      // Filter out duplicates based on cryptoAsset ID and date ranges
       const uniqueRates = removeDuplicateRates(data?.data || []);
       setRates(uniqueRates);
     }
   };
-  
-  // Function to remove duplicate rates
+
   const removeDuplicateRates = (ratesArray) => {
-    // Create a map to track seen items by their unique identifiers
     const seenMap = new Map();
-    
-    // First pass: group by asset ID and date range
-    ratesArray.forEach(rate => {
+
+    ratesArray.forEach((rate) => {
       const assetId = rate.cryptoAsset?._id;
-      const startDate = rate.startDate ? new Date(rate.startDate).toISOString().split('T')[0] : 'no-start';
-      const endDate = rate.endDate ? new Date(rate.endDate).toISOString().split('T')[0] : 'no-end';
-      
-      // Create a composite key for uniqueness check
+      const startDate = rate.startDate
+        ? new Date(rate.startDate).toISOString().split("T")[0]
+        : "no-start";
+      const endDate = rate.endDate
+        ? new Date(rate.endDate).toISOString().split("T")[0]
+        : "no-end";
+
       const key = `${assetId}-${startDate}-${endDate}`;
-      
-      // If we've seen this key before, keep the one with the most recent updatedAt
+
       if (seenMap.has(key)) {
         const existingRate = seenMap.get(key);
-        // Compare updatedAt timestamps and keep the most recent one
+
         if (rate.updatedAt > existingRate.updatedAt) {
           seenMap.set(key, rate);
         }
@@ -198,18 +97,9 @@ const RateManagement = ({ tokens = [] }) => {
         seenMap.set(key, rate);
       }
     });
-    
-    // Return the unique rates (most recently updated for each key)
+
     return Array.from(seenMap.values());
   };
-  
-  // Apply the same filtering to the mock data in ratesResponse
-  useEffect(() => {
-    if (ratesResponse && ratesResponse.data) {
-      const uniqueRates = removeDuplicateRates(ratesResponse.data);
-      setRates(uniqueRates);
-    }
-  }, []);
 
   useEffect(() => {
     fetchRates();

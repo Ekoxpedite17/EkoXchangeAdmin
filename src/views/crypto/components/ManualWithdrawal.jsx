@@ -35,13 +35,13 @@ const ManualWithdrawal = () => {
     chain: "",
   });
   const [confirmDialog, setConfirmDialog] = useState(false);
-  // const [activeStep, setActiveStep] = useState(0);
-  // const [approvals, setApprovals] = useState([]);
   const [balances, setBalances] = useState(null);
   const [loading, setLoading] = useState(false);
   const [processedBalances, setProcessedBalances] = useState([]);
   const [success, setSuccess] = useState("");
+  const [tokenList, setTokenList] = useState([]);
   const [error, setError] = useState("");
+  const [selectedToken, setSelectedToken] = useState(null);
 
   const fetchDatas = async () => {
     try {
@@ -67,37 +67,19 @@ const ManualWithdrawal = () => {
     }
   };
 
-  useEffect(() => {
-    fetchDatas();
-  }, []);
-
-  // const steps = [
-  //   "Initial Request",
-  //   "First Admin Approval",
-  //   "Second Admin Approval",
-  // ];
-
-  const handleWithdrawal = () => {
-    setConfirmDialog(true);
+  const fetchTokenList = async () => {
+    const data = await EkoServices_Crypty.getTokenList(0, 30);
+    setTokenList(data);
   };
 
-  // const handleApproval = async () => {
-  //   try {
-  //     await fetch("/api/crypto/withdrawals/approve", {
-  //       method: "POST",
-  //       body: JSON.stringify({ ...withdrawal, adminId: "current_admin" }),
-  //     });
-  //
-  //     setApprovals([...approvals, "current_admin"]);
-  //     setActiveStep(activeStep + 1);
-  //
-  //     if (activeStep === 1) {
-  //       setConfirmDialog(false);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error approving withdrawal:", error);
-  //   }
-  // };
+  useEffect(() => {
+    fetchDatas();
+    fetchTokenList();
+  }, []);
+
+  const getNamedTokenInAvailableTokens = tokenList.find(
+    (value) => value?.name === withdrawal.chain
+  );
 
   const handleExecute = async () => {
     const payload = {
@@ -152,6 +134,8 @@ const ManualWithdrawal = () => {
     }
   }, [balances]);
 
+  // console.log(getNamedTokenInAvailableTokens);
+
   return (
     <Card style={{ zIndex: 1400, position: "relative" }}>
       <CardContent>
@@ -198,6 +182,36 @@ const ManualWithdrawal = () => {
               </select>
             </FormControl>
           </Grid>
+
+          <Grid item size={4}>
+            <FormControl fullWidth required>
+              <select
+                id="network-select"
+                value={withdrawal.chain}
+                onChange={(e) => {
+                  setWithdrawal({ ...withdrawal, chain: e.target.value });
+                  setSelectedToken(e.target.value);
+                }}
+                style={{
+                  width: "100%",
+                  padding: "16px",
+                  fontSize: "14px",
+                  borderRadius: 10,
+                }}
+              >
+                <option value="">Select a network</option>
+                {tokenList
+                  ?.map((t) => t.chain?.name)
+                  .filter((c, i, arr) => c && arr.indexOf(c) === i)
+                  .map((chainName) => (
+                    <option key={chainName} value={chainName}>
+                      {chainName}
+                    </option>
+                  ))}
+              </select>
+            </FormControl>
+          </Grid>
+
           <Grid item xs={12} md={6}>
             <TextField
               label="Amount in USD"
